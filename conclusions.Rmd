@@ -1,0 +1,13 @@
+---
+title: "Conclusions"
+output: html_document
+---
+
+## Sources and Further Reading
+
+1. "Forced Out." *The New Yorker*, January 31, 2016. [Link.](https://www.newyorker.com/magazine/2016/02/08/forced-out)
+2. "The Gentrification of Gotham." *CityLab*, April 28, 2017. [Link.](https://www.citylab.com/life/2017/04/the-gentrification-of-gotham/524694/)
+3. "It’s Manhattan’s Last Affordable Neighborhood. But for How Long?" *The New York Times*, September 27, 2019. [Link.](https://www.nytimes.com/2019/09/27/nyregion/inwood-manhattan-affordable-housing.html)
+4. "The Violence of Eviction." *Dissent Magazine*, Summer 2016. [Link.](https://www.dissentmagazine.org/article/the-violence-of-eviction-housing-market-foreclosure-gentrification-finance-capital)
+5. The Eviction Lab: Unpacking America's eviction crisis. [Link.](https://evictionlab.org/)
+6. Interactive Map: NYC Eviction Hotspots, 2013-2015. *JustFixNYC*. [Link.](https://justfixnyc.carto.com/builder/2332dd67-c204-4862-bf2f-579a886c65ca/embed)
