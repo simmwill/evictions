@@ -1,0 +1,30 @@
+---
+title: "Evicted in Brooklyn"
+output: html_document
+---
+
+<style type="text/css">
+
+h1.title {
+  text-align: center;
+}
+
+</style>
+
+&nbsp;
+&nbsp;
+
+<center>
+
+<img src="images/baltimore_eviction_bw.jpg" style="width:75%" class="center">
+
+*Image from [_Dissent Magazine_: "The Violence of Eviction"](https://www.dissentmagazine.org/article/the-violence-of-eviction-housing-market-foreclosure-gentrification-finance-capital)*
+
+</center>
+
+<div style="margin-bottom:100px;">
+</div>
+
+## Background
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
