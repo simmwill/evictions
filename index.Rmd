@@ -29,7 +29,7 @@ h1.title {
 <div style="margin-bottom:100px;">
 </div>
 
-## Background
+## Project Overview
 
 Evictions represent a major source of housing instability in the U.S., especially in vulnerable communities. Once a rare phenomenon, eviction has now grown to what many consider "epidemic" proportions, with [over 450,000](https://ny.curbed.com/2017/9/25/16361572/rent-stabilization-map-crown-heights-bushwick) evictions filed in New York City between 2013 and 2015.  
 

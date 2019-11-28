@@ -3,9 +3,7 @@ output_dir: "."
 navbar:
   title: "Home"
   left:
-    - text: "Overview"
-      href: overview.html
-    - text: "Rates Over Time"
+    - text: "Evictions Over Time"
       href: question_1.html
     - text: "Filings vs. Evictions"
       href: question_2.html
@@ -16,6 +14,8 @@ navbar:
       href: shiny_app
     - text: "Conclusions"
       href: conclusions.html
+    - text: "Report"
+      href: overview.html      
     - icon: fa-github fa-lg
       href: https://github.com/simmwill/brooklyn_evictions.github.io
 output:
