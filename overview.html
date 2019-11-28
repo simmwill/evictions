@@ -407,6 +407,8 @@ h1.title {
 <ul>
 <li>Healthy People 2020 identified housing instability as a key issue in addressing social determinants of health in the United States.</li>
 <li>Evictions are an important element of housing instability, and approximately 2 million tenants were evicted nationwide in 2016.</li>
+<li>Evictions and eviction filings disproportionately affect low-income and minority residents, perpetuating cycles of poverty and instability.</li>
+<li>Discriminatory practices in evictions and eviction filings exist, and need to be better understood and addressed.</li>
 </ul>
 </div>
 <div id="questions" class="section level2">
@@ -419,20 +421,20 @@ h1.title {
 </div>
 <div id="data" class="section level2">
 <h2>Data</h2>
-<div id="sources" class="section level3">
-<h3><em>Sources</em></h3>
+<div id="sources-and-variables-of-interest" class="section level4">
+<h4><em>Sources and variables of interest</em></h4>
 <ul>
 <li><p>Primary data source: <a href="https://evictionlab.org/">Eviction Lab</a></p></li>
-<li><p>For gentrification measures: <a href="https://www.urbandisplacement.org/maps/ny">Mapping Displacement and Gentrification in the New York Metropolitan Area (Urban Displacement Project)</a></p></li>
+<li><p>For gentrification measures: <a href="https://www.urbandisplacement.org/maps/ny">Mapping Displacement and Gentrification in the New York Metropolitan Area (Urban Displacement Project)</a> ^ Are we still using this?</p></li>
 <li><p>For English language usage and population density: <a href="https://factfinder.census.gov/faces/nav/jsf/pages/guided_search.xhtml">American FactFinder</a></p></li>
 <li><p>Supplemental data source: <a href="https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-nynta.page">NYC Open Data</a></p></li>
 </ul>
 <p>Include links to shapefiles?</p>
 </div>
-<div id="cleaning" class="section level3">
-<h3><em>Cleaning</em></h3>
-<p>After choosing to focus on New York City, data were limited to Brooklyn as this was the only borough with complete data for all time points from 2000 to 2016.</p>
-<p>Eviction rates and eviction filing rates represent the number of evictions or eviction filings divided by the number of renter occupied households in the census tract or neighborhood.</p>
+<div id="cleaning" class="section level4">
+<h4><em>Cleaning</em></h4>
+<p>After choosing to focus on New York City, data were limited to Brooklyn as this was the only borough with complete data for 2016 and also all time points from 2000 to 2016. Datasets were merged using the 11-digit FIPs code, <code>geoid</code>. Population density was calculated by dividing the number of people living in each census tract by the square miles of each census tract per year.</p>
+<p>English language usage data and percent non-white data were only available for 2010-2016. Variables for these data were extracted from ACS data and created for each year.</p>
 <p>To look at neighborhood-level data, sample weights were calculated by dividing the population of the census tract by the population of the neighborhood. These weights were then applied to all variables of interest to calculate aggregate measures by neighborhood.</p>
 <pre class="r"><code>neighborhood_data_prep = eviction_data %&gt;% 
   group_by(neighborhood) %&gt;% 
@@ -455,8 +457,8 @@ neighborhood_data = neighborhood_data_prep %&gt;%
   ungroup() %&gt;% 
   mutate(neighborhood = as.factor(neighborhood))</code></pre>
 </div>
-<div id="variables-of-interest" class="section level3">
-<h3><em>Variables of interest</em></h3>
+<div id="variables-of-interest" class="section level4">
+<h4><em>Variables of interest</em></h4>
 <p>NOTE: Eviction rate and eviction filing rate represent the number of evictions or eviction filings divided by the number of renter occupied households and multiplied by 100 to be interpreted as a percentage.</p>
 </div>
 </div>
@@ -465,6 +467,10 @@ neighborhood_data = neighborhood_data_prep %&gt;%
 </div>
 <div id="exploratory-analysis" class="section level2">
 <h2>Exploratory Analysis</h2>
+<div id="mapping" class="section level4">
+<h4><em>Mapping</em></h4>
+<p>Census tract and neighobrhood shapefiles were downloaded from NYC Open Data and limited to Brooklyn.</p>
+</div>
 </div>
 <div id="additional-analysis" class="section level2">
 <h2>Additional Analysis</h2>

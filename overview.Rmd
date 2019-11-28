@@ -18,7 +18,9 @@ h1.title {
 ## Motivation
 
 * Healthy People 2020 identified housing instability as a key issue in addressing social determinants of health in the United States. 
-* Evictions are an important element of housing instability, and approximately 2 million tenants were evicted nationwide in 2016.  
+* Evictions are an important element of housing instability, and approximately 2 million tenants were evicted nationwide in 2016.
+* Evictions and eviction filings disproportionately affect low-income and minority residents, perpetuating cycles of poverty and instability.
+* Discriminatory practices in evictions and eviction filings exist, and need to be better understood and addressed. 
 
 
 
@@ -31,11 +33,12 @@ h1.title {
 
 ## Data
 
-### *Sources*
+#### *Sources and variables of interest*
 
 * Primary data source: [Eviction Lab](https://evictionlab.org/) 
 
 * For gentrification measures: [Mapping Displacement and Gentrification in the New York Metropolitan Area (Urban Displacement Project)](https://www.urbandisplacement.org/maps/ny)
+^ Are we still using this?
 
 * For English language usage and population density: [American FactFinder](https://factfinder.census.gov/faces/nav/jsf/pages/guided_search.xhtml)
 
@@ -43,11 +46,11 @@ h1.title {
 
 Include links to shapefiles?
 
-### *Cleaning*
+#### *Cleaning*
 
-After choosing to focus on New York City, data were limited to Brooklyn as this was the only borough with complete data for all time points from 2000 to 2016. 
+After choosing to focus on New York City, data were limited to Brooklyn as this was the only borough with complete data for 2016 and also all time points from 2000 to 2016. Datasets were merged using the 11-digit FIPs code, `geoid`. Population density was calculated by dividing the number of people living in each census tract by the square miles of each census tract per year. 
 
-Eviction rates and eviction filing rates represent the number of evictions or eviction filings divided by the number of renter occupied households in the census tract or neighborhood. 
+English language usage data and percent non-white data were only available for 2010-2016. Variables for these data were extracted from ACS data and created for each year.  
 
 To look at neighborhood-level data, sample weights were calculated by dividing the population of the census tract by the population of the neighborhood. These weights were then applied to all variables of interest to calculate aggregate measures by neighborhood.
 ```{r eval = FALSE}
@@ -74,15 +77,19 @@ neighborhood_data = neighborhood_data_prep %>%
 ```
 
 
-### *Variables of interest*
+#### *Variables of interest*
+
 
 NOTE: Eviction rate and eviction filing rate represent the number of evictions or eviction filings divided by the number of renter occupied households and multiplied by 100 to be interpreted as a percentage. 
 
 ## Methods
 
 
-
 ## Exploratory Analysis
+
+#### *Mapping*
+
+Census tract and neighobrhood shapefiles were downloaded from NYC Open Data and limited to Brooklyn.
 
 ## Additional Analysis
 
