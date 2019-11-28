@@ -13,9 +13,16 @@ h1.title {
 
 ## Motivation
 
+*Healthy People 2020 identified housing instability as a key issue in addressing social determinants of health in the United States. 
+*Evictions are an important element of housing instability, and approximately 2 million tenants were evicted nationwide in 2016.  
+
+
+
 ## Questions
 
 ## Data
+
+Eviction rates and eviction filing rates represent the number of evictions or eviction filings divided by the number of renter occupied households in the census tract or neighborhood. 
 
 ### Sources
 
