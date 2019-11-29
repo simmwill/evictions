@@ -7,6 +7,8 @@ navbar:
       href: question_1.html
     - text: "Filings vs. Evictions"
       href: question_2.html
+    - text: "What Predicts Eviction Rates?"
+      href: question_3_maps.html
     - text: "Model Building"
       href: question_3.html
   right:
