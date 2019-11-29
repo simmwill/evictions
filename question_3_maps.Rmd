@@ -1,7 +1,19 @@
 ---
-title: "Exploratory Spatial Analyses"
-output: html_document
+title: "What Predicts Eviction Rates?"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    code_folding: hide
 ---
+
+<style type="text/css">
+
+h1.title {
+  text-align: center;
+}
+
+</style>
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
