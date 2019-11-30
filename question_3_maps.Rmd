@@ -33,7 +33,7 @@ library(patchwork)
 
 In order to inform model building, we first observed simple visualizations of our four predictors (percentage of ESL speakers, percentage of non-White residents, rent burden, and population density) over a choropleth of eviction rates in Brooklyn by census tract in 2010.
 
-```{r include = FALSE}
+```{r loading-data, include = FALSE}
 # Loading in Brooklyn data
 joined_data_bklyn_2010 = 
   readRDS('./data/joined_data_bklyn') %>%
@@ -45,6 +45,7 @@ census_tracts = readOGR(dsn = "maps/2010-census-tracts.shp", encoding = "UTF-8")
 census_tracts = 
   census_tracts[census_tracts$boro_name == "Brooklyn", ]
 
+# The following step removes null values from the dataset based on filtering values above
 writeOGR(census_tracts,"./mapping_files","census_temp", driver = "ESRI Shapefile", overwrite_layer = TRUE)
 census_tracts = readOGR("./mapping_files","census_temp")
 
@@ -62,16 +63,16 @@ census_tracts@data =
 
 # Joining data and shapefiles
 census_tracts@data = left_join(census_tracts@data, joined_data_bklyn_2010, by = c("fips_11dig" = "geoid"))
+
+# Create map projection ready for mapping
+census_tracts_crs = 
+  spTransform(census_tracts, CRS("+init=epsg:4326"))
 ```
 
-```{r echo=FALSE, include = FALSE}
-census_tracts_crs = spTransform(census_tracts, CRS("+init=epsg:4326"))
+```{r map-aesthetics, echo=FALSE, include = FALSE}
+# Creating mapping aesthetics
 
-# writeOGR(census_tracts_crs, './mapping_files/census_tracts_geojson', layer = 'census_tracts', driver = 'GeoJSON')
-```
-
-```{r echo=FALSE, include = FALSE}
-#Labels
+# Labels
 esl_popup = paste0(
   "<strong>Census tract: </strong>",
   census_tracts_crs$ctlabel,
@@ -108,35 +109,36 @@ popdensity_popup = paste0(
   census_tracts_crs$total_pop_densitydata
 )
 
-# get jenks natural breaks
+# Obtaining Jenks natural break points for continuous variables
 getJenksBreaks(census_tracts_crs$eviction_rate, 5)
 getJenksBreaks(census_tracts_crs$pct_eng, 5)
 getJenksBreaks(census_tracts_crs$pct_nonwhite_racedata, 5)
 getJenksBreaks(census_tracts_crs$rent_burden, 5)
 getJenksBreaks(census_tracts_crs$total_pop_densitydata, 5)
 
-#set bins based on natural breaks
+# Setting bins based on Jenks natural breaks
 eviction_rate_bins = c(0, 1.23, 2.51, 4.12, 7.62)
 pct_eng_bins = c(0, 14.6, 29.8, 46.9, 82.5)
 nonwhite_bins = c(0, 22.9, 49.6, 77.2, 100)
 rentburden_bins = c(13.9, 28.4, 34.6, 42.5, 50.0)
 popdensity_bins = c(22, 2432, 3636, 5124, 8475)
 
-#set color palette
+# Setting color based on bins
 eviction_palette = colorBin('Blues', bins = eviction_rate_bins, na.color = '#d9d9d9')
 eng_palette = colorBin('Reds', bins = pct_eng_bins, na.color = '#d9d9d9')
 nonwhite_palette = colorBin('Reds', bins = nonwhite_bins, na.color = '#d9d9d9')
 rentburden_palette = colorBin('Reds', bins = rentburden_bins, na.color = '#d9d9d9')
 popdensity_palette = colorBin('Reds', bins = popdensity_bins, na.color = '#d9d9d9')
-```
 
-Results were as follows: 
+eviction_palette2 = colorBin('Reds', bins = eviction_rate_bins, na.color = '#d9d9d9')
+eng_palette2 = colorBin('Blues', bins = pct_eng_bins, na.color = '#d9d9d9')
+```
 
 ### Map of Eviction Rates and % ESL speakers, by census tract
 
 Census tracts with a higher percentage of ESL speakers appear to have lower eviction rates. English language nativity appears to be geographically clustered.
 
-```{r echo=FALSE}
+```{r ESL, echo=FALSE}
 leaflet::leaflet(data = census_tracts_crs) %>% 
   addProviderTiles('CartoDB.Positron') %>% 
   addPolygons(
@@ -163,13 +165,41 @@ leaflet::leaflet(data = census_tracts_crs) %>%
             values = ~pct_eng,
             title = '% ESL',
             opacity = 1)
+
+#Test
+leaflet::leaflet(data = census_tracts_crs) %>% 
+  addProviderTiles('CartoDB.Positron') %>% 
+  addPolygons(
+    fillColor = ~eng_palette2(pct_eng),
+    fillOpacity = 0.8,
+    color = "BDBDC3",
+    weight = 1,
+    popup = esl_popup,
+    highlightOptions = highlightOptions(color = "black", weight = 2, bringToFront = TRUE)) %>% 
+      addLegend('bottomleft',
+            pal = eng_palette2,
+            values = ~pct_eng,
+            title = '% ESL',
+            opacity = 1) %>%
+  addCircleMarkers(
+    lat = ~ census_tracts_crs$lat,
+    lng = ~ census_tracts_crs$long,
+    color = ~ eviction_palette2(census_tracts_crs$eviction_rate),
+    radius = (sqrt(census_tracts_crs$eviction_rate)*2),
+    weight = 1
+    ) %>%
+      addLegend('bottomright',
+            pal = eviction_palette2,
+            values = ~eviction_rate,
+            title = 'Eviction Rate',
+            opacity = 1)
 ```
 
 ### Map of Eviction Rates and % non-White, by census tract
 
 Census tracts with a higher percentage of non-White residents appear to have higher eviction rates. Racial composition of census tracts appears to be geographically clustered.
 
-```{r echo=FALSE}
+```{r non-White, echo=FALSE}
 leaflet::leaflet(data = census_tracts_crs) %>% 
   addProviderTiles('CartoDB.Positron') %>% 
   addPolygons(
@@ -203,7 +233,7 @@ leaflet::leaflet(data = census_tracts_crs) %>%
 
 The relationship between eviction rates and rent burden were not immediately obvious. However, census tracts with high rent burdens appeared to be geographically clustered.
 
-```{r echo=FALSE}
+```{r rent-burden, echo=FALSE}
 leaflet::leaflet(data = census_tracts_crs) %>% 
   addProviderTiles('CartoDB.Positron') %>% 
   addPolygons(
@@ -236,7 +266,7 @@ leaflet::leaflet(data = census_tracts_crs) %>%
 
 A weak relationship seems to exist between population density and eviction rates, with eviction rates lower in more densely populated census tracts. Census tracts with high rent burdens appeared to be weakly geographically clustered.
 
-```{r echo=FALSE}
+```{r popdensity, echo=FALSE}
 leaflet::leaflet(data = census_tracts_crs) %>% 
   addProviderTiles('CartoDB.Positron') %>% 
   addPolygons(
@@ -267,5 +297,7 @@ leaflet::leaflet(data = census_tracts_crs) %>%
 
 ### Findings
 
-Based on 2010 data on hypothesized predictors of eviction rates in Brooklyn, we identified clear associations between the percentage of non-White residents and evictions rates in a given census tract.
+Based on our exploratory data visualizations, we identifed significant geographical clustering of our outcome of interest, eviction rates, as well as our predictors of interest (percentage of ESL speakers, percentage of non-White residents by census tract, rent burden, and population density).
+
+With regards to the relationship between our hypothesized predictors and eviction rates, we identified a clear positive association between the percentage of non-White residents and evictions rates in a given census tract. The percentage of ESL speakers in a given census tract appeared to be inversely related to eviction rates; we decided to further examine whether the percentage of non-White residents confounded the relationship between percentage of ESL speakers and eviction rates. Relationships between rent burden, population density, and eviction rates were less obvious; we conducted further exploratory analyses during model building.
 
