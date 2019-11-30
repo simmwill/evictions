@@ -1,5 +1,5 @@
 ---
-title: "Eviction Rates in Brooklyn Over Time: Census Tract Map 2000-2016"
+title: "Eviction Rates in Brooklyn Over Time by Census Tract"
 output: 
   flexdashboard::flex_dashboard:
     orientation: columns
@@ -86,13 +86,13 @@ joined_data_bklyn_nomissing =
 ```
 
 
-Interactivity {.sidebar}
+2000-2016 {.sidebar}
 -----------------------------------------------------------------------
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 
 # Create slider widget
 
-sliderInput("years", "year of observation",
+sliderInput("years", "Year of Observation",
     min = 2000, max = 2016, step=1, value = 2000
   )
 ```
@@ -127,9 +127,8 @@ census_tracts@data =
 ```
 
 
-Figure 1 {data-width=650}
+Brooklyn Census Tracts {data-width=650}
 -----------------------------------------------------------------------
-### Figure 1
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 
