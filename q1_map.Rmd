@@ -1,9 +1,7 @@
 ---
 title: "Eviction Rates in Brooklyn Over Time by Census Tract"
-output: 
-  flexdashboard::flex_dashboard:
-    orientation: columns
-    vertical_layout: fill
+output:
+    html_document
 runtime: shiny
 ---
 
