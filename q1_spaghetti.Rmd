@@ -70,7 +70,6 @@ brooklyn_data <- within(brooklyn_data, wt_eviction_rate_discrep[neighborhood == 
 
 ```
 
-SideBar {.sidebar}
 -----------------------------------------------------------------------
 
 ```{r echo=FALSE}
@@ -111,17 +110,4 @@ brooklyn_data %>%
 )
 ```
 
-
-Figure 1 {data-width=350}
------------------------------------------------------------------------
-### Figure 1
-
-
-```{r echo=FALSE}
-
-
-
-  
-
-```
 
