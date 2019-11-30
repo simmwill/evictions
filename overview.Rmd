@@ -89,7 +89,7 @@ NOTE: Eviction rate and eviction filing rate represent the number of evictions o
 
 #### *Mapping*
 
-Census tract and neighobrhood shapefiles were downloaded from NYC Open Data and limited to Brooklyn.
+Census tract and neighobrhood shapefiles were downloaded from NYC Open Data and limited to Brooklyn. In order to inform model building, we first created simple visualizations of our four predictors (percentage of ESL speakers, percentage of non-White residents, rent burden, and population density) over a choropleth of eviction rates in Brooklyn by census tract in 2010.
 
 ## Additional Analysis
 
