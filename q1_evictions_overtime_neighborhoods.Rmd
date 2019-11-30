@@ -81,6 +81,7 @@ neighborhoods = brooklyn_data %>% distinct(neighborhood) %>% pull()
 
 # Create checkbox input
 
+
 sidebarLayout(
 
 sidebarPanel(
@@ -108,5 +109,6 @@ brooklyn_data %>%
 )
 
 )
+
 ```
 
