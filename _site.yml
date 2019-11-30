@@ -4,7 +4,7 @@ navbar:
   title: "Home"
   left:
     - text: "Evictions Over Time"
-      href: q1_evictions_overtime_neighborhoods.Rmd
+      href: q1_evictions_overtime_neighborhoods.html
     - text: "Filings vs. Evictions"
       href: question_2.html
     - text: "What Predicts Eviction Rates?"
