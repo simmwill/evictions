@@ -830,7 +830,66 @@ joined_data_bklyn_nomissing %&gt;%
 <h2>Exploratory Analysis</h2>
 <div id="mapping" class="section level4">
 <h4><em>Mapping</em></h4>
-<p>Census tract and neighobrhood shapefiles were downloaded from NYC Open Data and limited to Brooklyn. In order to inform model building, we first created simple visualizations of our four predictors (percentage of ESL speakers, percentage of non-White residents, rent burden, and population density) over a choropleth of eviction rates in Brooklyn by census tract in 2010.</p>
+<p>Census tract and neighobrhood shapefiles were downloaded from NYC Open Data and limited to Brooklyn.</p>
+<pre class="r"><code># Loading in Brooklyn data
+joined_data_bklyn_2010 = 
+  readRDS(&#39;./data/joined_data_bklyn&#39;) %&gt;%
+  filter(year == &quot;2010&quot;)
+
+# Loading census tract shapefiles from NYC OpenData:
+census_tracts = readOGR(dsn = &quot;maps/2010-census-tracts.shp&quot;, encoding = &quot;UTF-8&quot;) 
+
+census_tracts = 
+  census_tracts[census_tracts$boro_name == &quot;Brooklyn&quot;, ]
+
+# The following step removes null values from the dataset based on filtering values above
+writeOGR(census_tracts,&quot;./mapping_files&quot;,&quot;census_temp&quot;, driver = &quot;ESRI Shapefile&quot;, overwrite_layer = TRUE)
+census_tracts = readOGR(&quot;./mapping_files&quot;,&quot;census_temp&quot;)
+
+# Constructing geoid for merging
+census_tracts@data = 
+  census_tracts@data %&gt;% 
+  mutate(
+    county_code = as.character(recode(boro_code, &quot;1&quot; = &quot;061&quot;, &quot;2&quot; = &quot;005&quot;, &quot;3&quot; = &quot;047&quot;, &quot;4&quot; = &quot;081&quot;, &quot;5&quot; = &quot;085&quot;)),
+    ct2010 = as.character(ct2010),
+    fips_11dig = paste0(&quot;36&quot;, county_code, ct2010),
+    long = coordinates(spTransform(census_tracts, CRS(&quot;+proj=longlat +datum=WGS84&quot;)))[,1],
+    lat = coordinates(spTransform(census_tracts, CRS(&quot;+proj=longlat +datum=WGS84&quot;)))[,2]
+    ) %&gt;%
+  unnest(c(long, lat))
+
+# Joining data and shapefiles
+census_tracts@data = left_join(census_tracts@data, joined_data_bklyn_2010, by = c(&quot;fips_11dig&quot; = &quot;geoid&quot;))
+
+# Create map projection ready for mapping
+census_tracts_crs = 
+  spTransform(census_tracts, CRS(&quot;+init=epsg:4326&quot;))</code></pre>
+<p>In order to inform model building, we created simple visualizations of our four predictors (percentage of ESL speakers, percentage of non-White residents, rent burden, and population density) over a choropleth of eviction rates in Brooklyn by census tract in 2010.</p>
+<pre class="r"><code># Sample map code (Eviction rates and % ESL by census tract)
+leaflet::leaflet(data = census_tracts_crs) %&gt;% 
+  addProviderTiles(&#39;CartoDB.Positron&#39;) %&gt;% 
+  addPolygons(
+    fillColor = ~eng_palette(pct_eng),
+    fillOpacity = 0.8,
+    color = &quot;BDBDC3&quot;,
+    weight = 1,
+    popup = esl_popup,
+    highlightOptions = highlightOptions(color = &quot;black&quot;, weight = 2, bringToFront = TRUE)) %&gt;% 
+      addLegend(&#39;bottomleft&#39;,
+            pal = eng_palette,
+            values = ~pct_eng,
+            title = &#39;% ESL&#39;,
+            opacity = 1) %&gt;%
+  addCircleMarkers(
+    lat = ~ census_tracts_crs$lat,
+    lng = ~ census_tracts_crs$long,
+    color = &quot;red&quot;,
+    radius = (sqrt(census_tracts_crs$eviction_rate)*2),
+    weight = 0
+    ) %&gt;%
+      addLegendCustom(colors = c(&quot;red&quot;, &quot;red&quot;, &quot;red&quot;), 
+        labels = c(&quot;1&quot;, &quot;3&quot;, &quot;8&quot;), sizes = c(4, 6.9282, 11.3137))</code></pre>
+<p>The results of our exploratory analyses were used to inform further model building.</p>
 </div>
 </div>
 <div id="additional-analysis" class="section level2">
