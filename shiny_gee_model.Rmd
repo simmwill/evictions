@@ -9,6 +9,10 @@ runtime: shiny
 
 ```{r setup, include=FALSE}
 library(flexdashboard)
+library(viridis)
+library(tidyverse)
+
+
 ```
 
 Column {.sidebar}

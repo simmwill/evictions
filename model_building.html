@@ -804,6 +804,7 @@ hyp_model_race %&gt;%
 <div id="interactive-prediction-model" class="section level2">
 <h2>Interactive prediction model</h2>
 <p>We want to enable readers to more easily understand which predictors affect eviction rate and to what extents. Thus, using the race-based GEE model we selected from our five compared models, we created an interactive model-fitting tool that allows readers to adjust levels of various predictors to see the expected change in eviction rate (evictions per 100 renter-occupied households).</p>
+<p>Further than the analyses above, readers can also get a sense of these effects in each neighborhood of Brooklyn.</p>
 <p>Click here to access this model-building app.</p>
 <pre class="r"><code>## this works really well
 exp(predict(hyp_model_race, newdata = data.frame(renter_occupied_households = 100,
