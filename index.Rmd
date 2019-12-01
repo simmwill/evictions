@@ -21,9 +21,9 @@ h1.title {
 *Image and quote from [_Dissent Magazine_: "The Violence of Eviction"](https://www.dissentmagazine.org/article/the-violence-of-eviction-housing-market-foreclosure-gentrification-finance-capital)*
 <div style="margin-bottom:30px;">
 </div>
-### "To understand how the [U.S.] housing market really works, we need to hear the stories of those who have been pushed out."
 
-*Scroll Down*
+<font size = "4">"To understand how the [U.S.] housing market really works, we need to hear the stories of those who have been pushed out."</font>
+
 </center>
 
 <div style="margin-bottom:100px;">
