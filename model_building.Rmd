@@ -503,7 +503,10 @@ To make our risk estimates even more meaningful, we can interpret risk ratios fo
 
 ## Interactive prediction model
 
-We wanted to create an interactive tool to enable readers to understand which predictors affect eviction rate and to what extents. Thus, using the race-based GEE model 
+We want to enable readers to more easily understand which predictors affect eviction rate and to what extents. Thus, using the race-based GEE model we selected from our five compared models, we created an interactive model-fitting tool that allows readers to adjust levels of various predictors to see the expected change in eviction rate (evictions per 100 renter-occupied households).
+
+Further than the analyses above, readers can also get a sense of these effects in each neighborhood of Brooklyn.
+
 Click here to access this model-building app.
 
 ```{r shiny_model}
@@ -512,10 +515,10 @@ exp(predict(hyp_model_race, newdata = data.frame(renter_occupied_households = 10
                                                  years_since_2010 = '4',
                                                  rent_burden = 35,
                                                  density = 50000,
-                                           black = 90,
-                                           asian = 10,
-                                           nhpi = 1,
-                                           aian = 1,
-                                           hisp = 40)))
+                                                 black = 90,
+                                                 asian = 10,
+                                                 nhpi = 1,
+                                                 aian = 1,
+                                                 hisp = 40)))
 ```
 

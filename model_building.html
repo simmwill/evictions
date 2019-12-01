@@ -287,7 +287,7 @@ $(document).ready(function () {
   <a href="question_3_maps.html">What Predicts Eviction Rates?</a>
 </li>
 <li>
-  <a href="question_3.html">Model Building</a>
+  <a href="model_building.html">Model Building</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -519,9 +519,11 @@ gee_stepper_o(full_fit, formula(full_fit)) ## customized function to automatical
 <div id="summary-of-models" class="section level2">
 <h2>Summary of models</h2>
 <p>To summarize, we will consider the following models to predict census tract-level eviction rates:</p>
-<p>Two hypothesized models: 1. A hypothesized model based primarily on percent ESL speakers [Equation 2, above] 2. A hypothesized model based primarily on independent effects of race/ethnicity percentages [Equation 3, above]</p>
-<ol start="3" style="list-style-type: decimal">
-<li>A model selected via a GEE-specific forward stepwise selection process</li>
+<p>Two hypothesized models:</p>
+<ol style="list-style-type: decimal">
+<li><p>A hypothesized model based primarily on percent ESL speakers [Equation 2, above]</p></li>
+<li><p>A hypothesized model based primarily on independent effects of race/ethnicity percentages [Equation 3, above]</p></li>
+<li><p>A model selected via a GEE-specific forward stepwise selection process</p></li>
 </ol>
 <p>In addition to these three models (1, 2, 3), we propose two baseline models:</p>
 <ol start="4" style="list-style-type: decimal">
@@ -584,7 +586,7 @@ step_model =
          data = joined_data_bklyn_nomissing, 
          id = geoid, 
          corstr = &quot;ar1&quot;)</code></pre>
-<pre class="r"><code>set.seed(12345)
+<pre class="r"><code>set.seed(2)
 
 ## creating test-training pairs
 model_data_cv =
@@ -629,13 +631,8 @@ model_data_cv =
 
  model_data_cv =
    model_data_cv %&gt;%
-   mutate(#rmse_empty_glm = map2_dbl(empty_glm1, test, ~rmse(model = .x, data = .y)),
-          #rmse_naive_glm = map2_dbl(naive_glm1, test, ~rmse(model = .x, data = .y)),
-          rmse_empty_gee = map2_dbl(empty, test, ~rmse(model = .x, data = .y)),
+   mutate(rmse_empty_gee = map2_dbl(empty, test, ~rmse(model = .x, data = .y)),
           rmse_naive_gee = map2_dbl(naive, test, ~rmse(model = .x, data = .y)),
-          #rmse_eng_glm = map2_dbl(glm_eng1, test, ~rmse(model = .x, data = .y)),
-          #rmse_race_glm = map2_dbl(glm_race1, test, ~rmse(model = .x, data = .y)),
-          #rmse_step_glm = map2_dbl(glm_step1, test, ~rmse(model = .x, data = .y)),
           rmse_eng_gee = map2_dbl(gee_eng, test, ~rmse(model = .x, data = .y)),
           rmse_race_gee = map2_dbl(gee_race, test, ~rmse(model = .x, data = .y)),
           rmse_step_gee = map2_dbl(gee_step, test, ~rmse(model = .x, data = .y)))
@@ -804,22 +801,22 @@ hyp_model_race %&gt;%
 <p>To make our risk estimates even more meaningful, we can interpret risk ratios for multiple units. For example, given the above, e^0.01887*10 = 1.2076; for each 10 percent increase in Brooklyn’s Black population, we expect the eviction rate to increase by 1.21 times, adjusting for other factors listed in the previous paragraph.</p>
 <p>   </p>
 </div>
-<div id="prediction-model-for-shiny-app" class="section level2">
-<h2>Prediction model (for Shiny app?)</h2>
+<div id="interactive-prediction-model" class="section level2">
+<h2>Interactive prediction model</h2>
+<p>We want to enable readers to more easily understand which predictors affect eviction rate and to what extents. Thus, using the race-based GEE model we selected from our five compared models, we created an interactive model-fitting tool that allows readers to adjust levels of various predictors to see the expected change in eviction rate (evictions per 100 renter-occupied households).</p>
+<p>Click here to access this model-building app.</p>
 <pre class="r"><code>## this works really well
-exp(predict(glm_step, newdata = data.frame(years_since_2010 = &#39;4&#39;,
-                                           neighborhood = &#39;Madison&#39;,
-                                           black = 90,
-                                           hisp = 40,
-                                           rent_burden = 35,
-                                           median_property_value = 100000,
-                                           median_gross_rent = 1000,
-                                           density = 50000,
-                                           poverty_rate = 60,
-                                           nhpi = 2,
-                                           pct_renter_occupied = 70,
-                                           aian = 2,
-                                           renter_occupied_households = 100)))</code></pre>
+exp(predict(hyp_model_race, newdata = data.frame(renter_occupied_households = 100,
+                                                 years_since_2010 = &#39;4&#39;,
+                                                 rent_burden = 35,
+                                                 density = 50000,
+                                                 black = 90,
+                                                 asian = 10,
+                                                 nhpi = 1,
+                                                 aian = 1,
+                                                 hisp = 40)))</code></pre>
+<pre><code>##        1 
+## 4.084648</code></pre>
 </div>
 </div>
 

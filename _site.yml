@@ -10,7 +10,7 @@ navbar:
     - text: "What Predicts Eviction Rates?"
       href: question_3_maps.html
     - text: "Model Building"
-      href: question_3.html
+      href: model_building.html
   right:
     - text: "Interactive Model"
       href: shiny_app
