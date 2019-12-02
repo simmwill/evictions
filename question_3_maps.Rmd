@@ -30,7 +30,7 @@ library(patchwork)
 
 ### Mapping the hypothesized predictors of eviction rates
 
-In order to inform model building, we first observed simple visualizations of our four predictors (percentage of ESL speakers, percentage of non-White residents, rent burden, and population density) over a choropleth of eviction rates in Brooklyn by census tract in 2010.
+In order to inform model building, we first created choropleths of our four predictors (percentage of ESL speakers, percentage of non-White residents, rent burden, and population density) with eviction rates overlaid in Brooklyn by census tract in 2010.
 
 ```{r loading-data, include = FALSE}
 # Loading in Brooklyn data
@@ -243,7 +243,7 @@ leaflet::leaflet(data = census_tracts_crs) %>%
     fillOpacity = 0.8,
     color = "BDBDC3",
     weight = 1,
-    popup = popdensity_palette,
+    popup = popdensity_popup,
     highlightOptions = highlightOptions(color = "black", weight = 2, bringToFront = TRUE)) %>% 
       addLegend('bottomleft',
             pal = popdensity_palette,
