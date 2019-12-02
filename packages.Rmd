@@ -1,0 +1,7 @@
+---
+title: "Packages used"
+output: html_document
+---
+```{r, echo=FALSE}
+sessionInfo()
+```
