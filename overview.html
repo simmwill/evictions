@@ -357,7 +357,7 @@ div.tocify {
   <a href="question_3_maps.html">What Predicts Eviction Rates?</a>
 </li>
 <li>
-  <a href="question_3.html">Model Building</a>
+  <a href="model_building.html">Model Building</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -438,6 +438,31 @@ h1.title {
 <h4><em>Cleaning</em></h4>
 <p>After choosing to focus on New York City, data were limited to Brooklyn as this was the only borough with complete data for 2016 and also all time points from 2000 to 2016. Datasets were merged using the 11-digit FIPs code, <code>geoid</code>. Population density was calculated by dividing the number of people living in each census tract by the square miles of each census tract per year.</p>
 <p>English language usage data and percent non-white data were only available for 2010-2016. Variables for these data were extracted from ACS data and created for each year.</p>
+<p>We then imported eviction data, which included eviction rates and other relevant metrics by census tract.</p>
+<pre class="r"><code># CSV file contains all census tracts for NY state, so we&#39;ll import the file and then filter such that the dataframe &#39;eviction&#39; only contains NYC census tracts.
+
+# contains years 2000 - 2016
+# n = 1880 per year (1880 census tracts)
+
+
+eviction = 
+  read.csv(&#39;./data/EvictionData_NY.csv&#39;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  filter(parent_location %in% c(&quot;New York County, New York&quot;, &quot;Queens County, New York&quot;, &quot;Kings County, New York&quot;, &quot;Bronx County, New York&quot;, &quot;Richmond County, New York&quot;),
+         year %in% c(2010:2016),
+         population != 0) %&gt;% 
+  
+  ## selecting and renaming variables
+  mutate(pct_nonwhite = (100 - pct_white),
+         geoid = as.character(geoid),
+         year = as.ordered(year)) %&gt;% 
+  select(geoid, year, ## contextual
+         evictions, eviction_filings, eviction_rate, eviction_filing_rate, renter_occupied_households, ## outcomes
+         pct_nonwhite_evictiondata = pct_nonwhite, ## hypothesized predictors
+         poverty_rate, rent_burden, pct_af_am, pct_renter_occupied, median_gross_rent, median_household_income, median_property_value) %&gt;% ## other predictors
+  filter(renter_occupied_households &gt; 10) # census tracts with few renter households were creating eviction rates of 150, 200, etc.
+
+## note: eviction filing rate calculated (# evictions / # renter occupied households)</code></pre>
 <p>To look at neighborhood-level data, sample weights were calculated by dividing the population of the census tract by the population of the neighborhood. These weights were then applied to all variables of interest to calculate aggregate measures by neighborhood.</p>
 <pre class="r"><code>neighborhood_data_prep = eviction_data %&gt;% 
   group_by(neighborhood) %&gt;% 
@@ -459,6 +484,339 @@ neighborhood_data = neighborhood_data_prep %&gt;%
     wt_povertyrate = sum(weighted_povertyrate)) %&gt;% 
   ungroup() %&gt;% 
   mutate(neighborhood = as.factor(neighborhood))</code></pre>
+<p>Population density data</p>
+<pre class="r"><code>## For the ACS data, we&#39;ll have to use a crude measure of population density we calculate ourselves - census tract population (which changes every year) divided by census tract area (which does not usually change). 
+
+## NUMERATOR
+## Importing population per census tract per year
+filenames_DP05 = 
+  list.files(&#39;./data/&#39;) %&gt;%
+  paste0(&#39;./data/&#39;, .) %&gt;% 
+  as_tibble() %&gt;% 
+  filter(str_detect(value, &#39;DP05&#39;)) %&gt;% 
+  pull(., value) ## coerces tibble back to vector for reading by map_df()
+
+population_data = 
+  map_dfr(filenames_DP05, read_csv, .id = &quot;input&quot;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  select(id = geo_id, id2 = geo_id2, geography = geo_display_label, total_pop = hc01_vc03, year = input) %&gt;% 
+  filter(id != &quot;Id&quot;) %&gt;% 
+  mutate(id2 = as.numeric(id2),
+         year = as.numeric(year) + 2009,
+         name = as.character(readr::parse_number(geography)),
+         geography = str_remove(geography, &quot;Census Tract [0-9]{1,}, &quot;),
+         geography = str_remove(geography, &quot;Census Tract [0-9]{1,}\\.[0-9]{1,}, &quot;),
+         total_pop = as.numeric(total_pop)) %&gt;% 
+  select(id, id2, name, geography, total_pop, year) %&gt;% 
+  filter(total_pop != 0)
+
+## DENOMINATOR
+## Importing area in sq. mi. for each area:
+area = 
+  read_csv(&#39;./data/ACS_09_5YR_G001_with_ann.csv&#39;, skip = 1) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  select(id, id2, geography, area_sqmi = land_area_in_square_miles) %&gt;% 
+  mutate(name = as.character(readr::parse_number(geography)),
+         geography = str_remove(geography, &quot;Census Tract [0-9]{1,}, &quot;),
+         geography = str_remove(geography, &quot;Census Tract [0-9]{1,}\\.[0-9]{1,}, &quot;)) %&gt;% 
+  select(id2, area_sqmi)
+
+## JOINING DATASETS &amp; CALCULATING DENSITY
+density_data =
+  left_join(population_data, area, by = &quot;id2&quot;) %&gt;% 
+  mutate(density = total_pop / area_sqmi,
+         id2 = as.character(id2),
+         year = as.ordered(year)) %&gt;% 
+
+  ## selecting and renaming meaningful variables
+
+  filter(geography %in% c(&quot;New York County, New York&quot;, &quot;Queens County, New York&quot;, &quot;Kings County, New York&quot;, &quot;Bronx County, New York&quot;, &quot;Richmond County, New York&quot;),
+       year %in% c(2010:2016)) %&gt;% 
+  select(geoid = id2, year, total_pop_densitydata = total_pop, area_sqmi, density)</code></pre>
+<p>ESL data (note that function was not practical, since variable name changed unpredictably across datasets)</p>
+<pre class="r"><code>## English language usage data- we import data from 2010-2016
+## Relevant variable (the percentage of the population 5 and over that speaks English less than &quot;very well&quot;), changes by year- files are therefore individually imported
+
+englang_2010 = 
+  read.csv(&quot;./data/ACS_10_5YR_DP02_with_ann.csv&quot;) %&gt;%
+  janitor::clean_names() %&gt;%
+  mutate(year = &quot;2010&quot;, geo_id = as.character(geo_id), geo_id2 = as.character(geo_id2)) %&gt;%
+  select(year, geo_id, geo_id2, hc03_vc170, hc03_vc04, hc01_vc21) %&gt;% ## percent family households and avg family size
+  filter(geo_id != &quot;Id&quot;) %&gt;%
+  mutate(pct_eng = as.numeric(as.character(hc03_vc170)),
+         pct_fam_households = as.numeric(as.character(hc03_vc04)),
+         family_size = as.numeric(as.character(hc01_vc21))) %&gt;%
+  select(-hc03_vc170, -hc03_vc04, -hc01_vc21)
+
+englang_2011 = 
+  read.csv(&quot;./data/ACS_11_5YR_DP02_with_ann.csv&quot;) %&gt;%
+  janitor::clean_names() %&gt;%
+  mutate(year = &quot;2011&quot;, geo_id = as.character(geo_id), geo_id2 = as.character(geo_id2)) %&gt;%
+  select(year, geo_id, geo_id2, hc03_vc170, hc03_vc04, hc01_vc21) %&gt;% ## percent family households and avg family size
+  filter(geo_id != &quot;Id&quot;) %&gt;%
+  mutate(pct_eng = as.numeric(as.character(hc03_vc170)),
+         pct_fam_households = as.numeric(as.character(hc03_vc04)),
+         family_size = as.numeric(as.character(hc01_vc21))) %&gt;%
+  select(-hc03_vc170, -hc03_vc04, -hc01_vc21)
+
+englang_2012 = 
+  read.csv(&quot;./data/ACS_12_5YR_DP02_with_ann.csv&quot;) %&gt;%
+  janitor::clean_names() %&gt;%
+  mutate(year = &quot;2012&quot;, geo_id = as.character(geo_id), geo_id2 = as.character(geo_id2)) %&gt;%
+  select(year, geo_id, geo_id2, hc03_vc170, hc03_vc04, hc01_vc21) %&gt;% ## percent family households and avg family size
+  filter(geo_id != &quot;Id&quot;) %&gt;%
+  mutate(pct_eng = as.numeric(as.character(hc03_vc170)),
+         pct_fam_households = as.numeric(as.character(hc03_vc04)),
+         family_size = as.numeric(as.character(hc01_vc21))) %&gt;%
+  select(-hc03_vc170, -hc03_vc04, -hc01_vc21)
+
+englang_2013 = 
+  read.csv(&quot;./data/ACS_13_5YR_DP02_with_ann.csv&quot;) %&gt;%
+  janitor::clean_names() %&gt;%
+  mutate(year = &quot;2013&quot;, geo_id = as.character(geo_id), geo_id2 = as.character(geo_id2)) %&gt;%
+  select(year, geo_id, geo_id2, hc03_vc170, hc03_vc04, hc01_vc21) %&gt;% ## percent family households and avg family size
+  filter(geo_id != &quot;Id&quot;) %&gt;%
+  mutate(pct_eng = as.numeric(as.character(hc03_vc170)),
+         pct_fam_households = as.numeric(as.character(hc03_vc04)),
+         family_size = as.numeric(as.character(hc01_vc21))) %&gt;%
+  select(-hc03_vc170, -hc03_vc04, -hc01_vc21)
+
+englang_2014 = 
+  read.csv(&quot;./data/ACS_14_5YR_DP02_with_ann.csv&quot;) %&gt;%
+  janitor::clean_names() %&gt;%
+  mutate(year = &quot;2014&quot;, geo_id = as.character(geo_id), geo_id2 = as.character(geo_id2)) %&gt;%
+  select(year, geo_id, geo_id2, hc03_vc170, hc03_vc04, hc01_vc22) %&gt;% ## percent family households and avg family size
+  filter(geo_id != &quot;Id&quot;) %&gt;%
+  mutate(pct_eng = as.numeric(as.character(hc03_vc170)),
+         pct_fam_households = as.numeric(as.character(hc03_vc04)),
+         family_size = as.numeric(as.character(hc01_vc22))) %&gt;%
+  select(-hc03_vc170, -hc03_vc04, -hc01_vc22)
+
+englang_2015 = 
+  read.csv(&quot;./data/ACS_15_5YR_DP02_with_ann.csv&quot;) %&gt;%
+  janitor::clean_names() %&gt;%
+  mutate(year = &quot;2015&quot;, geo_id = as.character(geo_id), geo_id2 = as.character(geo_id2)) %&gt;%
+  select(year, geo_id, geo_id2, hc03_vc170, hc03_vc04, hc01_vc22) %&gt;% ## percent family households and avg family size
+  filter(geo_id != &quot;Id&quot;) %&gt;%
+  mutate(pct_eng = as.numeric(as.character(hc03_vc170)),
+         pct_fam_households = as.numeric(as.character(hc03_vc04)),
+         family_size = as.numeric(as.character(hc01_vc22))) %&gt;%
+  select(-hc03_vc170, -hc03_vc04, -hc01_vc22)
+
+englang_2016 = 
+  read.csv(&quot;./data/ACS_16_5YR_DP02_with_ann.csv&quot;) %&gt;%
+  janitor::clean_names() %&gt;%
+  mutate(year = &quot;2016&quot;, geo_id = as.character(geo_id), geo_id2 = as.character(geo_id2)) %&gt;%
+  select(year, geo_id, geo_id2, hc03_vc170, hc03_vc04, hc01_vc22) %&gt;% ## percent family households and avg family size
+  filter(geo_id != &quot;Id&quot;) %&gt;%
+  mutate(pct_eng = as.numeric(as.character(hc03_vc170)),
+         pct_fam_households = as.numeric(as.character(hc03_vc04)),
+         family_size = as.numeric(as.character(hc01_vc22))) %&gt;%
+  select(-hc03_vc170, -hc03_vc04, -hc01_vc22)
+
+englang_data = 
+  bind_rows(englang_2010, englang_2011, englang_2012, englang_2013, englang_2014, englang_2015, englang_2016) %&gt;% 
+  mutate(geo_id2 = as.character(geo_id2),
+         year = as.ordered(year)) %&gt;% 
+  
+  ## restricting and renaming etc.
+  select(geoid = geo_id2, year, pct_eng, family_size, pct_fam_households) %&gt;% 
+  
+  ## bronx, kings, new york, queens, richmond counties - using codes (need to triple-check these match up with County Names)
+  filter(substr(geoid, 1,5) %in% c(36005, 36047, 36061, 36081, 36085),
+         year %in% c(2010:2016))</code></pre>
+<p>Race data (same caveat as above)</p>
+<pre class="r"><code>## Racial composition data- we import data from 2010-2016
+## Racial categories are not mutually exclusive, so total percentages may sum to more than 100%
+## Relevant variable (the percentage of the population 5 and over that speaks English less than &quot;very well&quot;), changes by year- files are therefore individually imported
+
+race_2010 = 
+  read.csv(&quot;./data/ACS_10_5YR_DP05_with_ann.csv&quot;) %&gt;%
+  janitor::clean_names() %&gt;%
+  mutate(year = &quot;2010&quot;, geo_id = as.character(geo_id), geo_id2 = as.character(geo_id2)) %&gt;%
+  select(year, geo_id, geo_id2, hc03_vc72, hc03_vc73, hc03_vc74, hc03_vc75, hc03_vc76, hc03_vc77, hc03_vc82) %&gt;%
+  filter(geo_id != &quot;Id&quot;) %&gt;%
+  rename(white = hc03_vc72, black = hc03_vc73, aian = hc03_vc74, asian = hc03_vc75, nhpi = hc03_vc76, other = hc03_vc77, hisp = hc03_vc82
+) %&gt;%
+  mutate(
+    white = as.numeric(as.character(white)),
+    black = as.numeric(as.character(black)),
+    aian = as.numeric(as.character(aian)),
+    asian = as.numeric(as.character(asian)),
+    nhpi = as.numeric(as.character(nhpi)),
+    other = as.numeric(as.character(other)),
+    hisp = as.numeric(as.character(hisp))
+  )
+
+race_2011 = 
+  read.csv(&quot;./data/ACS_11_5YR_DP05_with_ann.csv&quot;) %&gt;%
+  janitor::clean_names() %&gt;%
+  mutate(year = &quot;2011&quot;, geo_id = as.character(geo_id), geo_id2 = as.character(geo_id2)) %&gt;%
+  select(year, geo_id, geo_id2, hc03_vc72, hc03_vc73, hc03_vc74, hc03_vc75, hc03_vc76, hc03_vc77, hc03_vc82) %&gt;%
+  filter(geo_id != &quot;Id&quot;) %&gt;%
+  rename(white = hc03_vc72, black = hc03_vc73, aian = hc03_vc74, asian = hc03_vc75, nhpi = hc03_vc76, other = hc03_vc77, hisp = hc03_vc82) %&gt;%
+  mutate(
+    white = as.numeric(as.character(white)),
+    black = as.numeric(as.character(black)),
+    aian = as.numeric(as.character(aian)),
+    asian = as.numeric(as.character(asian)),
+    nhpi = as.numeric(as.character(nhpi)),
+    other = as.numeric(as.character(other)),
+    hisp = as.numeric(as.character(hisp))
+  )
+
+race_2012 = 
+  read.csv(&quot;./data/ACS_12_5YR_DP05_with_ann.csv&quot;) %&gt;%
+  janitor::clean_names() %&gt;%
+  mutate(year = &quot;2012&quot;, geo_id = as.character(geo_id), geo_id2 = as.character(geo_id2)) %&gt;%
+  select(year, geo_id, geo_id2, hc03_vc72, hc03_vc73, hc03_vc74, hc03_vc75, hc03_vc76, hc03_vc77, hc03_vc82) %&gt;%
+  filter(geo_id != &quot;Id&quot;) %&gt;%
+  rename(white = hc03_vc72, black = hc03_vc73, aian = hc03_vc74, asian = hc03_vc75, nhpi = hc03_vc76, other = hc03_vc77, hisp = hc03_vc82) %&gt;%
+  mutate(
+    white = as.numeric(as.character(white)),
+    black = as.numeric(as.character(black)),
+    aian = as.numeric(as.character(aian)),
+    asian = as.numeric(as.character(asian)),
+    nhpi = as.numeric(as.character(nhpi)),
+    other = as.numeric(as.character(other)),
+    hisp = as.numeric(as.character(hisp))
+  )
+
+race_2013 = 
+  read.csv(&quot;./data/ACS_13_5YR_DP05_with_ann.csv&quot;) %&gt;%
+  janitor::clean_names() %&gt;%
+  mutate(year = &quot;2013&quot;, geo_id = as.character(geo_id), geo_id2 = as.character(geo_id2)) %&gt;%
+  select(year, geo_id, geo_id2, hc03_vc78, hc03_vc79, hc03_vc80, hc03_vc81, hc03_vc82, hc03_vc83, hc03_vc88) %&gt;%
+  filter(geo_id != &quot;Id&quot;) %&gt;%
+  rename(white = hc03_vc78, black = hc03_vc79, aian = hc03_vc80, asian = hc03_vc81, nhpi = hc03_vc82, other = hc03_vc83, hisp = hc03_vc88) %&gt;%
+  mutate(
+    white = as.numeric(as.character(white)),
+    black = as.numeric(as.character(black)),
+    aian = as.numeric(as.character(aian)),
+    asian = as.numeric(as.character(asian)),
+    nhpi = as.numeric(as.character(nhpi)),
+    other = as.numeric(as.character(other)),
+    hisp = as.numeric(as.character(hisp))
+  )
+
+race_2014 = 
+  read.csv(&quot;./data/ACS_14_5YR_DP05_with_ann.csv&quot;) %&gt;%
+  janitor::clean_names() %&gt;%
+  mutate(year = &quot;2014&quot;, geo_id = as.character(geo_id), geo_id2 = as.character(geo_id2)) %&gt;%
+  select(year, geo_id, geo_id2, hc03_vc78, hc03_vc79, hc03_vc80, hc03_vc81, hc03_vc82, hc03_vc83, hc03_vc88) %&gt;%
+  filter(geo_id != &quot;Id&quot;) %&gt;%
+  rename(white = hc03_vc78, black = hc03_vc79, aian = hc03_vc80, asian = hc03_vc81, nhpi = hc03_vc82, other = hc03_vc83, hisp = hc03_vc88) %&gt;%
+  mutate(
+    white = as.numeric(as.character(white)),
+    black = as.numeric(as.character(black)),
+    aian = as.numeric(as.character(aian)),
+    asian = as.numeric(as.character(asian)),
+    nhpi = as.numeric(as.character(nhpi)),
+    other = as.numeric(as.character(other)),
+    hisp = as.numeric(as.character(hisp))
+  )
+
+race_2015 = 
+  read.csv(&quot;./data/ACS_15_5YR_DP05_with_ann.csv&quot;) %&gt;%
+  janitor::clean_names() %&gt;%
+  mutate(year = &quot;2015&quot;, geo_id = as.character(geo_id), geo_id2 = as.character(geo_id2)) %&gt;%
+  select(year, geo_id, geo_id2, hc03_vc78, hc03_vc79, hc03_vc80, hc03_vc81, hc03_vc82, hc03_vc83, hc03_vc88) %&gt;%
+  filter(geo_id != &quot;Id&quot;) %&gt;%
+  rename(white = hc03_vc78, black = hc03_vc79, aian = hc03_vc80, asian = hc03_vc81, nhpi = hc03_vc82, other = hc03_vc83, hisp = hc03_vc88) %&gt;%
+  mutate(
+    white = as.numeric(as.character(white)),
+    black = as.numeric(as.character(black)),
+    aian = as.numeric(as.character(aian)),
+    asian = as.numeric(as.character(asian)),
+    nhpi = as.numeric(as.character(nhpi)),
+    other = as.numeric(as.character(other)),
+    hisp = as.numeric(as.character(hisp))
+  )
+
+race_2016 = 
+  read.csv(&quot;./data/ACS_16_5YR_DP05_with_ann.csv&quot;) %&gt;%
+  janitor::clean_names() %&gt;%
+  mutate(year = &quot;2016&quot;, geo_id = as.character(geo_id), geo_id2 = as.character(geo_id2)) %&gt;%
+  select(year, geo_id, geo_id2, hc03_vc78, hc03_vc79, hc03_vc80, hc03_vc81, hc03_vc82, hc03_vc83, hc03_vc88) %&gt;% ## ADDED HISPANIC
+  filter(geo_id != &quot;Id&quot;) %&gt;%
+  rename(white = hc03_vc78, black = hc03_vc79, aian = hc03_vc80, asian = hc03_vc81, nhpi = hc03_vc82, other = hc03_vc83, hisp = hc03_vc88) %&gt;%
+  mutate(
+    white = as.numeric(as.character(white)),
+    black = as.numeric(as.character(black)),
+    aian = as.numeric(as.character(aian)),
+    asian = as.numeric(as.character(asian)),
+    nhpi = as.numeric(as.character(nhpi)),
+    other = as.numeric(as.character(other)),
+    hisp = as.numeric(as.character(hisp))
+  )
+
+race_data = 
+  bind_rows(race_2010, race_2011, race_2012, race_2013, race_2014, race_2015, race_2016) %&gt;% 
+  
+  ## creating % nonwhite
+  mutate(pct_nonwhite_racedata = (100 - white),
+         geo_id2 = as.character(geo_id2),
+         year = as.ordered(year)) %&gt;% 
+  rename(geoid = geo_id2) %&gt;% 
+  
+  ## bronx, kings, new york, queens, richmond counties - using codes (need to triple-check these match up with County Names)
+  filter(substr(geoid, 1,5) %in% c(36005, 36047, 36061, 36081, 36085),
+         year %in% c(2010:2016)) %&gt;% 
+  
+  ## restricting and renaming etc.
+  select(-geo_id)</code></pre>
+<p>Creating key to transform <code>geoid</code> to boro</p>
+<pre class="r"><code>## creating key for geoid &lt;--&gt; boro
+geoid_boro_key = 
+  read.csv(&#39;./data/EvictionData_NY.csv&#39;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  filter(parent_location %in% c(&quot;New York County, New York&quot;, &quot;Queens County, New York&quot;, &quot;Kings County, New York&quot;, &quot;Bronx County, New York&quot;, &quot;Richmond County, New York&quot;),
+         year %in% c(2010:2016)) %&gt;% 
+  select(geoid, county = parent_location) %&gt;% 
+  mutate(geoid = as.character(geoid),
+         boro = recode(county, &quot;New York County, New York&quot; = &quot;Manhattan&quot;, 
+                               &quot;Queens County, New York&quot; = &quot;Queens&quot;, 
+                               &quot;Kings County, New York&quot; = &quot;Brooklyn&quot;, 
+                               &quot;Bronx County, New York&quot; = &quot;Bronx&quot;, 
+                               &quot;Richmond County, New York&quot; = &quot;Staten Island&quot;)) %&gt;% 
+  distinct()</code></pre>
+<p>Joining datasets</p>
+<pre class="r"><code>## all rows regardless of NA, using outer (full) join
+
+joined_data = 
+  eviction %&gt;% 
+  full_join(., density_data, by = c(&quot;geoid&quot;, &quot;year&quot;)) %&gt;% 
+  full_join(., englang_data,  by = c(&quot;geoid&quot;, &quot;year&quot;)) %&gt;% 
+  full_join(., race_data,  by = c(&quot;geoid&quot;, &quot;year&quot;)) %&gt;% 
+  inner_join(., geoid_boro_key, by = &quot;geoid&quot;) %&gt;% 
+  
+  mutate(years_since_2010 = as.numeric(year) - 1) %&gt;%  ## continuous year measure range 0-6, years since 2010
+  
+  ## reordering variables
+  
+  select(geoid, year, years_since_2010, boro, county, ## geo/time
+         evictions, eviction_rate, eviction_filings, eviction_filing_rate, ## outcomes
+         pct_nonwhite_racedata, white, black, aian, asian, nhpi, other, hisp, ## race predictors
+         rent_burden, pct_eng, density, ## other predictors
+         renter_occupied_households, total_pop_densitydata, area_sqmi, ## calculation variables
+         poverty_rate, pct_af_am, pct_renter_occupied, median_gross_rent, median_household_income, median_property_value, family_size, pct_fam_households ## contextual predictor variables
+         ) 
+
+## just brooklyn
+joined_data_bklyn =
+  joined_data %&gt;% 
+  filter(boro == &quot;Brooklyn&quot;)
+
+joined_data_bklyn %&gt;% 
+  saveRDS(file = &#39;./data/joined_data_bklyn&#39;) ## saving to use in other files (use [obj_name] = readRDS([pathway]) )
+
+## all rows with all needed information, no missing
+joined_data_bklyn_nomissing =
+  joined_data_bklyn %&gt;% 
+  drop_na()
+
+joined_data_bklyn_nomissing %&gt;% 
+  saveRDS(file = &#39;./data/joined_data_bklyn_nomissing&#39;) ## saving to use in other files (use [obj_name] = readRDS([pathway]) )</code></pre>
 </div>
 <div id="variables-of-interest" class="section level4">
 <h4><em>Variables of interest</em></h4>
@@ -472,7 +830,66 @@ neighborhood_data = neighborhood_data_prep %&gt;%
 <h2>Exploratory Analysis</h2>
 <div id="mapping" class="section level4">
 <h4><em>Mapping</em></h4>
-<p>Census tract and neighobrhood shapefiles were downloaded from NYC Open Data and limited to Brooklyn. In order to inform model building, we first created simple visualizations of our four predictors (percentage of ESL speakers, percentage of non-White residents, rent burden, and population density) over a choropleth of eviction rates in Brooklyn by census tract in 2010.</p>
+<p>Census tract and neighobrhood shapefiles were downloaded from NYC Open Data and limited to Brooklyn.</p>
+<pre class="r"><code># Loading in Brooklyn data
+joined_data_bklyn_2010 = 
+  readRDS(&#39;./data/joined_data_bklyn&#39;) %&gt;%
+  filter(year == &quot;2010&quot;)
+
+# Loading census tract shapefiles from NYC OpenData:
+census_tracts = readOGR(dsn = &quot;maps/2010-census-tracts.shp&quot;, encoding = &quot;UTF-8&quot;) 
+
+census_tracts = 
+  census_tracts[census_tracts$boro_name == &quot;Brooklyn&quot;, ]
+
+# The following step removes null values from the dataset based on filtering values above
+writeOGR(census_tracts,&quot;./mapping_files&quot;,&quot;census_temp&quot;, driver = &quot;ESRI Shapefile&quot;, overwrite_layer = TRUE)
+census_tracts = readOGR(&quot;./mapping_files&quot;,&quot;census_temp&quot;)
+
+# Constructing geoid for merging
+census_tracts@data = 
+  census_tracts@data %&gt;% 
+  mutate(
+    county_code = as.character(recode(boro_code, &quot;1&quot; = &quot;061&quot;, &quot;2&quot; = &quot;005&quot;, &quot;3&quot; = &quot;047&quot;, &quot;4&quot; = &quot;081&quot;, &quot;5&quot; = &quot;085&quot;)),
+    ct2010 = as.character(ct2010),
+    fips_11dig = paste0(&quot;36&quot;, county_code, ct2010),
+    long = coordinates(spTransform(census_tracts, CRS(&quot;+proj=longlat +datum=WGS84&quot;)))[,1],
+    lat = coordinates(spTransform(census_tracts, CRS(&quot;+proj=longlat +datum=WGS84&quot;)))[,2]
+    ) %&gt;%
+  unnest(c(long, lat))
+
+# Joining data and shapefiles
+census_tracts@data = left_join(census_tracts@data, joined_data_bklyn_2010, by = c(&quot;fips_11dig&quot; = &quot;geoid&quot;))
+
+# Create map projection ready for mapping
+census_tracts_crs = 
+  spTransform(census_tracts, CRS(&quot;+init=epsg:4326&quot;))</code></pre>
+<p>In order to inform model building, we created simple visualizations of our four predictors (percentage of ESL speakers, percentage of non-White residents, rent burden, and population density) over a choropleth of eviction rates in Brooklyn by census tract in 2010.</p>
+<pre class="r"><code># Sample map code (Eviction rates and % ESL by census tract)
+leaflet::leaflet(data = census_tracts_crs) %&gt;% 
+  addProviderTiles(&#39;CartoDB.Positron&#39;) %&gt;% 
+  addPolygons(
+    fillColor = ~eng_palette(pct_eng),
+    fillOpacity = 0.8,
+    color = &quot;BDBDC3&quot;,
+    weight = 1,
+    popup = esl_popup,
+    highlightOptions = highlightOptions(color = &quot;black&quot;, weight = 2, bringToFront = TRUE)) %&gt;% 
+      addLegend(&#39;bottomleft&#39;,
+            pal = eng_palette,
+            values = ~pct_eng,
+            title = &#39;% ESL&#39;,
+            opacity = 1) %&gt;%
+  addCircleMarkers(
+    lat = ~ census_tracts_crs$lat,
+    lng = ~ census_tracts_crs$long,
+    color = &quot;red&quot;,
+    radius = (sqrt(census_tracts_crs$eviction_rate)*2),
+    weight = 0
+    ) %&gt;%
+      addLegendCustom(colors = c(&quot;red&quot;, &quot;red&quot;, &quot;red&quot;), 
+        labels = c(&quot;1&quot;, &quot;3&quot;, &quot;8&quot;), sizes = c(4, 6.9282, 11.3137))</code></pre>
+<p>The results of our exploratory analyses were used to inform further model building.</p>
 </div>
 </div>
 <div id="additional-analysis" class="section level2">

@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Model Building</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Home</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="q1_evictions_overtime_neighborhoods.html">Evictions Over Time</a>
+</li>
+<li>
+  <a href="question_2.html">Filings vs. Evictions</a>
+</li>
+<li>
+  <a href="question_3_maps.html">What Predicts Eviction Rates?</a>
+</li>
+<li>
+  <a href="model_building.html">Model Building</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="shiny_app">Interactive Model</a>
+</li>
+<li>
+  <a href="conclusions.html">Conclusions</a>
+</li>
+<li>
+  <a href="overview.html">Report</a>
+</li>
+<li>
+  <a href="https://github.com/simmwill/brooklyn_evictions.github.io">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Model Building</h1>
+
+</div>
+
+
+<div id="predictors-of-eviction-in-brooklyn-2010-2016" class="section level1">
+<h1>Predictors of Eviction in Brooklyn, 2010-2016</h1>
+<p>   </p>
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>Using existing data, we aim to investigate factors that are associated with - and can potentially be used to predict - eviction rates among census tracts in Brooklyn.</p>
+<p>We propose using Generalized Estimating Equations (GEE). GEEs can be used to model correlated/hierarchical data, and group-level (hierarchical) estimates are not desired. Since our data are repeated over time within census tract (2010-2016), we expect there to be autocorrelation present across years, and we can address this using GEE modeling techniques.</p>
+<p>More specifically, we propose using a GEE modelling framework with a log link function. Our outcome variable, eviction rate, is calculated by dividing count of evictions by the number of renter-occupied households; since this is based on a <strong>count</strong> variable, evictions, we expect our outcome to assume a Poisson distribution. Thus, we can use a log link function to model the expected count of evictions, and include the denominator of our eviction rate - number of renter-occupied households - as an offset term in the right-hand side of our equation.</p>
+<p>Finally, we propose using an AR(1) correlation structure, since autocorrelation can be reasonably expected given our data are measured over time. (In short, this means that, as one data point moves farther away from another correlated data point, the correlation between them decreases exponentially. We might reasonably expect this to happen over time with our data - e.g. a census tract’s 2006 eviction rate may be more similar to its 2005 eviction rate than to its 2000 eviction rate.)</p>
+<p>Since our outcome, eviction rate, is calculated using a <strong>count</strong> variable (number of evictions) repeated over time within areas, we’ll model it using GEE with a Poisson link function.</p>
+<p><img src="model_building_files/figure-html/poisson_dist-1.png" width="1152" /></p>
+<p>   </p>
+</div>
+<div id="relevant-predictors" class="section level2">
+<h2>Relevant predictors</h2>
+<p>Although we formulated specific hypotheses regarding predictors of eviction in Brooklyn based on existing research, we wanted to include as many potential predictors as possible to test against our hypothesized predictors. The data we are using includes the following variables:</p>
+<ul>
+<li><code>evictions</code>. Number of evictions at census level.</li>
+<li><code>eviction_filings</code>. Number of eviction filings at census level.</li>
+<li><code>renter_occupied_households</code>. Number of renter occupied households in census tract. As mentioned above, this forms the denominator of our modelled rate and will be included in all models as an offset term (as <code>log(renter_occupied_households)</code>).</li>
+<li><code>years_since_2010</code>. Since our data range from 2010 to 2016, and we did not want to assume a constant effect of time, we included year as a set of indicator variables in all models except our empty model (see below).</li>
+<li><code>hisp</code>. Percent of population (at census tract level, for all race/ethnicity variables) that self-report Hispanic ethnicity.</li>
+<li><code>white</code>. Percent self-reporting White race.</li>
+<li><code>black</code>. Percent self-reporting Black race.</li>
+<li><code>asian</code>. Percent self-reporting Asian race.</li>
+<li><code>aian</code>. Percent self-reporting American Indian / Alaska Native race.</li>
+<li><code>nhpi</code>. Percent self-reporting Native Hawaiian / Pacific Islander race.</li>
+<li><code>other</code>. Percent self-reporting other race.</li>
+<li><code>rent_burden</code>. Average percent of income spent on rent.</li>
+<li><code>density</code>. Population density.</li>
+<li><code>pct_eng</code>. Percent of population who speak English less than ‘Very Well’. This is interpreted as a proxy for percent English as a second language (ESL) speakers.</li>
+<li><code>median_household_income</code>. Median census tract household income in USD.</li>
+<li><code>poverty_rate</code>. Percent living below Federal Poverty Line (FPL).</li>
+<li><code>median_gross_rent</code>. Median census tract gross rent in USD.</li>
+<li><code>pct_renter_occupied</code>. Percent of census tract occupied by renters.</li>
+<li><code>median_property_value</code>. Median census tract property value in USD.</li>
+<li><code>family_size</code>. Average family size in census tract.</li>
+<li><code>pct_fam_households</code>. Percentage of census tract households that contain families.</li>
+</ul>
+<p><em>Note:</em> Since our repeated data are clustered within census tracts, we could not include neighborhood, an otherwise important predictor of eviction rates. If we wanted to conduct models similar to these but (1) within census tracts across time AND (2) also modelling census tracts clustered within neighborhoods, we would have to move into some sort of hierarchical/multilevel modelling structure.</p>
+<p>In our model-building Shiny app (see navigation bar), we have included a set of indicator variables representing Brooklyn neighborhoods using a simpler Generalized Linear Model (GLM).</p>
+<p>   </p>
+</div>
+<div id="hypothesis" class="section level2">
+<h2>Hypothesis</h2>
+<p>Based on prior reading and research, we hypothesize the following predictors of eviction count at the census tract level. See above for variable definitions.</p>
+<ul>
+<li><code>years_since_2010</code></li>
+<li><code>rent_burden</code></li>
+<li><code>density</code></li>
+<li><code>pct_eng</code></li>
+<li>Race/ethnicity variables (<code>white</code>, <code>black</code>, <code>asian</code>, <code>aian</code>, <code>nhpi</code>, <code>other</code>, <code>hisp</code>)</li>
+</ul>
+<p>   </p>
+<p><strong>Model:</strong></p>
+<!-- LaTeX code - edit on https://www.codecogs.com/latex/eqneditor.php, then download gif -->
+<!-- $$ -->
+<!-- (1) \hspace{20mm} log\{E({Y_{ij})}\} = log(n_{ij}) + \beta_0 + \beta_k*X_{kij} + \beta_y*year_{ij} \\ -->
+<!-- \hspace{20mm}\\ -->
+<!-- \hspace{20mm} \text{Where: }\\ -->
+<!-- \hspace{20mm} _{ij}\hspace{2mm} \text{denotes Census Tract \textit{i} and year \textit{j}} \\ -->
+<!-- \vspace{.01mm} \\ -->
+<!-- \hspace{20mm}E({Y_{ij})} = \text{expected count of evictions} \\ -->
+<!-- \hspace{20mm} n_{ij} = \text{offset term (number of renter-occupied housing units)} \\ -->
+<!-- \hspace{20mm}X_{kij} = \begin{cases}\text{Area percent of population that speaks English less than `Very Well'} -->
+<!-- \\ \text{Mean area rent burden (percentage of household income spent on rent)} -->
+<!-- \\ \text{Area percent of [specific race/ethnicity]} -->
+<!-- \\ \text{Crude area population density (total population divided by area (mi} ^2) -->
+<!-- \end{cases}\\ -->
+<!-- $$ -->
+<p>   </p>
+<p><img src="images/eq1.gif" /></p>
+<p>   </p>
+</div>
+<div id="correlation-matrix" class="section level2">
+<h2>Correlation matrix</h2>
+<p>Before proceeding, it is important to assess crude correlation among our relevant variables, in case issues of multicollinearity arise during model development.</p>
+<pre class="r"><code>joined_data_bklyn_nomissing %&gt;% 
+  mutate(year = as.numeric(year)) %&gt;% 
+  #select(-pct_nonwhite_racedata, -pct_af_am, am_ind_ak_native = aian) %&gt;% 
+  select(year, evictions, 
+         pct_eng, rent_burden, density, 
+         white, black, asian, aian, nhpi, other, hisp,
+         median_household_income, poverty_rate, median_gross_rent, median_property_value, pct_renter_occupied,
+         family_size, pct_fam_households) %&gt;% 
+#  select_if(is.numeric) %&gt;% 
+  cor() %&gt;% 
+  corrplot::corrplot(type = &quot;lower&quot;,
+                     method = &quot;square&quot;, 
+                     addCoef.col = &quot;black&quot;, 
+                     diag = FALSE, 
+                     number.cex = .6,
+                     tl.col = &quot;black&quot;,
+                     tl.cex = .9,
+                     tl.srt = 45)</code></pre>
+<p><img src="model_building_files/figure-html/corr_matrix-1.png" width="1152" /></p>
+<pre class="r"><code>## NOTES
+  ## include hisp instead of other, since highly correlated (.85)
+  ## include black not white, since highly correlated (-.87)
+  ## fit two models:
+      ## one to look at pct_eng, controlling for race (pct_eng + all races except white, other + other predictors)
+      ## one to just look at race (all races except white, other + other predictors)</code></pre>
+<p>Of relevance to our hypotheses, the following variables were highly correlated and thus may not be accurately interpreted in a model as independent predictors:</p>
+<ul>
+<li><code>pct_eng</code> and <code>year</code> (<em>r</em> = 0.76)</li>
+<li><code>white</code> and <code>black</code> (<em>r</em> = -0.87)</li>
+<li><code>hisp</code> and <code>other</code> race (<em>r</em> = 0.85)</li>
+</ul>
+<p>   </p>
+</div>
+<div id="note-on-confounding" class="section level2">
+<h2>Note on confounding</h2>
+<p>After performing exploratory data analysis and crude univariate plots (<em>not shown</em>), we found that the relationship between <code>pct_eng</code> - percent of ESL speakers - and eviction rate is confounded by <code>black</code> race.</p>
+<p>At first, the relationship between ESL speakers and eviction rate was inverse - as ESL increased, evictions actually decreased. This is counter to our hypotheses, as non-English speaking and immigrant communities have been shown to experience much higher rates of eviction. However, we knew that Black race had the potential to confound this relationship, as Black NYC communities are overwhelmingly English-speaking and also at an increased risk of eviction due to other factors.</p>
+<p>Once we adjusted for Black race in the relationship between ESL and evictions, the relationship flipped, and EsL was demonstrated to have a positive association with eviction rate, adjusting for Black race.</p>
+<p>   </p>
+</div>
+<div id="refining-and-subdefining-our-hypothesized-model" class="section level2">
+<h2>Refining and subdefining our hypothesized model</h2>
+<p>We refined our hypothesized models based on our exploratory confounding and other analyses:</p>
+<ol style="list-style-type: decimal">
+<li>As noted above, ESL should not be included in a model without adjusting for Black race nor should it be interpreted independently of year due to high correlation. Thus, our first hypothesized sub-model will include ESL and percent of all race/ethnicity variables (interpreted as the independent effects of ESL and years since 2010 [highly correlated], rent burden, or population density on evictions, adjusting for each other predictor variable and race/ethnicity). [Equation 2]</li>
+</ol>
+<!-- $$ -->
+<!-- (2) \hspace{1mm} log\{E({Y_{ij})}\} = log(n_{ij}) + \beta_0 + \beta_1X_{1ij} + \beta_2X_{2ij} + \beta_3X_{3ij} + \beta_4X_{4ij} + ... + \beta_yyear_{ij} \\ -->
+<!-- \hspace{20mm}\\ -->
+<!-- \hspace{20mm} \text{Where: }\\ -->
+<!-- \hspace{20mm}X_{(k)ij}, \text{where \textit{k}} = \begin{cases}\text{1: Area percent of population that speaks English less than `Very Well'} -->
+<!-- \\ \text{2: Mean area rent burden (percentage of household income spent on rent)} -->
+<!-- \\ \text{3: Crude area population density} -->
+<!-- \\ \text{4 to k: Area percent racial/ethnicity makeup of all race/ethnicity variables} -->
+<!-- \end{cases}\\ -->
+<!-- $$ -->
+<p>   </p>
+<p><img src="images/eq2.gif" /></p>
+<p>   </p>
+<ol start="2" style="list-style-type: decimal">
+<li>As also noted above, percent White race and percent Black race are highly correlated in our data (<em>r</em> = 0.87), and percent other race and percent Hispanic ethnicity are also highly correlated (<em>r</em> = 0.85). Thus, a second hypothesized sub-model will observe the independent effects of percent racial/ethnic compositions (<strong>excluding</strong> White and Other race), rent burden, population density, or years since 2010 on eviction rates, adjusting for other predictor variables. [Equation 3]</li>
+</ol>
+<!-- $$ -->
+<!-- (3) \hspace{10mm} log\{E({Y_{ij})}\} = log(n_{ij}) + \beta_0 + \beta_1X_{1ij} + \beta_2X_{2ij} + \beta_3X_{3ij} + ... + \beta_yyear_{ij} \\ -->
+<!-- \hspace{20mm}\\ -->
+<!-- \hspace{20mm} \text{Where: }\\ -->
+<!-- \hspace{20mm}X_{(k)ij}, \text{where \textit{k}} = \begin{cases}\text{1: Mean area rent burden (percentage of household income spent on rent)} -->
+<!-- \\ \text{2: Crude area population density} -->
+<!-- \\ \text{3 to k: Area percent racial/ethnicity makeup of all race/ethnicity variables, excluding White and Other race} -->
+<!-- \end{cases}\\ -->
+<!-- $$ -->
+<p>   </p>
+<p><img src="images/eq3.gif" /></p>
+<p>   </p>
+</div>
+<div id="stepwise-automatic-model-selection" class="section level2">
+<h2>Stepwise automatic model selection</h2>
+<p>To contrast with our hypothesis-informed model building process, we wanted to test a stepwise model selection algorithm. We used the <code>gee_stepper</code> function within the <code>pstools</code> package, which performs a forward step selection process with a set of GEE predictors, using QIC to find a ‘best fit’ model.</p>
+<p>We slightly modified the function code to create our own function - <code>gee_stepper_o</code> - in order to include our offset term by default in the stepwise selection process.</p>
+<pre class="r"><code>## use full dataset
+full_fit =
+  geeglm(evictions ~ 
+           offset(log(renter_occupied_households)) + years_since_2010 +
+           pct_eng + rent_burden + pct_nonwhite_racedata + density + ## hypothesized
+           black + aian + asian + nhpi + other + hisp + ## race
+           poverty_rate + pct_renter_occupied + median_gross_rent + median_household_income + median_property_value +
+           eviction_filings + family_size + pct_fam_households,
+         data = joined_data_bklyn_nomissing,
+         id = geoid,
+         family = poisson,
+         corstr = &quot;ar1&quot;)
+
+gee_stepper_o(full_fit, formula(full_fit)) ## customized function to automatically include offset and time covariate</code></pre>
+<p>After running stepwise selection, our GEE stepwise model includes predictors:</p>
+<ul>
+<li>[<code>offset</code>] - held constant</li>
+<li><code>black</code></li>
+<li><code>hisp</code></li>
+<li><code>rent_burden</code></li>
+<li><code>pct_eng</code></li>
+<li><code>density</code></li>
+<li><code>median_gross_rent</code></li>
+<li><code>poverty_rate</code></li>
+<li><code>median_household_income</code></li>
+<li><code>asian</code></li>
+<li><code>aian</code></li>
+<li><code>nhpi</code></li>
+</ul>
+<p>This model includes both <code>pct_eng</code> and <code>black</code>, so we can fully interpret the effects of ESL adjusting for confounding by percent Black race. However, to be conservative in our interpretations, <code>median_household_income</code> should not be interpreted separately from <code>poverty_rate</code> (<em>r</em> = -0.73) or <code>median_gross_rent</code> (<em>r</em> = -0.74).</p>
+<p>   </p>
+</div>
+<div id="summary-of-models" class="section level2">
+<h2>Summary of models</h2>
+<p>To summarize, we will consider the following models to predict census tract-level eviction rates:</p>
+<p>Two hypothesized models:</p>
+<ol style="list-style-type: decimal">
+<li>A hypothesized model based primarily on percent ESL speakers [Equation 2, above]</li>
+<li><p>A hypothesized model based primarily on independent effects of race/ethnicity percentages [Equation 3, above]</p></li>
+<li><p>A model selected via a GEE-specific forward stepwise selection process</p></li>
+</ol>
+<p>In addition to these three models (1, 2, 3), we propose two baseline models:</p>
+<ol start="4" style="list-style-type: decimal">
+<li>An empty model, in which there are no predictors, and only the outcome and offset terms are included on opposite sides of the equation, i.e. <code>evictions ~ offset(log(renter_occupied_households))</code></li>
+<li>A naive model, which only uses time to predict eviction rate (i.e. the above model, plus <code>years_since_2010</code> on the right-hand-side of the model)</li>
+</ol>
+<p>   </p>
+<hr />
+<p>   </p>
+</div>
+<div id="cross-validation-of-models" class="section level2">
+<h2>Cross-validation of models</h2>
+<p>Since our data are modelled using GEE and are not all nested within each other, there is not a straightforward way to compare their prediction capabilities such as hypothesis testing or AIC (in this case, QIC). However, we can use <strong>cross validation</strong>, which allows us to compare prediction accuracy across non-nested models. While this technique does not allow us to assess statistical significance of hypotheses/models/predictors tested, we still believe it will be useful in gauging model usefulness.</p>
+<p>Specifically, we will compare the repeat-sampled distribution of each model’s <strong>root mean squared error</strong>, with lower values indicating lower error and better overall prediction.</p>
+<p>(Technical notes: We resampled 100 training/testing splits [default 80% training, 20% testing] on our data using the function <code>crossv_mc</code>. We then ran our 5 models on each of our 100 resampled training datasets, then extracted the root mean squared error as a measure of how well our training models predicted our testing data. 100 RMSEs resulted for each model, the distributions of which were then grouped by model and comparatively plotted using <code>ggplot</code> and <code>geom_violin</code> [violin plots].)</p>
+<pre class="r"><code>## models
+empty_model = ## no predictors
+  geeglm(formula = evictions ~ offset(log(renter_occupied_households)),
+       data = joined_data_bklyn_nomissing,
+       family = poisson,
+       id = geoid,
+       corstr = &quot;ar1&quot;)
+
+naive_model = ## just year
+  geeglm(formula = evictions ~ offset(log(renter_occupied_households)) + years_since_2010,
+       data = joined_data_bklyn_nomissing,
+       family = poisson,
+       id = geoid,
+       corstr = &quot;ar1&quot;)  
+
+hyp_model_eng = 
+  geeglm(evictions ~
+           offset(log(renter_occupied_households)) +
+           years_since_2010 +
+           pct_eng + rent_burden + density + 
+           white + black + asian + aian + nhpi + other + hisp +
+           pct_eng*black,
+         data = joined_data_bklyn_nomissing,
+         id = geoid,
+         family = poisson,
+         corstr = &quot;ar1&quot;)
+
+hyp_model_race = 
+  geeglm(evictions ~
+           offset(log(renter_occupied_households)) +
+           years_since_2010 +
+           rent_burden + density + 
+           black + asian + aian + nhpi + hisp,
+         data = joined_data_bklyn_nomissing,
+         id = geoid,
+         family = poisson,
+         corstr = &quot;ar1&quot;)
+
+step_model = 
+  geeglm(formula = evictions ~ years_since_2010 + hisp + rent_burden + 
+         density + pct_eng + median_household_income + nhpi + poverty_rate + 
+         median_gross_rent + pct_renter_occupied + aian + other + 
+         pct_nonwhite_racedata + asian + offset(log(renter_occupied_households)), 
+         family = poisson, 
+         data = joined_data_bklyn_nomissing, 
+         id = geoid, 
+         corstr = &quot;ar1&quot;)</code></pre>
+<pre class="r"><code>set.seed(2)
+
+## creating test-training pairs
+model_data_cv =
+  joined_data_bklyn_nomissing %&gt;%
+  crossv_mc(., 100)
+
+## unpacking pairs
+model_data_cv =
+  model_data_cv %&gt;%
+  mutate(
+    train = map(train, as_tibble),
+    test = map(test, as_tibble))
+
+## assessing prediction accuracy
+model_data_cv =
+  model_data_cv %&gt;%
+  mutate(empty = map(train, ~geeglm(formula = formula(empty_model),
+                                      family = poisson,
+                                      data = joined_data_bklyn_nomissing,
+                                      id = geoid,
+                                      corstr = &quot;ar1&quot;)),
+         naive = map(train, ~geeglm(formula = formula(naive_model),
+                                      family = poisson,
+                                      data = joined_data_bklyn_nomissing,
+                                      id = geoid,
+                                      corstr = &quot;ar1&quot;)),
+         gee_eng = map(train, ~geeglm(formula = formula(hyp_model_eng),
+                                      family = poisson,
+                                      data = joined_data_bklyn_nomissing,
+                                      id = geoid,
+                                      corstr = &quot;ar1&quot;)),
+         gee_race = map(train, ~geeglm(formula = formula(hyp_model_race),
+                                      family = poisson,
+                                      data = joined_data_bklyn_nomissing,
+                                      id = geoid,
+                                      corstr = &quot;ar1&quot;)),
+         gee_step = map(train, ~geeglm(formula = formula(step_model),
+                                      family = poisson,
+                                      data = joined_data_bklyn_nomissing,
+                                      id = geoid,
+                                      corstr = &quot;ar1&quot;)))
+
+ model_data_cv =
+   model_data_cv %&gt;%
+   mutate(rmse_empty_gee = map2_dbl(empty, test, ~rmse(model = .x, data = .y)),
+          rmse_naive_gee = map2_dbl(naive, test, ~rmse(model = .x, data = .y)),
+          rmse_eng_gee = map2_dbl(gee_eng, test, ~rmse(model = .x, data = .y)),
+          rmse_race_gee = map2_dbl(gee_race, test, ~rmse(model = .x, data = .y)),
+          rmse_step_gee = map2_dbl(gee_step, test, ~rmse(model = .x, data = .y)))
+
+## plotting RMSEs
+model_data_cv %&gt;%
+  select(starts_with(&quot;rmse&quot;), -contains(&#39;glm&#39;)) %&gt;%
+  pivot_longer(
+    everything(),
+    names_to = &quot;model&quot;,
+    values_to = &quot;rmse&quot;,
+    names_prefix = &quot;rmse_&quot;) %&gt;%
+  mutate(model = fct_reorder(model, rmse, .desc = TRUE),
+         model = fct_recode(model, &quot;Empty&quot; = &quot;empty_gee&quot;,
+                                   &quot;Naive&quot; = &quot;naive_gee&quot;,
+                                   &quot;Race Model&quot; = &quot;race_gee&quot;,
+                                   &quot;ESL Model&quot; = &quot;eng_gee&quot;,
+                                   &quot;Stepwise Model&quot; = &quot;step_gee&quot;)) %&gt;%
+  ggplot(aes(x = model, y = rmse, fill = model)) + 
+  geom_violin() +
+  theme_light() +
+  labs(x = &quot;Model&quot;,
+       y = &quot;RMSE&quot;, 
+       title = &quot;Cross-Validating Models&quot;) +
+  scale_fill_brewer(type = &#39;seq&#39;, palette = &#39;Purples&#39;)</code></pre>
+<p><img src="model_building_files/figure-html/cv-1.png" width="864" /></p>
+<p>As we can see, our empty and naive models are clearly inferior in terms of their prediction abilities to our other hypothesized and selection-based models.</p>
+<p>This is the only clear-cut difference, as the latter three models - our two hypothesized models, and our stepwise model - are very similar in terms of their prediction capabilities.</p>
+<p>(<em>Note:</em> None of our models had particularly good predictive capabilities, and the differences between our models given their RMSE distributions is comparatively small. However, we will assume that the difference in RMSE is still meaningful.)</p>
+<p>As this is the case, we will opt for model simplicity and select the simplest model with the most easily-interpretable results: the hypothesized model based primarily on the independent effects of non-White race/ethnicity percentages, rent burden, population density, and years since 2010 [Equation 3, described above and re-printed below].</p>
+<p>   </p>
+<p><img src="images/eq3.gif" /></p>
+<p>   </p>
+</div>
+<div id="conclusions" class="section level2">
+<h2>Conclusions</h2>
+<p>Our model can be estimated via GEE:</p>
+<pre class="r"><code>hyp_model_race = 
+  geeglm(evictions ~
+           offset(log(renter_occupied_households)) +
+           years_since_2010 +
+           rent_burden + density + 
+           black + asian + aian + nhpi + hisp,
+         data = joined_data_bklyn_nomissing,
+         id = geoid,
+         family = poisson,
+         corstr = &quot;ar1&quot;)
+
+hyp_model_race %&gt;% 
+  broom::tidy() %&gt;% 
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">-5.6309476</td>
+<td align="right">0.0931704</td>
+<td align="right">3652.640062</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">years_since_20101</td>
+<td align="right">-2.9450532</td>
+<td align="right">0.0543508</td>
+<td align="right">2936.127907</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">years_since_20102</td>
+<td align="right">-0.7230996</td>
+<td align="right">0.0244523</td>
+<td align="right">874.496766</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">years_since_20103</td>
+<td align="right">-0.8456613</td>
+<td align="right">0.0257096</td>
+<td align="right">1081.937226</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">years_since_20104</td>
+<td align="right">-0.2351592</td>
+<td align="right">0.0220241</td>
+<td align="right">114.005530</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">years_since_20105</td>
+<td align="right">-0.3839879</td>
+<td align="right">0.0242768</td>
+<td align="right">250.180647</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">years_since_20106</td>
+<td align="right">-0.3279125</td>
+<td align="right">0.0324796</td>
+<td align="right">101.928236</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">rent_burden</td>
+<td align="right">0.0176423</td>
+<td align="right">0.0020179</td>
+<td align="right">76.439210</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">density</td>
+<td align="right">-0.0000035</td>
+<td align="right">0.0000007</td>
+<td align="right">24.280014</td>
+<td align="right">0.0000008</td>
+</tr>
+<tr class="even">
+<td align="left">black</td>
+<td align="right">0.0188651</td>
+<td align="right">0.0005086</td>
+<td align="right">1375.706116</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">asian</td>
+<td align="right">0.0043108</td>
+<td align="right">0.0013104</td>
+<td align="right">10.822704</td>
+<td align="right">0.0010026</td>
+</tr>
+<tr class="even">
+<td align="left">aian</td>
+<td align="right">-0.0129843</td>
+<td align="right">0.0113196</td>
+<td align="right">1.315754</td>
+<td align="right">0.2513556</td>
+</tr>
+<tr class="odd">
+<td align="left">nhpi</td>
+<td align="right">0.0774339</td>
+<td align="right">0.0251317</td>
+<td align="right">9.493352</td>
+<td align="right">0.0020622</td>
+</tr>
+<tr class="even">
+<td align="left">hisp</td>
+<td align="right">0.0105379</td>
+<td align="right">0.0009028</td>
+<td align="right">136.237063</td>
+<td align="right">0.0000000</td>
+</tr>
+</tbody>
+</table>
+<p>Here, we can see that all hypothesized predictors are significantly associated with eviction rate in Brooklyn except for American Indian / Alaska Native race (p = 0.25) at the 5% level of significance.</p>
+<p>Since we used a Poisson (log) link function, we should exponentiate our parameter estimates to get an interpretable estimated measure of effect, interpreted as an estimated <strong>risk ratio</strong>.</p>
+<p>For example, to interpret our parameter estimate for <code>black</code>, we would exponentiate our parameter estimate, 0.01887 (e^0.01887 = 1.0190). This is equal to our estimated risk ratio. We can thus say that the population-average eviction rate (or risk of eviction) is expected to be 1.0190 times higher for each one percentage-point increase in Brooklyn’s Black population, adjusting for percentage of other non-White race/ethnicity (Asian, American Indian / Alaska Native, Native Hawaiian / Pacific Islander, and Hispanic), rent burden, population density, and years since 2010.</p>
+<p>To make our risk estimates even more meaningful, we can interpret risk ratios for multiple units. For example, given the above, e^0.01887*10 = 1.2076; for each 10 percent increase in Brooklyn’s Black population, we expect the eviction rate to increase by 1.21 times, adjusting for other factors listed in the previous paragraph.</p>
+<p>   </p>
+</div>
+<div id="interactive-prediction-model" class="section level2">
+<h2>Interactive prediction model</h2>
+<p>We want to enable readers to more easily understand which predictors affect eviction rate and to what extents. Thus, using the race-based GEE model we selected from our five compared models, we created an interactive model-fitting tool that allows readers to adjust levels of various predictors to see the expected change in eviction rate (evictions per 100 renter-occupied households).</p>
+<p>Further than the analyses above, readers can also get a sense of these effects in each neighborhood of Brooklyn.</p>
+<p>Click here to access this model-building app.</p>
+<pre class="r"><code>## this works really well
+exp(predict(hyp_model_race, newdata = data.frame(renter_occupied_households = 100,
+                                                 years_since_2010 = &#39;4&#39;,
+                                                 rent_burden = 35,
+                                                 density = 50000,
+                                                 black = 90,
+                                                 asian = 10,
+                                                 nhpi = 1,
+                                                 aian = 1,
+                                                 hisp = 40)))</code></pre>
+<pre><code>##        1 
+## 4.084648</code></pre>
+</div>
+</div>
+
+<html>
+  
+&nbsp;
+<hr />
+
+<small>
+  
+<p style="text-align: center;">
+  Gloria Hu, Naama Kipperman, Will Simmons, Frances Williams
+</p>
+
+<p style="text-align: center;">
+Visualizations and analyses performed using <a href="https://www.r-project.org/about.html">R</a> (v3.6.1) and <a href="https://rstudio.com">RStudio</a> (v1.2.1335). <br>
+
+Additional interactivity added using <a href="https://plot.ly/">plotly</a> (v4.9.0) and <a href="https://shiny.rstudio.com/">Shiny</a> (v1.3.2). 
+
+<br>
+<br>
+
+2019
+</p>
+
+</small>
+
+</html>
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
