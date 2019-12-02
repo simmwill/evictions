@@ -507,18 +507,6 @@ We want to enable readers to more easily understand which predictors affect evic
 
 Further than the analyses above, readers can also get a sense of these effects in each neighborhood of Brooklyn.
 
-Click here to access this model-building app.
+Click 'Interactive Model' in the navbar above to access this model-building app.
 
-```{r shiny_model}
-## this works really well
-exp(predict(hyp_model_race, newdata = data.frame(renter_occupied_households = 100,
-                                                 years_since_2010 = '4',
-                                                 rent_burden = 35,
-                                                 density = 50000,
-                                                 black = 90,
-                                                 asian = 10,
-                                                 nhpi = 1,
-                                                 aian = 1,
-                                                 hisp = 40)))
-```
 
