@@ -78,10 +78,6 @@ joined_data_bklyn =
   joined_data %>% 
   filter(boro == "Brooklyn")
 
-## all rows with all needed information, no missing
-joined_data_bklyn_nomissing =
-  joined_data_bklyn %>% 
-  drop_na()
  
 ```
 
