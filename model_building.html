@@ -521,7 +521,7 @@ gee_stepper_o(full_fit, formula(full_fit)) ## customized function to automatical
 <p>To summarize, we will consider the following models to predict census tract-level eviction rates:</p>
 <p>Two hypothesized models:</p>
 <ol style="list-style-type: decimal">
-<li>A hypothesized model based primarily on percent ESL speakers [Equation 2, above]</li>
+<li><p>A hypothesized model based primarily on percent ESL speakers [Equation 2, above]</p></li>
 <li><p>A hypothesized model based primarily on independent effects of race/ethnicity percentages [Equation 3, above]</p></li>
 <li><p>A model selected via a GEE-specific forward stepwise selection process</p></li>
 </ol>
@@ -657,7 +657,9 @@ model_data_cv %&gt;%
   labs(x = &quot;Model&quot;,
        y = &quot;RMSE&quot;, 
        title = &quot;Cross-Validating Models&quot;) +
-  scale_fill_brewer(type = &#39;seq&#39;, palette = &#39;Purples&#39;)</code></pre>
+  scale_fill_brewer(type = &#39;seq&#39;, palette = &#39;Purples&#39;) +
+  theme(legend.position = &#39;none&#39;,
+        plot.title = element_text(hjust = 0.5))</code></pre>
 <p><img src="model_building_files/figure-html/cv-1.png" width="864" /></p>
 <p>As we can see, our empty and naive models are clearly inferior in terms of their prediction abilities to our other hypothesized and selection-based models.</p>
 <p>This is the only clear-cut difference, as the latter three models - our two hypothesized models, and our stepwise model - are very similar in terms of their prediction capabilities.</p>
