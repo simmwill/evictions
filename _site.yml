@@ -3,17 +3,11 @@ output_dir: "."
 navbar:
   title: "Home"
   left:
-    - text: "Exploratory Analyses"
-      menu:
-        - text: "Filings vs. Evictions"
-          href: question_2.html
-        - text: "What Predicts Eviction Rates?"
-          href: question_3_maps.html
     - text: "Evictions Over Time"
       href: https://nk2814.shinyapps.io/evictions_spaghetti_shiny/
     - text: "Filings vs. Evictions"
       href: question_2.html
-    - text: "What Predicts Eviction Rates?"
+    - text: "What Predicts Evictions Rates?"
       href: question_3_maps.html
     - text: "Model Building"
       href: model_building.html
