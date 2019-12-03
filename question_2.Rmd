@@ -52,8 +52,8 @@ neighborhood_df =
 
 
 ```{r echo = FALSE, message = FALSE}
-joined_data_bklyn_2010 = 
-  readRDS('./data/joined_data_bklyn')
+#joined_data_bklyn_2010 = 
+#  readRDS('./data/joined_data_bklyn')
 
 
 
