@@ -36,7 +36,7 @@ In order to inform model building, we first created choropleths of our four pred
 # Loading in Brooklyn data
 joined_data_bklyn_2010 = 
   readRDS('./data/joined_data_bklyn') %>%
-  filter(year == "2010")
+  filter(year == "2016")
 
 # Loading census tract shapefiles from NYC OpenData:
 census_tracts = readOGR(dsn = "maps/2010-census-tracts.shp", encoding = "UTF-8") 
@@ -115,10 +115,10 @@ getJenksBreaks(census_tracts_crs$rent_burden, 5)
 getJenksBreaks(census_tracts_crs$total_pop_densitydata, 5)
 
 # Setting bins based on Jenks natural breaks
-pct_eng_bins = c(0, 14.6, 29.8, 46.9, 82.5)
-nonwhite_bins = c(0, 22.9, 49.6, 77.2, 100)
-rentburden_bins = c(13.9, 28.4, 34.6, 42.5, 50.0)
-popdensity_bins = c(22, 2432, 3636, 5124, 8475)
+pct_eng_bins = c(0, 12.9, 26.3, 43.3, 73.3)
+nonwhite_bins = c(0, 26.3, 52.5, 78.2, 100)
+rentburden_bins = c(13.0, 29.2, 35.2, 42.5, 50.0)
+popdensity_bins = c(8, 2494, 3736, 5240, 8953)
 
 # Setting color based on bins
 eng_palette = colorBin('Blues', bins = pct_eng_bins, na.color = '#d9d9d9')
