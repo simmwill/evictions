@@ -52,6 +52,11 @@ neighborhood_df =
 
 
 ```{r echo = FALSE, message = FALSE}
+joined_data_bklyn_2010 = 
+  readRDS('./data/joined_data_bklyn')
+
+
+
 eviction_data = read.csv('./data/EvictionData_NY.csv') %>% 
   janitor::clean_names() %>% 
   filter(year == 2016) %>% 
