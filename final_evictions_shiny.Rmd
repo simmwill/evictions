@@ -188,7 +188,11 @@ brooklyn_data %>%
 
 ### Description
 
-The line plot illustrates the eviction rates from 2000 to 2016 across 51 distinct Brooklyn neighborhoods. Users can compare neighborhoods side-by-side and visualize differences in how this parameter has changed over time throughout Brooklyn.
+The line plot illustrates the eviction rates from 2000 to 2016 across 51 distinct Brooklyn neighborhoods. Users can compare neighborhoods side-by-side and visualize differences in how eviction rates have changed over time throughout Brooklyn.
+
+While there's substantial inter-neighborhood heterogeneity in time-trends, an overarching pattern of decreases in eviction rates from 2000 to 2016 is apparent across neighborhoods. 
+
+
 
 **Not all neighborhoods have complete eviction data for each year.**
 
