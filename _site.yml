@@ -14,8 +14,6 @@ navbar:
   right:
     - text: "Interactive Model"
       href: shiny_app
-    - text: "Conclusions"
-      href: conclusions.html
     - text: "Report"
       href: overview.html      
     - icon: fa-github fa-lg
