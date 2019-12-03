@@ -277,7 +277,22 @@ $(document).ready(function () {
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li>
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Exploratory Analyses
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="question_2.html">Filings vs. Evictions</a>
+    </li>
+    <li>
+      <a href="question_3_maps.html">What Predicts Eviction Rates?</a>
+    </li>
+  </ul>
+</li>
+<li>
   <a href="https://nk2814.shinyapps.io/evictions_spaghetti_shiny/">Evictions Over Time</a>
 </li>
 <li>
@@ -293,9 +308,6 @@ $(document).ready(function () {
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://willsimmons.shinyapps.io/model_building/">Interactive Model</a>
-</li>
-<li>
-  <a href="conclusions.html">Conclusions</a>
 </li>
 <li>
   <a href="overview.html">Report</a>

@@ -9,7 +9,10 @@ output:
 
 ```{r setup, include=FALSE}
 options(scipen = 999) # keeps R from using scientific notation with large GEOIDs
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE)
 library(tidyverse)
 library(readxl)
 library(plotly)
@@ -24,44 +27,87 @@ h1.title {
 
 </style>
 
-## Motivation
+# Motivation
 
 * Healthy People 2020 identified housing instability as a key issue in addressing social determinants of health in the United States. 
 * Evictions are an important element of housing instability, and approximately 2 million tenants were evicted nationwide in 2016.
 * Evictions and eviction filings disproportionately affect low-income and minority residents, perpetuating cycles of poverty and instability.
 * Discriminatory practices in evictions and eviction filings exist, and need to be better understood and addressed. 
 
+&nbsp;
 
+### Related Work
 
-## Questions
+The following resources are a sample of what inspired this project.
+
+1. "Forced Out." *The New Yorker*, January 31, 2016. [Link.](https://www.newyorker.com/magazine/2016/02/08/forced-out)
+2. "The Gentrification of Gotham." *CityLab*, April 28, 2017. [Link.](https://www.citylab.com/life/2017/04/the-gentrification-of-gotham/524694/)
+3. "It’s Manhattan’s Last Affordable Neighborhood. But for How Long?" *The New York Times*, September 27, 2019. [Link.](https://www.nytimes.com/2019/09/27/nyregion/inwood-manhattan-affordable-housing.html)
+4. "The Violence of Eviction." *Dissent Magazine*, Summer 2016. [Link.](https://www.dissentmagazine.org/article/the-violence-of-eviction-housing-market-foreclosure-gentrification-finance-capital)
+5. The Eviction Lab: Unpacking America's eviction crisis. [Link.](https://evictionlab.org/)
+6. Interactive Map: NYC Eviction Hotspots, 2013-2015. *JustFixNYC*. [Link.](https://justfixnyc.carto.com/builder/2332dd67-c204-4862-bf2f-579a886c65ca/embed)
+
+&nbsp;
+
+# Questions
+
+Our questions remained fairly stable throughout the development of our project. However, two major changes occurred as we explored the available data:
+
+1. Data were restricted to 2010-2016 due to limited availability of evictions data for NYC
+2. NYC data were restricted to Brooklyn due to the same reason
+
+Thus, our final questions are below, with respect to evictions in Brooklyn during the years 2010-2016:
 
 * How have eviction rates changed over time by census tract in Brooklyn?
 * Are there spatial patterns in the discrepancy between eviction filings and evictions at the neighborhood level? Do these patterns reflect distributions of other key variables of interest? 
 * What factors are associated with eviction rates across census tract in Brooklyn?
 
+&nbsp;
 
-## Data
+# Data
 
-#### *Sources and variables of interest*
+### *Data Sources*
 
 * Primary data source: [Eviction Lab](https://evictionlab.org/) 
 
-* For gentrification measures: [Mapping Displacement and Gentrification in the New York Metropolitan Area (Urban Displacement Project)](https://www.urbandisplacement.org/maps/ny)
-^ Are we still using this?
+* For English language usage, race/ethnicity, family variables, and population density: [American FactFinder](https://factfinder.census.gov/faces/nav/jsf/pages/guided_search.xhtml)
 
-* For English language usage and population density: [American FactFinder](https://factfinder.census.gov/faces/nav/jsf/pages/guided_search.xhtml)
+* Supplemental data source (primarily geographic data): [NYC Open Data](https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-nynta.page)
 
-* Supplemental data source: [NYC Open Data](https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-nynta.page)
+### *Variables of interest*
 
-Include links to shapefiles?
+#### Outcomes
 
-#### *Cleaning*
+  * `evictions` and `eviction_filings`. Count of evictions (or eviction filings) per year at the Census tract level.
+  * `eviction_rate` and `eviction_filing_rate`. Calculated using number of evictions or eviction filings divided by the number of `renter_occupied_households` and multiplied by 100, to be interpreted as a percentage. 
+  
+#### Candidate Predictors
 
-After choosing to focus on New York City, data were limited to Brooklyn as this was the only borough with complete data for 2016 and also all time points from 2000 to 2016. Datasets were merged using the 11-digit FIPs code, `geoid`. Population density was calculated by dividing the number of people living in each census tract by the square miles of each census tract per year. 
+  * `years_since_2010`. Since our data range from 2010 to 2016, and we did not want to assume a constant effect of time, we included year as a set of indicator variables in all models except our empty model (see below).
+  * `hisp`. Percent of population (at census tract level, for all race/ethnicity variables) that self-report Hispanic ethnicity.
+  * `white`. Percent self-reporting White race.
+  * `black`. Percent self-reporting Black race.
+  * `asian`. Percent self-reporting Asian race.
+  * `aian`. Percent self-reporting American Indian / Alaska Native race.
+  * `nhpi`. Percent self-reporting Native Hawaiian / Pacific Islander race.
+  * `other`. Percent self-reporting other race.
+  * `rent_burden`. Average percent of income spent on rent.
+  * `density`. Population density.
+  * `pct_eng`. Percent of population who speak English less than 'Very Well'. This is interpreted as a proxy for percent English as a second language (ESL) speakers. 
+  * `median_household_income`. Median census tract household income in USD.
+  * `poverty_rate`. Percent living below Federal Poverty Line (FPL).
+  * `median_gross_rent`. Median census tract gross rent in USD.
+  * `pct_renter_occupied`. Percent of census tract occupied by renters.
+  * `median_property_value`. Median census tract property value in USD.
+  * `family_size`. Average family size in census tract.
+  * `pct_fam_households`. Percentage of census tract households that contain families.
 
-English language usage data and percent non-white data were only available for 2010-2016. Variables for these data were extracted from ACS data and created for each year.  
+### *Data Cleaning*
 
-We then imported eviction data, which included eviction rates and other relevant metrics by census tract.
+After choosing to focus on New York City, data were limited to Brooklyn as this was the only borough with complete data for 2016 and also all time points from 2010 to 2016. Datasets were merged using the 11-digit FIPs code, `geoid`. 
+
+
+First, we imported data on evictions over time in NYC, which included eviction rates and other relevant metrics by census tract. We excluded Census tracts in which there were fewer than 10 renter-occupied households, since those neighborhoods were creating unstable eviction rate estimates.
 
 ```{r, message = FALSE, warning = FALSE}
 
@@ -70,7 +116,7 @@ We then imported eviction data, which included eviction rates and other relevant
 # contains years 2000 - 2016
 # n = 1880 per year (1880 census tracts)
 
-
+## importing
 eviction = 
   read.csv('./data/EvictionData_NY.csv') %>% 
   janitor::clean_names() %>% 
@@ -78,21 +124,20 @@ eviction =
          year %in% c(2010:2016),
          population != 0) %>% 
   
-  ## selecting and renaming variables
+## selecting and renaming variables
   mutate(pct_nonwhite = (100 - pct_white),
          geoid = as.character(geoid),
          year = as.ordered(year)) %>% 
-  select(geoid, year, ## contextual
-         evictions, eviction_filings, eviction_rate, eviction_filing_rate, renter_occupied_households, ## outcomes
-         pct_nonwhite_evictiondata = pct_nonwhite, ## hypothesized predictors
-         poverty_rate, rent_burden, pct_af_am, pct_renter_occupied, median_gross_rent, median_household_income, median_property_value) %>% ## other predictors
-  filter(renter_occupied_households > 10) # census tracts with few renter households were creating eviction rates of 150, 200, etc.
-
-## note: eviction filing rate calculated (# evictions / # renter occupied households)
-
+  select(geoid, year,
+         evictions, eviction_filings, eviction_rate, eviction_filing_rate, renter_occupied_households,
+         pct_nonwhite_evictiondata = pct_nonwhite,
+         poverty_rate, rent_burden, pct_af_am, pct_renter_occupied, median_gross_rent, median_household_income, median_property_value) %>%
+  filter(renter_occupied_households > 10)
 ```
 
 To look at neighborhood-level data, sample weights were calculated by dividing the population of the census tract by the population of the neighborhood. These weights were then applied to all variables of interest to calculate aggregate measures by neighborhood.
+
+## FRANCIS will change this
 
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
 neighborhood_data_prep = eviction_data %>% 
@@ -117,9 +162,9 @@ neighborhood_data = neighborhood_data_prep %>%
   mutate(neighborhood = as.factor(neighborhood))
 ```
 
-Population density data 
+Population density was calculated by dividing the number of people living in each census tract by the square miles of each census tract per year. 
 
-```{r, message = FALSE, warning = FALSE}
+```{r, warning = FALSE}
 ## For the ACS data, we'll have to use a crude measure of population density we calculate ourselves - census tract population (which changes every year) divided by census tract area (which does not usually change). 
 
 ## NUMERATOR
@@ -171,9 +216,9 @@ density_data =
   
 ```
 
-ESL data (note that function was not practical, since variable name changed unpredictably across datasets)
+English language usage data and racial/ethnic data were extracted from Census Bureau ACS data and created for each year. Unfortunately, the variable name in files available from Census Bureau changed from year to year, making data extraction more unwieldy and more difficult to use with functions such as `map`. Thus, we separately extracted relevant data from each year.
 
-```{r, message = FALSE, warning = FALSE}
+```{r, warning = FALSE}
 ## English language usage data- we import data from 2010-2016
 ## Relevant variable (the percentage of the population 5 and over that speaks English less than "very well"), changes by year- files are therefore individually imported
 
@@ -214,45 +259,45 @@ englang_2013 =
   read.csv("./data/ACS_13_5YR_DP02_with_ann.csv") %>%
   janitor::clean_names() %>%
   mutate(year = "2013", geo_id = as.character(geo_id), geo_id2 = as.character(geo_id2)) %>%
-  select(year, geo_id, geo_id2, hc03_vc170, hc03_vc04, hc01_vc21) %>% ## percent family households and avg family size
+  select(year, geo_id, geo_id2, hc03_vc173, hc03_vc04, hc01_vc21) %>% ## percent family households and avg family size
   filter(geo_id != "Id") %>%
-  mutate(pct_eng = as.numeric(as.character(hc03_vc170)),
+  mutate(pct_eng = as.numeric(as.character(hc03_vc173)),
          pct_fam_households = as.numeric(as.character(hc03_vc04)),
          family_size = as.numeric(as.character(hc01_vc21))) %>%
-  select(-hc03_vc170, -hc03_vc04, -hc01_vc21)
+  select(-hc03_vc173, -hc03_vc04, -hc01_vc21)
 
 englang_2014 = 
   read.csv("./data/ACS_14_5YR_DP02_with_ann.csv") %>%
   janitor::clean_names() %>%
   mutate(year = "2014", geo_id = as.character(geo_id), geo_id2 = as.character(geo_id2)) %>%
-  select(year, geo_id, geo_id2, hc03_vc170, hc03_vc04, hc01_vc22) %>% ## percent family households and avg family size
+  select(year, geo_id, geo_id2, hc03_vc173, hc03_vc04, hc01_vc22) %>% ## percent family households and avg family size
   filter(geo_id != "Id") %>%
-  mutate(pct_eng = as.numeric(as.character(hc03_vc170)),
+  mutate(pct_eng = as.numeric(as.character(hc03_vc173)),
          pct_fam_households = as.numeric(as.character(hc03_vc04)),
          family_size = as.numeric(as.character(hc01_vc22))) %>%
-  select(-hc03_vc170, -hc03_vc04, -hc01_vc22)
+  select(-hc03_vc173, -hc03_vc04, -hc01_vc22)
 
 englang_2015 = 
   read.csv("./data/ACS_15_5YR_DP02_with_ann.csv") %>%
   janitor::clean_names() %>%
   mutate(year = "2015", geo_id = as.character(geo_id), geo_id2 = as.character(geo_id2)) %>%
-  select(year, geo_id, geo_id2, hc03_vc170, hc03_vc04, hc01_vc22) %>% ## percent family households and avg family size
+  select(year, geo_id, geo_id2, hc03_vc173, hc03_vc04, hc01_vc22) %>% ## percent family households and avg family size
   filter(geo_id != "Id") %>%
-  mutate(pct_eng = as.numeric(as.character(hc03_vc170)),
+  mutate(pct_eng = as.numeric(as.character(hc03_vc173)),
          pct_fam_households = as.numeric(as.character(hc03_vc04)),
          family_size = as.numeric(as.character(hc01_vc22))) %>%
-  select(-hc03_vc170, -hc03_vc04, -hc01_vc22)
+  select(-hc03_vc173, -hc03_vc04, -hc01_vc22)
 
 englang_2016 = 
   read.csv("./data/ACS_16_5YR_DP02_with_ann.csv") %>%
   janitor::clean_names() %>%
   mutate(year = "2016", geo_id = as.character(geo_id), geo_id2 = as.character(geo_id2)) %>%
-  select(year, geo_id, geo_id2, hc03_vc170, hc03_vc04, hc01_vc22) %>% ## percent family households and avg family size
+  select(year, geo_id, geo_id2, hc03_vc173, hc03_vc04, hc01_vc22) %>% ## percent family households and avg family size
   filter(geo_id != "Id") %>%
-  mutate(pct_eng = as.numeric(as.character(hc03_vc170)),
+  mutate(pct_eng = as.numeric(as.character(hc03_vc173)),
          pct_fam_households = as.numeric(as.character(hc03_vc04)),
          family_size = as.numeric(as.character(hc01_vc22))) %>%
-  select(-hc03_vc170, -hc03_vc04, -hc01_vc22)
+  select(-hc03_vc173, -hc03_vc04, -hc01_vc22)
 
 englang_data = 
   bind_rows(englang_2010, englang_2011, englang_2012, englang_2013, englang_2014, englang_2015, englang_2016) %>% 
@@ -268,9 +313,7 @@ englang_data =
 
 ```
 
-Race data (same caveat as above)
-
-```{r, message = FALSE, warning = FALSE}
+```{r, warning = FALSE}
 ## Racial composition data- we import data from 2010-2016
 ## Racial categories are not mutually exclusive, so total percentages may sum to more than 100%
 ## Relevant variable (the percentage of the population 5 and over that speaks English less than "very well"), changes by year- files are therefore individually imported
@@ -410,11 +453,12 @@ race_data =
   
   ## restricting and renaming etc.
   select(-geo_id)
+  
 
 
 ```
 
-Creating key to transform `geoid` to boro
+Since `geoid` (FIPs codes) are not inherently interpretable, we created a key to translate them from FIPs to boro.
 
 ```{r, message = FALSE, warning = FALSE}
 ## creating key for geoid <--> boro
@@ -433,9 +477,9 @@ geoid_boro_key =
   distinct()
 ```
 
-Joining datasets
+Finally, we joined all datasets using a combination of `geoid` (FIPs codes) and `year` as unique identifier across tables.
 
-```{r, message = FALSE, warning = FALSE}
+```{r}
 ## all rows regardless of NA, using outer (full) join
 
 joined_data = 
@@ -475,18 +519,11 @@ joined_data_bklyn_nomissing %>%
 
 ```
 
+&nbsp;
 
-#### *Variables of interest*
+# Exploratory Analysis
 
-
-NOTE: Eviction rate and eviction filing rate represent the number of evictions or eviction filings divided by the number of renter occupied households and multiplied by 100 to be interpreted as a percentage. 
-
-## Methods
-
-
-## Exploratory Analysis
-
-#### *Mapping*
+### *Mapping*
 
 Census tract and neighobrhood shapefiles were downloaded from NYC Open Data and limited to Brooklyn. 
 ```{r cleaning-mapdata, eval=FALSE}
@@ -555,6 +592,6 @@ leaflet::leaflet(data = census_tracts_crs) %>%
 
 The results of our exploratory analyses were used to inform further model building.
 
-## Additional Analysis
+# Additional Analysis
 
-## Discussion
+# Discussion
