@@ -278,7 +278,7 @@ $(document).ready(function () {
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="q1_evictions_overtime_neighborhoods.html">Evictions Over Time</a>
+  <a href="https://nk2814.shinyapps.io/evictions_spaghetti_shiny/">Evictions Over Time</a>
 </li>
 <li>
   <a href="question_2.html">Filings vs. Evictions</a>
@@ -292,7 +292,7 @@ $(document).ready(function () {
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="shiny_app">Interactive Model</a>
+  <a href="https://willsimmons.shinyapps.io/model_building/">Interactive Model</a>
 </li>
 <li>
   <a href="conclusions.html">Conclusions</a>
@@ -301,7 +301,7 @@ $(document).ready(function () {
   <a href="overview.html">Report</a>
 </li>
 <li>
-  <a href="https://github.com/simmwill/brooklyn_evictions.github.io">
+  <a href="https://github.com/simmwill/evictions">
     <span class="fa fa-github fa-lg"></span>
      
   </a>
@@ -521,7 +521,7 @@ gee_stepper_o(full_fit, formula(full_fit)) ## customized function to automatical
 <p>To summarize, we will consider the following models to predict census tract-level eviction rates:</p>
 <p>Two hypothesized models:</p>
 <ol style="list-style-type: decimal">
-<li><p>A hypothesized model based primarily on percent ESL speakers [Equation 2, above]</p></li>
+<li>A hypothesized model based primarily on percent ESL speakers [Equation 2, above]</li>
 <li><p>A hypothesized model based primarily on independent effects of race/ethnicity percentages [Equation 3, above]</p></li>
 <li><p>A model selected via a GEE-specific forward stepwise selection process</p></li>
 </ol>
@@ -805,19 +805,7 @@ hyp_model_race %&gt;%
 <h2>Interactive prediction model</h2>
 <p>We want to enable readers to more easily understand which predictors affect eviction rate and to what extents. Thus, using the race-based GEE model we selected from our five compared models, we created an interactive model-fitting tool that allows readers to adjust levels of various predictors to see the expected change in eviction rate (evictions per 100 renter-occupied households).</p>
 <p>Further than the analyses above, readers can also get a sense of these effects in each neighborhood of Brooklyn.</p>
-<p>Click here to access this model-building app.</p>
-<pre class="r"><code>## this works really well
-exp(predict(hyp_model_race, newdata = data.frame(renter_occupied_households = 100,
-                                                 years_since_2010 = &#39;4&#39;,
-                                                 rent_burden = 35,
-                                                 density = 50000,
-                                                 black = 90,
-                                                 asian = 10,
-                                                 nhpi = 1,
-                                                 aian = 1,
-                                                 hisp = 40)))</code></pre>
-<pre><code>##        1 
-## 4.084648</code></pre>
+<p>Click ‘Interactive Model’ in the navbar above to access this model-building app.</p>
 </div>
 </div>
 
@@ -835,7 +823,9 @@ exp(predict(hyp_model_race, newdata = data.frame(renter_occupied_households = 10
 <p style="text-align: center;">
 Visualizations and analyses performed using <a href="https://www.r-project.org/about.html">R</a> (v3.6.1) and <a href="https://rstudio.com">RStudio</a> (v1.2.1335). <br>
 
-Additional interactivity added using <a href="https://plot.ly/">plotly</a> (v4.9.0) and <a href="https://shiny.rstudio.com/">Shiny</a> (v1.3.2). 
+Additional interactivity added using <a href="https://plot.ly/">plotly</a> (v4.9.0) and <a href="https://shiny.rstudio.com/">Shiny</a> (v1.3.2). <br>
+
+<a href="https://simmwill.github.io/evictions/packages.html">Click here</a> to see details on all programs used. 
 
 <br>
 <br>

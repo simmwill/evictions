@@ -1,0 +1,13 @@
+name: evictions_spaghetti_shiny
+title: evictions_spaghetti_shiny
+username:
+account: nk2814
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1545037
+bundleId: 2631388
+url: https://nk2814.shinyapps.io/evictions_spaghetti_shiny/
+when: 1575257201.52316
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: _site.yml|conclusions.html|conclusions.Rmd|footer.html|gee_stepper_o.R|index.html|index.Rmd|model_building.html|model_building.Rmd|overview.html|overview.Rmd|q1_evictions_overtime_neighborhoods.html|q1_evictions_overtime_neighborhoods.Rmd|q1_map.Rmd|q1_spaghetti.html|q1_spaghetti.Rmd|question_2.html|question_2.Rmd|question_3_maps.html|question_3_maps.Rmd|shiny_gee_model.Rmd|conclusions_files/figure-html/unnamed-chunk-1-1.png|model_building_files/figure-html/corr_matrix-1.png|model_building_files/figure-html/cv-1.png|model_building_files/figure-html/poisson_dist-1.png|model_building_files/figure-html/unnamed-chunk-2-1.png|q1_spaghetti_shiny/app.R

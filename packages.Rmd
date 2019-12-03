@@ -1,0 +1,41 @@
+---
+title: "Packages used"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+library(BAMMtools)
+library(patchwork)
+library(maps)
+library(devtools)
+library(leaflet)
+library(maptools)
+library(tidyverse)
+library(readxl)
+library(plotly)
+library(maps)
+library(devtools)
+library(leaflet)
+library(patchwork)
+library(BAMMtools)
+library(leafsync)
+library(tidyverse)
+library(readxl)
+library(plotly)
+library(rgdal)
+library(leafsync)
+library(tidyverse)
+library(readxl)
+library(plotly)
+library(geepack)
+library(modelr)
+source('gee_stepper_o.R') ## custom stepwise function
+library(leaflet)
+library(patchwork)
+library(BAMMtools)
+library(devtools)
+library(readxl)
+library(plotly)
+sessionInfo()
+```

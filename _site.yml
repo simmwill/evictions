@@ -5,6 +5,7 @@ navbar:
   left:
     - text: "Evictions Over Time"
       href: q1_evictions_overtime_neighborhoods.html
+      href: https://nk2814.shinyapps.io/evictions_spaghetti_shiny/
     - text: "Filings vs. Evictions"
       href: question_2.html
     - text: "What Predicts Eviction Rates?"
@@ -14,10 +15,14 @@ navbar:
   right:
     - text: "Interactive Model"
       href: shiny_app
+      href: https://willsimmons.shinyapps.io/model_building/
+    - text: "Conclusions"
+      href: conclusions.html
     - text: "Report"
       href: overview.html      
     - icon: fa-github fa-lg
       href: https://github.com/simmwill/brooklyn_evictions.github.io
+      href: https://github.com/simmwill/evictions
 output:
   html_document:
     theme: cosmo
