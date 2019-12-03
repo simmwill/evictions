@@ -56,7 +56,7 @@ joined_data_bklyn_nomissing =
 
 Using existing data, we aim to investigate factors that are associated with - and can potentially be used to predict - eviction rates among census tracts in Brooklyn. 
 
-We propose using Generalized Estimating Equations (GEE). GEEs can be used to model correlated/hierarchical data, and group-level (hierarchical) estimates are not desired. Since our data are repeated over time within census tract (2010-2016), we expect there to be autocorrelation present across years, and we can address this using GEE modeling techniques. 
+We propose using Generalized Estimating Equations (GEE). GEEs can be used to model correlated/hierarchical data, and within-group (hierarchical) estimates are not desired. Since our data are repeated over time within census tract (2010-2016), we expect there to be autocorrelation present across years, and we can address this using GEE modeling techniques. 
 
 More specifically, we propose using a GEE modelling framework with a log link function. Our outcome variable, eviction rate, is calculated by dividing count of evictions by the number of renter-occupied households; since this is based on a **count** variable, evictions, we expect our outcome to assume a Poisson distribution. Thus, we can use a log link function to model the expected count of evictions, and include the denominator of our eviction rate - number of renter-occupied households - as an offset term in the right-hand side of our equation.
 
@@ -108,7 +108,7 @@ Although we formulated specific hypotheses regarding predictors of eviction in B
 
 *Note:* Since our repeated data are clustered within census tracts, we could not include neighborhood, an otherwise important predictor of eviction rates. If we wanted to conduct models similar to these but (1) within census tracts across time AND (2) also modelling census tracts clustered within neighborhoods, we would have to move into some sort of hierarchical/multilevel modelling structure.
 
-In our model-building Shiny app (see navigation bar), we have included a set of indicator variables representing Brooklyn neighborhoods using a simpler Generalized Linear Model (GLM).
+In our model-building Shiny app (see 'Interactive Model', navigation bar), readers can stratify these analyses by neighborhood, which may allow some conclusions regarding neighborhood-level effects (as opposed to just Brooklyn-level).
 
 &nbsp;
 &nbsp;
@@ -281,16 +281,16 @@ After running stepwise selection, our GEE stepwise model includes predictors:
   * `black`
   * `hisp` 
   * `rent_burden`
-  * `pct_eng`
-  * `density`
   * `median_gross_rent`
+  * `density`
   * `poverty_rate` 
   * `median_household_income`
   * `asian` 
-  * `aian` 
   * `nhpi` 
+  * `aian`
+  * `pct_renter_occupied`
   
-This model includes both `pct_eng` and `black`, so we can fully interpret the effects of ESL adjusting for confounding by percent Black race. However, to be conservative in our interpretations, `median_household_income` should not be interpreted separately from `poverty_rate` (*r*  =  -0.73) or `median_gross_rent` (*r*  =  -0.74).
+In this model, to be conservative in our interpretations, `median_household_income` should not be interpreted separately from `poverty_rate` (*r*  =  -0.73) or `median_gross_rent` (*r*  =  -0.74).
 
 &nbsp;
 &nbsp;
@@ -310,7 +310,7 @@ Two hypothesized models:
 In addition to these three models (1, 2, 3), we propose two baseline models:
 
   4. An empty model, in which there are no predictors, and only the outcome and offset terms are included on opposite sides of the equation, i.e. `evictions ~ offset(log(renter_occupied_households))`
-  5. A naive model, which only uses time to predict eviction rate (i.e. the above model, plus `years_since_2010` on the right-hand-side of the model)
+  5. A naive model, which only uses time to predict eviction rate, i.e. the above model, plus `years_since_2010` on the right-hand-side of the model
   
 &nbsp;
 &nbsp;
@@ -368,10 +368,11 @@ hyp_model_race =
          corstr = "ar1")
 
 step_model = 
-  geeglm(formula = evictions ~ years_since_2010 + hisp + rent_burden + 
-         density + pct_eng + median_household_income + nhpi + poverty_rate + 
-         median_gross_rent + pct_renter_occupied + aian + other + 
-         pct_nonwhite_racedata + asian + offset(log(renter_occupied_households)), 
+  geeglm(evictions ~ 
+           offset(log(renter_occupied_households)) + 
+           black + hisp + rent_burden + median_gross_rent + 
+           density + poverty_rate + median_household_income + asian +
+           nhpi + aian + pct_renter_occupied, 
          family = poisson, 
          data = joined_data_bklyn_nomissing, 
          id = geoid, 

@@ -285,21 +285,15 @@ $(document).ready(function () {
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="https://nk2814.shinyapps.io/evictions_spaghetti_shiny/">Evictions Over Time</a>
+    </li>
+    <li>
       <a href="question_2.html">Filings vs. Evictions</a>
     </li>
     <li>
       <a href="question_3_maps.html">What Predicts Eviction Rates?</a>
     </li>
   </ul>
-</li>
-<li>
-  <a href="https://nk2814.shinyapps.io/evictions_spaghetti_shiny/">Evictions Over Time</a>
-</li>
-<li>
-  <a href="question_2.html">Filings vs. Evictions</a>
-</li>
-<li>
-  <a href="question_3_maps.html">What Predicts Eviction Rates?</a>
 </li>
 <li>
   <a href="model_building.html">Model Building</a>
@@ -315,6 +309,12 @@ $(document).ready(function () {
 <li>
   <a href="https://github.com/simmwill/evictions">
     <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://youtube.com">
+    <span class="fa fa-youtube fa-lg"></span>
      
   </a>
 </li>
@@ -346,7 +346,7 @@ $(document).ready(function () {
 <div id="overview" class="section level2">
 <h2>Overview</h2>
 <p>Using existing data, we aim to investigate factors that are associated with - and can potentially be used to predict - eviction rates among census tracts in Brooklyn.</p>
-<p>We propose using Generalized Estimating Equations (GEE). GEEs can be used to model correlated/hierarchical data, and group-level (hierarchical) estimates are not desired. Since our data are repeated over time within census tract (2010-2016), we expect there to be autocorrelation present across years, and we can address this using GEE modeling techniques.</p>
+<p>We propose using Generalized Estimating Equations (GEE). GEEs can be used to model correlated/hierarchical data, and within-group (hierarchical) estimates are not desired. Since our data are repeated over time within census tract (2010-2016), we expect there to be autocorrelation present across years, and we can address this using GEE modeling techniques.</p>
 <p>More specifically, we propose using a GEE modelling framework with a log link function. Our outcome variable, eviction rate, is calculated by dividing count of evictions by the number of renter-occupied households; since this is based on a <strong>count</strong> variable, evictions, we expect our outcome to assume a Poisson distribution. Thus, we can use a log link function to model the expected count of evictions, and include the denominator of our eviction rate - number of renter-occupied households - as an offset term in the right-hand side of our equation.</p>
 <p>Finally, we propose using an AR(1) correlation structure, since autocorrelation can be reasonably expected given our data are measured over time. (In short, this means that, as one data point moves farther away from another correlated data point, the correlation between them decreases exponentially. We might reasonably expect this to happen over time with our data - e.g. a census tract’s 2006 eviction rate may be more similar to its 2005 eviction rate than to its 2000 eviction rate.)</p>
 <p>Since our outcome, eviction rate, is calculated using a <strong>count</strong> variable (number of evictions) repeated over time within areas, we’ll model it using GEE with a Poisson link function.</p>
@@ -380,7 +380,7 @@ $(document).ready(function () {
 <li><code>pct_fam_households</code>. Percentage of census tract households that contain families.</li>
 </ul>
 <p><em>Note:</em> Since our repeated data are clustered within census tracts, we could not include neighborhood, an otherwise important predictor of eviction rates. If we wanted to conduct models similar to these but (1) within census tracts across time AND (2) also modelling census tracts clustered within neighborhoods, we would have to move into some sort of hierarchical/multilevel modelling structure.</p>
-<p>In our model-building Shiny app (see navigation bar), we have included a set of indicator variables representing Brooklyn neighborhoods using a simpler Generalized Linear Model (GLM).</p>
+<p>In our model-building Shiny app (see ‘Interactive Model’, navigation bar), readers can stratify these analyses by neighborhood, which may allow some conclusions regarding neighborhood-level effects (as opposed to just Brooklyn-level).</p>
 <p>   </p>
 </div>
 <div id="hypothesis" class="section level2">
@@ -516,16 +516,16 @@ gee_stepper_o(full_fit, formula(full_fit)) ## customized function to automatical
 <li><code>black</code></li>
 <li><code>hisp</code></li>
 <li><code>rent_burden</code></li>
-<li><code>pct_eng</code></li>
-<li><code>density</code></li>
 <li><code>median_gross_rent</code></li>
+<li><code>density</code></li>
 <li><code>poverty_rate</code></li>
 <li><code>median_household_income</code></li>
 <li><code>asian</code></li>
-<li><code>aian</code></li>
 <li><code>nhpi</code></li>
+<li><code>aian</code></li>
+<li><code>pct_renter_occupied</code></li>
 </ul>
-<p>This model includes both <code>pct_eng</code> and <code>black</code>, so we can fully interpret the effects of ESL adjusting for confounding by percent Black race. However, to be conservative in our interpretations, <code>median_household_income</code> should not be interpreted separately from <code>poverty_rate</code> (<em>r</em> = -0.73) or <code>median_gross_rent</code> (<em>r</em> = -0.74).</p>
+<p>In this model, to be conservative in our interpretations, <code>median_household_income</code> should not be interpreted separately from <code>poverty_rate</code> (<em>r</em> = -0.73) or <code>median_gross_rent</code> (<em>r</em> = -0.74).</p>
 <p>   </p>
 </div>
 <div id="summary-of-models" class="section level2">
@@ -540,7 +540,7 @@ gee_stepper_o(full_fit, formula(full_fit)) ## customized function to automatical
 <p>In addition to these three models (1, 2, 3), we propose two baseline models:</p>
 <ol start="4" style="list-style-type: decimal">
 <li>An empty model, in which there are no predictors, and only the outcome and offset terms are included on opposite sides of the equation, i.e. <code>evictions ~ offset(log(renter_occupied_households))</code></li>
-<li>A naive model, which only uses time to predict eviction rate (i.e. the above model, plus <code>years_since_2010</code> on the right-hand-side of the model)</li>
+<li>A naive model, which only uses time to predict eviction rate, i.e. the above model, plus <code>years_since_2010</code> on the right-hand-side of the model</li>
 </ol>
 <p>   </p>
 <hr />
@@ -590,10 +590,11 @@ hyp_model_race =
          corstr = &quot;ar1&quot;)
 
 step_model = 
-  geeglm(formula = evictions ~ years_since_2010 + hisp + rent_burden + 
-         density + pct_eng + median_household_income + nhpi + poverty_rate + 
-         median_gross_rent + pct_renter_occupied + aian + other + 
-         pct_nonwhite_racedata + asian + offset(log(renter_occupied_households)), 
+  geeglm(evictions ~ 
+           offset(log(renter_occupied_households)) + 
+           black + hisp + rent_burden + median_gross_rent + 
+           density + poverty_rate + median_household_income + asian +
+           nhpi + aian + pct_renter_occupied, 
          family = poisson, 
          data = joined_data_bklyn_nomissing, 
          id = geoid, 
@@ -711,100 +712,100 @@ hyp_model_race %&gt;%
 <tbody>
 <tr class="odd">
 <td align="left">(Intercept)</td>
-<td align="right">-5.6309476</td>
-<td align="right">0.0931704</td>
-<td align="right">3652.640062</td>
+<td align="right">-6.8770880</td>
+<td align="right">0.4673447</td>
+<td align="right">216.5381772</td>
 <td align="right">0.0000000</td>
 </tr>
 <tr class="even">
 <td align="left">years_since_20101</td>
-<td align="right">-2.9450532</td>
-<td align="right">0.0543508</td>
-<td align="right">2936.127907</td>
+<td align="right">-2.7234300</td>
+<td align="right">0.2625426</td>
+<td align="right">107.6050718</td>
 <td align="right">0.0000000</td>
 </tr>
 <tr class="odd">
 <td align="left">years_since_20102</td>
-<td align="right">-0.7230996</td>
-<td align="right">0.0244523</td>
-<td align="right">874.496766</td>
-<td align="right">0.0000000</td>
+<td align="right">-0.5400542</td>
+<td align="right">0.1114080</td>
+<td align="right">23.4986175</td>
+<td align="right">0.0000013</td>
 </tr>
 <tr class="even">
 <td align="left">years_since_20103</td>
-<td align="right">-0.8456613</td>
-<td align="right">0.0257096</td>
-<td align="right">1081.937226</td>
+<td align="right">-0.9202810</td>
+<td align="right">0.1270017</td>
+<td align="right">52.5075552</td>
 <td align="right">0.0000000</td>
 </tr>
 <tr class="odd">
 <td align="left">years_since_20104</td>
-<td align="right">-0.2351592</td>
-<td align="right">0.0220241</td>
-<td align="right">114.005530</td>
-<td align="right">0.0000000</td>
+<td align="right">-0.3740389</td>
+<td align="right">0.1092931</td>
+<td align="right">11.7124599</td>
+<td align="right">0.0006208</td>
 </tr>
 <tr class="even">
 <td align="left">years_since_20105</td>
-<td align="right">-0.3839879</td>
-<td align="right">0.0242768</td>
-<td align="right">250.180647</td>
+<td align="right">-0.5816006</td>
+<td align="right">0.0904011</td>
+<td align="right">41.3906763</td>
 <td align="right">0.0000000</td>
 </tr>
 <tr class="odd">
 <td align="left">years_since_20106</td>
-<td align="right">-0.3279125</td>
-<td align="right">0.0324796</td>
-<td align="right">101.928236</td>
-<td align="right">0.0000000</td>
+<td align="right">-0.3352003</td>
+<td align="right">0.2402324</td>
+<td align="right">1.9469093</td>
+<td align="right">0.1629203</td>
 </tr>
 <tr class="even">
 <td align="left">rent_burden</td>
-<td align="right">0.0176423</td>
-<td align="right">0.0020179</td>
-<td align="right">76.439210</td>
-<td align="right">0.0000000</td>
+<td align="right">0.0385669</td>
+<td align="right">0.0090700</td>
+<td align="right">18.0807562</td>
+<td align="right">0.0000212</td>
 </tr>
 <tr class="odd">
 <td align="left">density</td>
-<td align="right">-0.0000035</td>
-<td align="right">0.0000007</td>
-<td align="right">24.280014</td>
-<td align="right">0.0000008</td>
+<td align="right">-0.0000011</td>
+<td align="right">0.0000023</td>
+<td align="right">0.2349998</td>
+<td align="right">0.6278411</td>
 </tr>
 <tr class="even">
 <td align="left">black</td>
-<td align="right">0.0188651</td>
-<td align="right">0.0005086</td>
-<td align="right">1375.706116</td>
+<td align="right">0.0214437</td>
+<td align="right">0.0017966</td>
+<td align="right">142.4588806</td>
 <td align="right">0.0000000</td>
 </tr>
 <tr class="odd">
 <td align="left">asian</td>
-<td align="right">0.0043108</td>
-<td align="right">0.0013104</td>
-<td align="right">10.822704</td>
-<td align="right">0.0010026</td>
+<td align="right">0.0127912</td>
+<td align="right">0.0056637</td>
+<td align="right">5.1006551</td>
+<td align="right">0.0239168</td>
 </tr>
 <tr class="even">
 <td align="left">aian</td>
-<td align="right">-0.0129843</td>
-<td align="right">0.0113196</td>
-<td align="right">1.315754</td>
-<td align="right">0.2513556</td>
+<td align="right">-0.0883218</td>
+<td align="right">0.0430107</td>
+<td align="right">4.2167987</td>
+<td align="right">0.0400256</td>
 </tr>
 <tr class="odd">
 <td align="left">nhpi</td>
-<td align="right">0.0774339</td>
-<td align="right">0.0251317</td>
-<td align="right">9.493352</td>
-<td align="right">0.0020622</td>
+<td align="right">0.2298960</td>
+<td align="right">0.0908511</td>
+<td align="right">6.4032794</td>
+<td align="right">0.0113910</td>
 </tr>
 <tr class="even">
 <td align="left">hisp</td>
-<td align="right">0.0105379</td>
-<td align="right">0.0009028</td>
-<td align="right">136.237063</td>
+<td align="right">0.0186064</td>
+<td align="right">0.0014283</td>
+<td align="right">169.7127240</td>
 <td align="right">0.0000000</td>
 </tr>
 </tbody>

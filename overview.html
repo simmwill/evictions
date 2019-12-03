@@ -427,7 +427,7 @@ h1.title {
 </ul>
 <p> </p>
 <div id="related-work" class="section level3">
-<h3>Related Work</h3>
+<h3><em>Related Work</em></h3>
 <p>The following resources are a sample of what inspired this project.</p>
 <ol style="list-style-type: decimal">
 <li>“Forced Out.” <em>The New Yorker</em>, January 31, 2016. <a href="https://www.newyorker.com/magazine/2016/02/08/forced-out">Link.</a></li>
@@ -502,6 +502,7 @@ h1.title {
 <h3><em>Data Cleaning</em></h3>
 <p>After choosing to focus on New York City, data were limited to Brooklyn as this was the only borough with complete data for 2016 and also all time points from 2010 to 2016. Datasets were merged using the 11-digit FIPs code, <code>geoid</code>.</p>
 <p>First, we imported data on evictions over time in NYC, which included eviction rates and other relevant metrics by census tract. We excluded Census tracts in which there were fewer than 10 renter-occupied households, since those neighborhoods were creating unstable eviction rate estimates.</p>
+<p> </p>
 <pre class="r"><code># CSV file contains all census tracts for NY state, so we&#39;ll import the file and then filter such that the dataframe &#39;eviction&#39; only contains NYC census tracts.
 
 # contains years 2000 - 2016
@@ -524,7 +525,9 @@ eviction =
          pct_nonwhite_evictiondata = pct_nonwhite,
          poverty_rate, rent_burden, pct_af_am, pct_renter_occupied, median_gross_rent, median_household_income, median_property_value) %&gt;%
   filter(renter_occupied_households &gt; 10)</code></pre>
+<p> </p>
 <p>To look at neighborhood-level data, sample weights were calculated by dividing the population of the census tract by the population of the neighborhood. These weights were then applied to all variables of interest to calculate aggregate measures by neighborhood.</p>
+<p> </p>
 </div>
 <div id="francis-will-change-this" class="section level2">
 <h2>FRANCIS will change this</h2>
@@ -548,7 +551,9 @@ neighborhood_data = neighborhood_data_prep %&gt;%
     wt_povertyrate = sum(weighted_povertyrate)) %&gt;% 
   ungroup() %&gt;% 
   mutate(neighborhood = as.factor(neighborhood))</code></pre>
+<p> </p>
 <p>Population density was calculated by dividing the number of people living in each census tract by the square miles of each census tract per year.</p>
+<p> </p>
 <pre class="r"><code>## For the ACS data, we&#39;ll have to use a crude measure of population density we calculate ourselves - census tract population (which changes every year) divided by census tract area (which does not usually change). 
 
 ## NUMERATOR
@@ -597,7 +602,9 @@ density_data =
   filter(geography %in% c(&quot;New York County, New York&quot;, &quot;Queens County, New York&quot;, &quot;Kings County, New York&quot;, &quot;Bronx County, New York&quot;, &quot;Richmond County, New York&quot;),
        year %in% c(2010:2016)) %&gt;% 
   select(geoid = id2, year, total_pop_densitydata = total_pop, area_sqmi, density)</code></pre>
+<p> </p>
 <p>English language usage data and racial/ethnic data were extracted from Census Bureau ACS data and created for each year. Unfortunately, the variable name in files available from Census Bureau changed from year to year, making data extraction more unwieldy and more difficult to use with functions such as <code>map</code>. Thus, we separately extracted relevant data from each year.</p>
+<p> </p>
 <pre class="r"><code>## English language usage data- we import data from 2010-2016
 ## Relevant variable (the percentage of the population 5 and over that speaks English less than &quot;very well&quot;), changes by year- files are therefore individually imported
 
@@ -689,6 +696,7 @@ englang_data =
   ## bronx, kings, new york, queens, richmond counties - using codes (need to triple-check these match up with County Names)
   filter(substr(geoid, 1,5) %in% c(36005, 36047, 36061, 36081, 36085),
          year %in% c(2010:2016))</code></pre>
+<p> </p>
 <pre class="r"><code>## Racial composition data- we import data from 2010-2016
 ## Racial categories are not mutually exclusive, so total percentages may sum to more than 100%
 ## Relevant variable (the percentage of the population 5 and over that speaks English less than &quot;very well&quot;), changes by year- files are therefore individually imported
@@ -828,7 +836,9 @@ race_data =
   
   ## restricting and renaming etc.
   select(-geo_id)</code></pre>
+<p> </p>
 <p>Since <code>geoid</code> (FIPs codes) are not inherently interpretable, we created a key to translate them from FIPs to boro.</p>
+<p> </p>
 <pre class="r"><code>## creating key for geoid &lt;--&gt; boro
 geoid_boro_key = 
   read.csv(&#39;./data/EvictionData_NY.csv&#39;) %&gt;% 
@@ -843,7 +853,9 @@ geoid_boro_key =
                                &quot;Bronx County, New York&quot; = &quot;Bronx&quot;, 
                                &quot;Richmond County, New York&quot; = &quot;Staten Island&quot;)) %&gt;% 
   distinct()</code></pre>
+<p> </p>
 <p>Finally, we joined all datasets using a combination of <code>geoid</code> (FIPs codes) and <code>year</code> as unique identifier across tables.</p>
+<p> </p>
 <pre class="r"><code>## all rows regardless of NA, using outer (full) join
 
 joined_data = 
@@ -885,6 +897,7 @@ joined_data_bklyn_nomissing %&gt;%
 </div>
 <div id="exploratory-analysis" class="section level1">
 <h1>Exploratory Analysis</h1>
+<p> </p>
 <div id="mapping" class="section level3">
 <h3><em>Mapping</em></h3>
 <p>Census tract and neighobrhood shapefiles were downloaded from NYC Open Data and limited to Brooklyn.</p>
@@ -921,7 +934,9 @@ census_tracts@data = left_join(census_tracts@data, joined_data_bklyn_2010, by = 
 # Create map projection ready for mapping
 census_tracts_crs = 
   spTransform(census_tracts, CRS(&quot;+init=epsg:4326&quot;))</code></pre>
+<p> </p>
 <p>In order to inform model building, we created simple visualizations of our four predictors (percentage of ESL speakers, percentage of non-White residents, rent burden, and population density) over a choropleth of eviction rates in Brooklyn by census tract in 2010.</p>
+<p> </p>
 <pre class="r"><code># Sample map code (Eviction rates and % ESL by census tract)
 leaflet::leaflet(data = census_tracts_crs) %&gt;% 
   addProviderTiles(&#39;CartoDB.Positron&#39;) %&gt;% 
@@ -946,7 +961,9 @@ leaflet::leaflet(data = census_tracts_crs) %&gt;%
     ) %&gt;%
       addLegendCustom(colors = c(&quot;red&quot;, &quot;red&quot;, &quot;red&quot;), 
         labels = c(&quot;1&quot;, &quot;3&quot;, &quot;8&quot;), sizes = c(4, 6.9282, 11.3137))</code></pre>
+<p> </p>
 <p>The results of our exploratory analyses were used to inform further model building.</p>
+<p> </p>
 </div>
 </div>
 <div id="additional-analysis" class="section level1">
