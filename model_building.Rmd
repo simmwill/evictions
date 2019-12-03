@@ -3,6 +3,8 @@ title: "Model Building"
 output: 
   html_document:
     code_folding: hide
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -449,7 +451,9 @@ model_data_cv %>%
   labs(x = "Model",
        y = "RMSE", 
        title = "Cross-Validating Models") +
-  scale_fill_brewer(type = 'seq', palette = 'Purples')
+  scale_fill_brewer(type = 'seq', palette = 'Purples') +
+  theme(legend.position = 'none',
+        plot.title = element_text(hjust = 0.5))
 
 ```
 

@@ -19,9 +19,8 @@ navbar:
       href: model_building.html
   right:
     - text: "Interactive Model"
+      href: shiny_app
       href: https://willsimmons.shinyapps.io/model_building/
-    - text: "Conclusions"
-      href: conclusions.html
     - text: "Report"
       href: overview.html      
     - icon: fa-github fa-lg
