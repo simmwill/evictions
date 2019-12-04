@@ -637,14 +637,159 @@ To explore the question of how eviction rates in Brooklyn have changed over time
 
 1) A spaghetti plot depicting eviction rates from 2000 to 2016 in Brooklyn broken down by **neighborhood**.
 
+```{r shiny_app_spaghetti, eval=FALSE}
+
+# Reading in and cleaning data for neighborhood-level spaghetti plot over time
+
+# Read NYC neighborhood data
+neighborhood_df = 
+  read_excel("./data/NYC_neighborhoods_by_censustract_2010.xlsx", 
+             skip = 5, 
+             col_names = c("borough", "county_code", "boro_code", "census_tract", "PUMA", "nta_code", "neighborhood")
+             ) %>% 
+#creating 11 digit FIPS code by pasting country code (36) with `county_code` and `census_tract`
+  mutate(geo_id = paste0("36", county_code, census_tract)
+  )
+
+# Read Eviction data, limit to Brooklyn, join to neighborhood_df
+brooklyn_data = read.csv('./data/EvictionData_NY.csv') %>% 
+  janitor::clean_names() %>% 
+  mutate(geoid = as.character(geoid)) %>% 
+  filter(parent_location == "Kings County, New York") %>% 
+  left_join(neighborhood_df, by = c("geoid" = "geo_id"))
+
+# Code weighted neighborhood eviction rate 
+brooklyn_data = brooklyn_data %>% 
+  group_by(neighborhood, year) %>% 
+  mutate(
+    neighb_pop = sum(population),
+    tract_weight = population/neighb_pop,
+    weighted_eviction_rate = eviction_rate*tract_weight)
+ 
+
+brooklyn_data = brooklyn_data %>% 
+  summarize(
+    Eviction_Rate = as.numeric(sum(weighted_eviction_rate))
+    ) %>% 
+  ungroup() %>% 
+  mutate(neighborhood = as.factor(neighborhood))
+
+brooklyn_data <- within(brooklyn_data, Eviction_Rate[neighborhood == 'park-cemetery-etc-Brooklyn'] <- NA)
+brooklyn_data <- within(brooklyn_data, wt_eviction_rate_discrep[neighborhood == 'park-cemetery-etc-Brooklyn'] <- NA)
+
+# Pulled list of brooklyn neighborhoods from brooklyn eviction data
+neighborhoods = brooklyn_data %>% distinct(neighborhood) %>% pull()
+
+
+# Created checkbox input of Brooklyn neighborhood
+
+checkboxGroupInput("neighborhood_choice", label=h3("Select Neighborhood"),
+choices = neighborhoods, selected = "Williamsburg")
+
+# Used renderPlotly function to plot eviction rates over time with Neighborhood widget
+
+renderPlotly({ 
+
+brooklyn_data = 
+  brooklyn_data %>%
+    filter(
+      neighborhood == input[["neighborhood_choice"]]
+    ) 
+
+brooklyn_data %>% 
+    group_by(year) %>%
+    ungroup() %>% 
+    plot_ly(x=~year, y=~Eviction_Rate, type="scatter", mode="lines+markers", color = ~neighborhood) %>% 
+    layout(title="Eviction Rate (%) Over Time (2000-2016) by Brooklyn Neighborhood")
+
+})
+
+# Published to shinyapp.io
+
+```
+
+
 
 2) A map depicting eviction rates from 2000 to 2016 in Brooklyn broken down by **census tract**.
 
-```{r shiny_app, eval=FALSE}
+```{r shiny_app_map, eval=FALSE}
+
+# Read joined brooklyn data
+
+joined_data_bklyn = readRDS('./data/joined_data_bklyn')
+
+
+# Loading census tract shapefiles from NYC OpenData:
+census_tracts = readOGR(dsn = "maps/2010-census-tracts.shp", encoding = "UTF-8", verbose=FALSE) 
+
+census_tracts = 
+  census_tracts[census_tracts$boro_name == "Brooklyn", ]
+
+writeOGR(census_tracts,"./mapping_files","census_temp", driver = "ESRI Shapefile", overwrite_layer = TRUE)
+census_tracts = readOGR("./mapping_files","census_temp", verbose=FALSE)
+
+# Constructing geoid for merging
+census_tracts@data = 
+  census_tracts@data %>% 
+  mutate(
+    county_code = as.character(recode(boro_code, "1" = "061", "2" = "005", "3" = "047", "4" = "081", "5" = "085")),
+    ct2010 = as.character(ct2010),
+    fips_11dig = paste0("36", county_code, ct2010),
+    long = coordinates(spTransform(census_tracts, CRS("+proj=longlat +datum=WGS84")))[,1],
+    lat = coordinates(spTransform(census_tracts, CRS("+proj=longlat +datum=WGS84")))[,2]
+    ) %>%
+  unnest(c(long, lat))
+
+# Create slider widget for years 2000-2016
+
+sliderInput("years", "Year of Observation",
+    min = 2000, max = 2016, step=1, value = 2000
+  )
+
+# Plot interactive census tract-level map of eviction rates using renderLeaflet
+
+renderLeaflet({
+  
+  joined_data_bklyn_year = 
+  joined_data_bklyn  %>%
+  filter(year==input[["years"]])
+
+# Joining data and shapefiles
+census_tracts@data = left_join(census_tracts@data, joined_data_bklyn_year, by = c("fips_11dig" = "geoid"))
+  
+# spatial transform
+census_tracts_crs = spTransform(census_tracts, CRS("+init=epsg:4326"))
+
+# get jenks natural breaks
+getJenksBreaks(census_tracts_crs$eviction_rate, 5)
+
+#set bins based on natural breaks
+eviction_rate_bins = c(0, 1.23, 2.51, 4.12, 7.62)
+
+#set color palette
+eviction_palette = colorBin('Reds', bins = eviction_rate_bins, na.color = '#d9d9d9')
+
+leaflet::leaflet(data = census_tracts_crs) %>% 
+  addProviderTiles('CartoDB.Positron') %>% 
+  addPolygons(
+    fillColor = ~eviction_palette(eviction_rate),
+    fillOpacity = 0.8,
+    color = "BDBDC3",
+    weight = 1,
+    highlightOptions = highlightOptions(color = "black", weight = 2, bringToFront = TRUE)) %>% 
+      addLegend('bottomleft',
+                pal = eviction_palette,
+                values = ~eviction_rate,
+                title = 'Eviction Rates in NYC by census tract',
+                opacity = 1)
+
+  })
 
 
 
 ```
+
+
 
 # Formal Analysis
 <font size = "4"><i>Predictors of Eviction in Brooklyn, 2010-2016</font></i>
