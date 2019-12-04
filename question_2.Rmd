@@ -53,8 +53,9 @@ neighborhood_df =
 
 ```{r echo = FALSE, message = FALSE}
  
-#  readRDS('./data/joined_data_bklyn')
+
 # eviction_data = readRDS('./data/joined_data_bklyn')
+# eviction_data = read.csv('./data/EvictionData_NY.csv')
 
 
 eviction_data = read.csv('./data/EvictionData_NY.csv') %>% 
@@ -62,7 +63,7 @@ eviction_data = read.csv('./data/EvictionData_NY.csv') %>%
   filter(year == 2016) %>% 
   mutate(
     geoid = as.character(geoid)) %>% 
-  filter(parent_location == "Kings County, New York") %>% 
+  filter(parent_location == "Kings County, New York") %>%
   left_join(neighborhood_df, by = c("geoid" = "geo_id"))
 
 neighborhood_data_prep = eviction_data %>% 
@@ -76,22 +77,23 @@ neighborhood_data_prep = eviction_data %>%
     weighted_eviction_filing_rate = eviction_filing_rate*tract_weight,
     pct_nonwhite = 100 - pct_white,
     weighted_pct_nonwhite = pct_nonwhite*tract_weight,
-    weighted_povertyrate = poverty_rate*tract_weight)
+    weighted_povertyrate = poverty_rate*tract_weight,
+    weighted_pct_rentburden = rent_burden*tract_weight)
 
 neighborhood_data = neighborhood_data_prep %>% 
   summarize(
-    wt_eviction_rate = round(as.numeric(sum(weighted_eviction_rate)), digits = 2),
-    wt_eviction_rate_discrep = round(sum(weighted_eviction_discrep), digits = 2),
-    wt_eviction_filing_rate = round(sum(weighted_eviction_filing_rate), digits = 2),
-    wt_pct_nonwhite = round(sum(weighted_pct_nonwhite), digits = 2),
-    wt_povertyrate = round(sum(weighted_povertyrate), digits = 2)) %>% 
+    wt_eviction_rate = round(as.numeric(sum(weighted_eviction_rate, na.rm = TRUE)), digits = 2),
+    wt_eviction_rate_discrep = round(sum(weighted_eviction_discrep, na.rm = TRUE), digits = 2),
+    wt_eviction_filing_rate = round(sum(weighted_eviction_filing_rate, na.rm = TRUE), digits = 2),
+    wt_pct_nonwhite = round(sum(weighted_pct_nonwhite, na.rm = TRUE), digits = 2),
+    wt_povertyrate = round(sum(weighted_povertyrate, na.rm = TRUE), digits = 2),
+    wt_rent_burden = round(sum(weighted_pct_rentburden, na.rm = TRUE), digits = 2)) %>% 
   ungroup() %>% 
   mutate(neighborhood = as.factor(neighborhood))
 
 #updating shapefile of parks, cemeteries, etc. to 'NA'
 neighborhood_data <- within(neighborhood_data, wt_eviction_rate[neighborhood == 'park-cemetery-etc-Brooklyn'] <- NA)
 neighborhood_data <- within(neighborhood_data, wt_eviction_rate_discrep[neighborhood == 'park-cemetery-etc-Brooklyn'] <- NA)
-neighborhood_data <- within(neighborhood_data, wt_eviction_filing_rate[neighborhood == 'park-cemetery-etc-Brooklyn'] <- NA)
 ```
 
 
@@ -126,7 +128,8 @@ label_popup1 = paste0(
 getJenksBreaks(neighborhood_map$wt_eviction_rate, 5)
 
 #set bins based on natural breaks
-eviction_rate_bins = c(0.2, 1.0, 1.8, 2.7, 3.6)
+eviction_rate_bins = c(0.22, 1.04, 1.80, 2.69, 3.57)
+
 
 #set color palette
 eviction_palette1 = colorBin('Reds', bins = eviction_rate_bins, na.color = '#d9d9d9')
@@ -195,6 +198,7 @@ map_discrep = leaflet::leaflet(data = neighborhood_map_crs) %>%
 
 ```
 
+
 ```{r include = FALSE}
 #filing map set-up
 
@@ -214,25 +218,6 @@ eviction_filing_rate_bins = c(1.18, 4.94, 9.56, 15.47, 31.10)
 
 #set color palette
 eviction_palette3 = colorBin('Reds', bins = eviction_filing_rate_bins, na.color = '#d9d9d9')
-
-```
-
-```{r echo = FALSE, message = FALSE}
-#create map of filings
-map_filings = leaflet::leaflet(data = neighborhood_map_crs) %>% 
-  addProviderTiles('CartoDB.Positron') %>% 
-  addPolygons(
-    fillColor = ~eviction_palette3(wt_eviction_filing_rate),
-    fillOpacity = 0.8,
-    color = "BDBDC3",
-    weight = 1,
-    popup = label_popup3,
-    highlightOptions = highlightOptions(color = "black", weight = 2, bringToFront = TRUE)) %>% 
-      addLegend('topright',
-                pal = eviction_palette3,
-                values = ~wt_eviction_filing_rate,
-                title = 'Eviction Filing Rate',
-                opacity = 1)
 
 ```
 
