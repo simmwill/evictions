@@ -635,7 +635,7 @@ The results of our exploratory analyses were used to inform further model buildi
 
 ## Setup
 
-```{r setup, include=FALSE}
+```{r setup_analysis, include=FALSE}
 options(scipen = 999)
 knitr::opts_chunk$set(
 	echo = TRUE,
@@ -1095,13 +1095,11 @@ model_data_cv %>%
 
 ```
 
-As we can see, our empty and naive models are clearly inferior in terms of their prediction abilities to our other hypothesized and selection-based models.
-
-This is the only clear-cut difference, as the latter three models - our two hypothesized models, and our stepwise model - are very similar in terms of their prediction capabilities.
+As we can see, our empty and naive models are clearly inferior in terms of their prediction abilities to our other hypothesized models, with our stepwise model somewhere in the middle.
 
 (*Note:* None of our models had particularly good predictive capabilities, and the differences between our models given their RMSE distributions is comparatively small. However, we will assume that the difference in RMSE is still meaningful.)
 
-As this is the case, we will opt for model simplicity and select the simplest model with the most easily-interpretable results: the hypothesized model based primarily on the independent effects of non-White race/ethnicity percentages, rent burden, population density, and years since 2010 [Equation 3, described above and re-printed below].
+Since our hypothesized models have the best predictive capabilities, we will opt for model parsimony and select the simplest model with the most easily-interpretable results: the hypothesized model based primarily on the independent effects of non-White race/ethnicity percentages, rent burden, population density, and years since 2010 [Equation 3, described above and re-printed below].
 
 &nbsp;
 &nbsp;
@@ -1134,4 +1132,23 @@ hyp_model_race %>%
 
 Here, we can see that all hypothesized predictors are significantly associated with eviction rate in Brooklyn except for American Indian / Alaska Native race (p = 0.25) at the 5% level of significance.
 
+&nbsp;
+
 # Discussion
+
+The results of our selected GEE model indicate a few important things:
+
+  * Eviction rates are difficult to predict, as anticipated. Among other factors, this is likely due to the complex and changing nature of evictions. Laws change from month to month, and areas can change rapidly - infrastructure, income, housing can look completely different in 5 years' time.
+  * After adjusting for the covariates included in our model, eviction rates varied over time in Brooklyn from 2010 to 2016: all years have lower estimated eviction rates than 2010, with a large dip in overall rates in 2011, but the trend is somewhat unclear.
+  * All significant non-white races were positively associated with eviction rates in Brooklyn - i.e. as the percent of residents in a census tract that are non-white increases, so do eviction rates, controlling for other covariates in our model.
+  * Surprisingly, percent Native Hawaiian / Pacific Islander was the strongest predictor among the races in terms of its strength of effect (*b* = 0.0774). However, since there was a small sample of these races in Brooklyn, the estimate may be less reliable than others in the model. 
+  * Rent burden was also positively associated with eviction rate in Brooklyn, consistent with the observation that evictions are more common in lower-income communities. 
+
+To add complexity and interpretability to this model, we would like to add variables that account for nuanced effects of gentrification over time in Brooklyn. However, gentrification data currently publicly available were (1) sparse and (2) not recorded over time, so these analyses are currently not possible in the form we would like to see them. We would also like to see a multilevel model considering 
+
+In conclusion, our data seem to show that eviction rates are higher, on average, among people of color in Brooklyn from 2010-2016.
+Eviction is not a problem that can be solved easily, and the predictors included in these models are obviously not "causal" exposures - rather, they are indicative of underlying structures that result in lower-income people of color being predominantly affected by evictions. As noted in one of our supplementary articles, "The Violence of Eviction", evictions even more specifically shape the lives of women of color, with some estimates showing women being evicted at two to nine times the rate of males.
+
+This data tells a small part of eviction narratives in the U.S. - who they affect, and why it matters. Informed policymaking is important, and informed policies start at the ground: with landlords. Landlords decide who gets to live where, and research has shown that landlord-tenant relationships are [often influenced by tenant race](bit.ly/housing_disc). On a broader scale, the U.S. affordable housing crisis has a synergistic relationship with our eviction crisis, with most low-income families spending over 50 percent of their rent on housing. (About a quarter of the census tracts in our dataset had *average* rent burdens of over 40 percent across 2010-2016.)
+
+In sum, eviction affects individuals, families, and communities across our country, especially those who are otherwise most vulnerable. We need policies that preserve affordable housing and protect victims of long-standing discriminatory housing practices. If you are more interested in learning about current work and research happening around this topic, Eviction Lab's [resources](https://evictionlab.org/) are a great starting point.
