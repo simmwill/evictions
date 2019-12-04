@@ -52,9 +52,9 @@ neighborhood_df =
 
 
 ```{r echo = FALSE, message = FALSE}
-#joined_data_bklyn_2010 = 
+ 
 #  readRDS('./data/joined_data_bklyn')
-
+# eviction_data = readRDS('./data/joined_data_bklyn')
 
 
 eviction_data = read.csv('./data/EvictionData_NY.csv') %>% 
@@ -88,6 +88,7 @@ neighborhood_data = neighborhood_data_prep %>%
   ungroup() %>% 
   mutate(neighborhood = as.factor(neighborhood))
 
+#updating shapefile of parks, cemeteries, etc. to 'NA'
 neighborhood_data <- within(neighborhood_data, wt_eviction_rate[neighborhood == 'park-cemetery-etc-Brooklyn'] <- NA)
 neighborhood_data <- within(neighborhood_data, wt_eviction_rate_discrep[neighborhood == 'park-cemetery-etc-Brooklyn'] <- NA)
 neighborhood_data <- within(neighborhood_data, wt_eviction_filing_rate[neighborhood == 'park-cemetery-etc-Brooklyn'] <- NA)
