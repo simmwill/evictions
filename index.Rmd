@@ -35,7 +35,7 @@ Evictions represent a major source of housing instability in the U.S., especiall
 
 Governments and residents have grown accustomed to this. Entire police units, moving companies, and economic infrastructures have been built upon this, as reported by the [*New Yorker*](https://www.newyorker.com/magazine/2016/02/08/forced-out). What factors put individuals, communities, and populations most at-risk for eviction? Who bears the cumulative social and economic consequences of a practice now accepted as commonplace, justified, and even beneficial?
 
-We used data from the [*Eviction Lab*](https://evictionlab.org) at Princeton University to investigate these questions and explore patterns in evictions and eviction filings across Brooklyn from 2000 to 2016. 
+We used data from the [*Eviction Lab*](https://evictionlab.org) at Princeton University to investigate these questions and explore patterns in evictions and eviction filings across Brooklyn from 2010 to 2016. 
 
 Use the tabs above to explore the following questions:
 
