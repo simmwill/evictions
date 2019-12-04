@@ -62,7 +62,7 @@ Thus, our final questions are below, with respect to evictions in Brooklyn durin
 
 * How have eviction rates changed over time by census tract in Brooklyn?
 * Are there spatial patterns in the discrepancy between eviction filings and evictions at the neighborhood level? Do these patterns reflect distributions of other key variables of interest? 
-* What factors are associated with eviction rates across census tract in Brooklyn?
+* How does the geographic distribution of eviction rates in Brooklyn correlate with other census tract characteristics such as language ability, racial composition, rent burden, and population density?
 
 &nbsp;
 
@@ -561,84 +561,6 @@ joined_data_bklyn_nomissing %>%
 
 &nbsp;
 
-### *Mapping*
-
-Census tract and neighobrhood shapefiles were downloaded from NYC Open Data and limited to Brooklyn. 
-```{r cleaning-mapdata, eval=FALSE}
-# Loading in Brooklyn data
-joined_data_bklyn_2010 = 
-  readRDS('./data/joined_data_bklyn') %>%
-  filter(year == "2010")
-
-# Loading census tract shapefiles from NYC OpenData:
-census_tracts = readOGR(dsn = "maps/2010-census-tracts.shp", encoding = "UTF-8") 
-
-census_tracts = 
-  census_tracts[census_tracts$boro_name == "Brooklyn", ]
-
-# The following step removes null values from the dataset based on filtering values above
-writeOGR(census_tracts,"./mapping_files","census_temp", driver = "ESRI Shapefile", overwrite_layer = TRUE)
-census_tracts = readOGR("./mapping_files","census_temp")
-
-# Constructing geoid for merging
-census_tracts@data = 
-  census_tracts@data %>% 
-  mutate(
-    county_code = as.character(recode(boro_code, "1" = "061", "2" = "005", "3" = "047", "4" = "081", "5" = "085")),
-    ct2010 = as.character(ct2010),
-    fips_11dig = paste0("36", county_code, ct2010),
-    long = coordinates(spTransform(census_tracts, CRS("+proj=longlat +datum=WGS84")))[,1],
-    lat = coordinates(spTransform(census_tracts, CRS("+proj=longlat +datum=WGS84")))[,2]
-    ) %>%
-  unnest(c(long, lat))
-
-# Joining data and shapefiles
-census_tracts@data = left_join(census_tracts@data, joined_data_bklyn_2010, by = c("fips_11dig" = "geoid"))
-
-# Create map projection ready for mapping
-census_tracts_crs = 
-  spTransform(census_tracts, CRS("+init=epsg:4326"))
-```
-
-&nbsp;
-
-In order to inform model building, we created simple visualizations of our four predictors (percentage of ESL speakers, percentage of non-White residents, rent burden, and population density) over a choropleth of eviction rates in Brooklyn by census tract in 2010.
-
-&nbsp;
-
-```{r ESL, eval=FALSE}
-# Sample map code (Eviction rates and % ESL by census tract)
-leaflet::leaflet(data = census_tracts_crs) %>% 
-  addProviderTiles('CartoDB.Positron') %>% 
-  addPolygons(
-    fillColor = ~eng_palette(pct_eng),
-    fillOpacity = 0.8,
-    color = "BDBDC3",
-    weight = 1,
-    popup = esl_popup,
-    highlightOptions = highlightOptions(color = "black", weight = 2, bringToFront = TRUE)) %>% 
-      addLegend('bottomleft',
-            pal = eng_palette,
-            values = ~pct_eng,
-            title = '% ESL',
-            opacity = 1) %>%
-  addCircleMarkers(
-    lat = ~ census_tracts_crs$lat,
-    lng = ~ census_tracts_crs$long,
-    color = "red",
-    radius = (sqrt(census_tracts_crs$eviction_rate)*2),
-    weight = 0
-    ) %>%
-      addLegendCustom(colors = c("red", "red", "red"), 
-        labels = c("1", "3", "8"), sizes = c(4, 6.9282, 11.3137))
-```
-
-&nbsp;
-
-The results of our exploratory analyses were used to inform further model building.
-
-&nbsp;
-
 ### *Evictions Over Time 2000-2016*
 **Question: How have eviction rates in Brooklyn changed over time?**
 
@@ -718,6 +640,232 @@ brooklyn_data %>%
 ```
 
 
+### *What Predicts Eviction Rates?*
+**Question: How does the geographic distribution of eviction rates in Brooklyn correlate with other census tract characteristics such as language ability, racial composition, rent burden, and population density?**
+
+To explore the question of how the geographic distribution of eviction rates correlated with our predictors of interest, we created choropleths of our four predictors (percentage of ESL speakers, percentage of non-White residents, rent burden, and population density) with eviction rates overlaid in Brooklyn by census tract in 2010.
+
+Census tract and neighborhood shapefiles were downloaded from NYC Open Data and limited to Brooklyn. We then defined aesthetic mappings.
+
+```{r mapdata, eval=FALSE}
+# Loading in Brooklyn data
+joined_data_bklyn_2010 = 
+  readRDS('./data/joined_data_bklyn') %>%
+  filter(year == "2010")
+
+# Loading census tract shapefiles from NYC OpenData:
+census_tracts = readOGR(dsn = "maps/2010-census-tracts.shp", encoding = "UTF-8") 
+
+census_tracts = 
+  census_tracts[census_tracts$boro_name == "Brooklyn", ]
+
+# The following step removes null values from the dataset based on filtering values above
+writeOGR(census_tracts,"./mapping_files","census_temp", driver = "ESRI Shapefile", overwrite_layer = TRUE)
+census_tracts = readOGR("./mapping_files","census_temp")
+
+# Constructing geoid for merging
+census_tracts@data = 
+  census_tracts@data %>% 
+  mutate(
+    county_code = as.character(recode(boro_code, "1" = "061", "2" = "005", "3" = "047", "4" = "081", "5" = "085")),
+    ct2010 = as.character(ct2010),
+    fips_11dig = paste0("36", county_code, ct2010),
+    long = coordinates(spTransform(census_tracts, CRS("+proj=longlat +datum=WGS84")))[,1],
+    lat = coordinates(spTransform(census_tracts, CRS("+proj=longlat +datum=WGS84")))[,2]
+    ) %>%
+  unnest(c(long, lat))
+
+# Joining data and shapefiles
+census_tracts@data = left_join(census_tracts@data, joined_data_bklyn_2010, by = c("fips_11dig" = "geoid"))
+
+# Create map projection ready for mapping
+census_tracts_crs = 
+  spTransform(census_tracts, CRS("+init=epsg:4326"))
+
+########## Creating mapping aesthetics ##########
+
+# Labels
+esl_popup = paste0(
+  "<strong>Census tract: </strong>",
+  census_tracts_crs$ctlabel,
+  "<br><strong>Eviction rate: </strong>",
+  census_tracts_crs$eviction_rate,
+  "<br><strong>% ESL: </strong>",
+  census_tracts_crs$pct_eng
+)
+
+nonwhite_popup = paste0(
+  "<strong>Census tract: </strong>",
+  census_tracts_crs$ctlabel,
+  "<br><strong>Eviction rate: </strong>",
+  census_tracts_crs$eviction_rate,
+  "<br><strong>% non-White: </strong>",
+  census_tracts_crs$pct_nonwhite_racedata
+)
+
+rentburden_popup = paste0(
+  "<strong>Census tract: </strong>",
+  census_tracts_crs$ctlabel,
+  "<br><strong>Eviction rate: </strong>",
+  census_tracts_crs$eviction_rate,
+  "<br><strong>Rent burden: </strong>",
+  census_tracts_crs$rent_burden
+)
+
+popdensity_popup = paste0(
+  "<strong>Census tract: </strong>",
+  census_tracts_crs$ctlabel,
+  "<br><strong>Eviction rate: </strong>",
+  census_tracts_crs$eviction_rate,
+  "<br><strong>Population Density: </strong>",
+  census_tracts_crs$total_pop_densitydata
+)
+
+# Obtaining Jenks natural break points for continuous predictors
+getJenksBreaks(census_tracts_crs$pct_eng, 5)
+getJenksBreaks(census_tracts_crs$pct_nonwhite_racedata, 5)
+getJenksBreaks(census_tracts_crs$rent_burden, 5)
+getJenksBreaks(census_tracts_crs$total_pop_densitydata, 5)
+
+# Setting bins based on Jenks natural breaks
+pct_eng_bins = c(0, 12.9, 26.3, 43.3, 73.3)
+nonwhite_bins = c(0, 26.3, 52.5, 78.2, 100)
+rentburden_bins = c(13.0, 29.2, 35.2, 42.5, 50.0)
+popdensity_bins = c(8, 2494, 3736, 5240, 8953)
+
+# Setting color based on bins
+eng_palette = colorBin('Blues', bins = pct_eng_bins, na.color = '#d9d9d9')
+nonwhite_palette = colorBin('Blues', bins = nonwhite_bins, na.color = '#d9d9d9')
+rentburden_palette = colorBin('Blues', bins = rentburden_bins, na.color = '#d9d9d9')
+popdensity_palette = colorBin('Blues', bins = popdensity_bins, na.color = '#d9d9d9')
+
+# Create custom legend for eviction circle marker sizes
+addLegendCustom <- function(map, position, colors, labels, sizes, opacity = 0.4, title = "Eviction Rate"){
+  
+    colorAdditions <- paste0(colors, "; border-radius: 50%; width:", sizes, "px; height:", sizes, "px")
+    labelAdditions <- paste0("<div style='display: inline-block;height: ", 
+    sizes, "px;margin-top: 4px;line-height: ", 
+    sizes, "px;'>", 
+    labels, "</div>")
+  
+    return(addLegend(map, position = "bottomright", colors = colorAdditions, labels = labelAdditions, opacity = opacity, title = title))
+    
+}
+```
+
+One map was created for each predictor of interest, and corresponding aesthetics were applied.
+
+```{r predictor-maps, eval=FALSE}
+# % ESL
+leaflet::leaflet(data = census_tracts_crs) %>% 
+  addProviderTiles('CartoDB.Positron') %>% 
+  addPolygons(
+    fillColor = ~eng_palette(pct_eng),
+    fillOpacity = 0.8,
+    color = "BDBDC3",
+    weight = 1,
+    popup = esl_popup,
+    highlightOptions = highlightOptions(color = "black", weight = 2, bringToFront = TRUE)) %>% 
+      addLegend('bottomleft',
+            pal = eng_palette,
+            values = ~pct_eng,
+            title = '% ESL',
+            opacity = 1) %>%
+  addCircleMarkers(
+    lat = ~ census_tracts_crs$lat,
+    lng = ~ census_tracts_crs$long,
+    color = "red",
+    radius = (sqrt(census_tracts_crs$eviction_rate)*2),
+    weight = 0
+    ) %>%
+      addLegendCustom(colors = c("red", "red", "red"), 
+        labels = c("1", "3", "8"), sizes = c(4, 6.9282, 11.3137))
+
+# % non-White
+leaflet::leaflet(data = census_tracts_crs) %>% 
+  addProviderTiles('CartoDB.Positron') %>% 
+  addPolygons(
+    fillColor = ~nonwhite_palette(pct_nonwhite_racedata),
+    fillOpacity = 0.8,
+    color = "BDBDC3",
+    weight = 1,
+    popup = nonwhite_popup,
+    highlightOptions = highlightOptions(color = "black", weight = 2, bringToFront = TRUE)) %>% 
+      addLegend('bottomleft',
+            pal = nonwhite_palette,
+            values = ~pct_nonwhite_racedata,
+            title = '% non-White',
+            opacity = 1) %>%
+  addCircleMarkers(
+    lat = ~ census_tracts_crs$lat,
+    lng = ~ census_tracts_crs$long,
+    color = "red",
+    radius = (sqrt(census_tracts_crs$eviction_rate)*2),
+    weight = 0
+    ) %>%
+      addLegendCustom(colors = c("red", "red", "red"), 
+        labels = c("2", "6", "25"), sizes = c(5.6569, 9.7980, 20))
+
+# Rent Burden
+leaflet::leaflet(data = census_tracts_crs) %>% 
+  addProviderTiles('CartoDB.Positron') %>% 
+  addPolygons(
+    fillColor = ~rentburden_palette(rent_burden),
+    fillOpacity = 0.8,
+    color = "BDBDC3",
+    weight = 1,
+    popup = rentburden_popup,
+    highlightOptions = highlightOptions(color = "black", weight = 2, bringToFront = TRUE)) %>% 
+      addLegend('bottomleft',
+            pal = rentburden_palette,
+            values = ~rent_burden,
+            title = 'Rent Burden',
+            opacity = 1) %>%
+  addCircleMarkers(
+    lat = ~ census_tracts_crs$lat,
+    lng = ~ census_tracts_crs$long,
+    color = "red",
+    radius = (sqrt(census_tracts_crs$eviction_rate)*2),
+    weight = 0
+    ) %>%
+      addLegendCustom(colors = c("red", "red", "red"), 
+        labels = c("2", "6", "25"), sizes = c(5.6569, 9.7980, 20))
+
+# Population Density
+leaflet::leaflet(data = census_tracts_crs) %>% 
+  addProviderTiles('CartoDB.Positron') %>% 
+  addPolygons(
+    fillColor = ~popdensity_palette(total_pop_densitydata),
+    fillOpacity = 0.8,
+    color = "BDBDC3",
+    weight = 1,
+    popup = popdensity_popup,
+    highlightOptions = highlightOptions(color = "black", weight = 2, bringToFront = TRUE)) %>% 
+      addLegend('bottomleft',
+            pal = popdensity_palette,
+            values = ~total_pop_densitydata,
+            title = 'Population Density',
+            opacity = 1) %>%
+  addCircleMarkers(
+    lat = ~ census_tracts_crs$lat,
+    lng = ~ census_tracts_crs$long,
+    color = "red",
+    radius = (sqrt(census_tracts_crs$eviction_rate)*2),
+    weight = 0
+    ) %>%
+      addLegendCustom(colors = c("red", "red", "red"), 
+        labels = c("2", "6", "25"), sizes = c(5.6569, 9.7980, 20))
+```
+
+&nbsp;
+
+In addition to eviction rates being geographically clustered, we also found that the percentage of ESL speakers, percentage of non-White residents, and high rent burden appeared to be geographically clustered. 
+
+We identified a clear positive association between the percentage of non-White residents and evictions rates in a given census tract. The percentage of ESL speakers in a given census tract appeared to be inversely related to eviction rates; we decided to further examine whether the percentage of non-White residents confounded the relationship between percentage of ESL speakers and eviction rates. Relationships between rent burden, population density, and eviction rates were less obvious; we conducted further exploratory analyses during model building.
+
+The results of our exploratory analyses were used to inform further model building.
+
+&nbsp;
 
 2) A map depicting eviction rates from 2000 to 2016 in Brooklyn broken down by **census tract**.
 
