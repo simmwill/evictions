@@ -5,12 +5,12 @@ navbar:
   left:
   - text: "Exploratory Analyses"
     menu:
+    - text: "Evictions Over Time"
+      href: https://nk2814.shinyapps.io/evictions_spaghetti_shiny/
     - text: "Filings vs. Evictions"
       href: question_2.html
     - text: "What Predicts Eviction Rates?"
       href: question_3_maps.html
-  - text: "Evictions Over Time"
-    href: https://nk2814.shinyapps.io/evictions_spaghetti_shiny/
   - text: "Model Building"
     href: model_building.html
   right:
@@ -20,6 +20,8 @@ navbar:
       href: overview.html      
     - icon: fa-github fa-lg
       href: https://github.com/simmwill/evictions
+    - icon: fa-youtube fa-lg
+      href: https://youtube.com
 output:
   html_document:
     theme: cosmo

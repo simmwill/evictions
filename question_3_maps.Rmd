@@ -167,7 +167,7 @@ leaflet::leaflet(data = census_tracts_crs) %>%
     weight = 0
     ) %>%
       addLegendCustom(colors = c("red", "red", "red"), 
-        labels = c("1", "3", "8"), sizes = c(4, 6.9282, 11.3137))
+        labels = c("2", "6", "25"), sizes = c(5.6569, 9.7980, 20))
 ```
 
 ### Map of Eviction Rates and % non-White, by census tract
@@ -197,7 +197,7 @@ leaflet::leaflet(data = census_tracts_crs) %>%
     weight = 0
     ) %>%
       addLegendCustom(colors = c("red", "red", "red"), 
-        labels = c("1", "3", "8"), sizes = c(4, 6.9282, 11.3137))
+        labels = c("2", "6", "25"), sizes = c(5.6569, 9.7980, 20))
 ```
 
 
@@ -228,12 +228,12 @@ leaflet::leaflet(data = census_tracts_crs) %>%
     weight = 0
     ) %>%
       addLegendCustom(colors = c("red", "red", "red"), 
-        labels = c("1", "3", "8"), sizes = c(4, 6.9282, 11.3137))
+        labels = c("2", "6", "25"), sizes = c(5.6569, 9.7980, 20))
 ```
 
 ### Map of Eviction Rates and Population Density, by census tract
 
-A weak relationship seems to exist between population density and eviction rates, with eviction rates lower in more densely populated census tracts. Census tracts with high rent burdens appeared to be weakly geographically clustered.
+A weak relationship appears to exist between population density and eviction rates, with eviction rates lower in more densely populated census tracts. Census tracts with high rent burdens appeared to be weakly geographically clustered.
 
 ```{r popdensity, echo=FALSE}
 leaflet::leaflet(data = census_tracts_crs) %>% 
@@ -258,7 +258,7 @@ leaflet::leaflet(data = census_tracts_crs) %>%
     weight = 0
     ) %>%
       addLegendCustom(colors = c("red", "red", "red"), 
-        labels = c("1", "3", "8"), sizes = c(4, 6.9282, 11.3137))
+        labels = c("2", "6", "25"), sizes = c(5.6569, 9.7980, 20))
 ```
 
 ### Findings
