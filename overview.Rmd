@@ -55,8 +55,8 @@ The following resources are a sample of what inspired this project.
 
 Our questions remained fairly stable throughout the development of our project. However, two major changes occurred as we explored the available data:
 
-1. Data were restricted to 2010-2016 due to limited availability of evictions data for NYC
-2. NYC data were restricted to Brooklyn due to the same reason
+1. Data were restricted to 2010-2016 due to limited availability of ACS (census) data for NYC
+2. NYC data were restricted to Brooklyn due to limited evictions data in other boroughs
 
 Thus, our final questions are below, with respect to evictions in Brooklyn during the years 2010-2016:
 
@@ -108,7 +108,7 @@ Thus, our final questions are below, with respect to evictions in Brooklyn durin
 
 ### *Data Cleaning*
 
-After choosing to focus on New York City, data were limited to Brooklyn as this was the only borough with complete data for 2016 and also all time points from 2010 to 2016. Datasets were merged using the 11-digit FIPs code, `geoid`. 
+After choosing to focus on New York City, data were limited to Brooklyn as this was the only borough with complete data for 2016 and also all yearly time points from 2010 to 2016. Datasets were merged using the 11-digit FIPs code, `geoid`. 
 
 
 First, we imported data on evictions over time in NYC, which included eviction rates and other relevant metrics by census tract. We excluded census tracts in which there were fewer than 10 renter-occupied households, since those neighborhoods were creating unstable eviction rate estimates.
