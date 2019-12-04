@@ -77,8 +77,7 @@ neighborhood_data_prep = eviction_data %>%
     weighted_eviction_filing_rate = eviction_filing_rate*tract_weight,
     pct_nonwhite = 100 - pct_white,
     weighted_pct_nonwhite = pct_nonwhite*tract_weight,
-    weighted_povertyrate = poverty_rate*tract_weight,
-    weighted_pct_rentburden = rent_burden*tract_weight)
+    weighted_povertyrate = poverty_rate*tract_weight)
 
 neighborhood_data = neighborhood_data_prep %>% 
   summarize(
@@ -86,8 +85,7 @@ neighborhood_data = neighborhood_data_prep %>%
     wt_eviction_rate_discrep = round(sum(weighted_eviction_discrep, na.rm = TRUE), digits = 2),
     wt_eviction_filing_rate = round(sum(weighted_eviction_filing_rate, na.rm = TRUE), digits = 2),
     wt_pct_nonwhite = round(sum(weighted_pct_nonwhite, na.rm = TRUE), digits = 2),
-    wt_povertyrate = round(sum(weighted_povertyrate, na.rm = TRUE), digits = 2),
-    wt_rent_burden = round(sum(weighted_pct_rentburden, na.rm = TRUE), digits = 2)) %>% 
+    wt_povertyrate = round(sum(weighted_povertyrate, na.rm = TRUE), digits = 2)) %>% 
   ungroup() %>% 
   mutate(neighborhood = as.factor(neighborhood))
 
@@ -235,20 +233,19 @@ sync(map_discrep, map_evic, ncol = 2, sync = "all", sync.cursor = TRUE, no.initi
 ```
 
 
-
 #### __________________________________________________________________________________________________
 
 <br>
 
 ### Fifteen neighborhoods with highest variable rates
 
-To further compare eviction rates and filing discrepancies with neighborhood poverty rates and racial composition, we looked at the 10 neighborhoods with the highest rates of poverty, percent nonwhite population, eviction rate, and discrepancy between eviction rate and filing rate. Five neighborhoods appear in all four charts (in red). These findings may suggest that landlords discriminate against certain populations. 
+To further compare eviction rates and filing discrepancies with neighborhood poverty rates and racial composition, we looked at the 10 neighborhoods with the highest rates of poverty, percent nonwhite population, eviction rate, and discrepancy between evicition filing rate and eviction rate. Five neighborhoods appear in all four charts (in red). These findings suggest that evictions occur in areas that experience other domains of disadvantage. Furthermore, the high filing discrepancy rates may indicate that landlords engage in discriminatory practices against certain populations. 
 
 
 ```{r echo = FALSE, message = FALSE}
 
 #plotly bar chart of evcition rate
-barchart_evictions2 = neighborhood_data %>%
+barchart_evictions = neighborhood_data %>%
   top_n(15, wt_eviction_rate) %>% 
   mutate(neighborhood = fct_reorder(neighborhood, wt_eviction_rate)) %>% 
   plot_ly(x = ~wt_eviction_rate, y = ~neighborhood, type = 'bar', orientation = 'h', width = 900, height = 700, marker = list(color = c('rgba(222,45,38,1)', 'rgba(204,204,204,1)', 'rgba(222,45,38,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(222,45,38,1)', 'rgba(222,45,38,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(222,45,38,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)'))) %>% 
@@ -259,7 +256,7 @@ barchart_evictions2 = neighborhood_data %>%
 
 
 #bar chart of eviction filing/rate discrepancies
-bar_chart_eviction_discrep2 = neighborhood_data %>%
+bar_chart_eviction_discrep = neighborhood_data %>%
   top_n(15, wt_eviction_rate_discrep) %>% 
   mutate(neighborhood = fct_reorder(neighborhood, wt_eviction_rate_discrep)) %>% 
   plot_ly(x = ~wt_eviction_rate_discrep, y = ~neighborhood, type = 'bar', orientation = 'h', width = 1000, height = 700, marker = list(color = c('rgba(222,45,38,1)', 'rgba(222,45,38,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(222,45,38,1)', 'rgba(222,45,38,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(222,45,38,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)'))) %>% 
@@ -270,7 +267,7 @@ bar_chart_eviction_discrep2 = neighborhood_data %>%
 
 
 #plotly bar chart of pct nonwhite
-bar_chart_pct_nonwhite2 = neighborhood_data %>%
+bar_chart_pct_nonwhite = neighborhood_data %>%
   top_n(15, wt_pct_nonwhite) %>% 
   mutate(neighborhood = fct_reorder(neighborhood, wt_pct_nonwhite)) %>% 
   plot_ly(x = ~wt_pct_nonwhite, y = ~neighborhood, type = 'bar', orientation = 'h', width = 900, height = 700, marker = list(color = c('rgba(222,45,38,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(222,45,38,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(222,45,38,1)', 'rgba(222,45,38,1)', 'rgba(204,204,204,1)', 'rgba(222,45,38,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)'))) %>% 
@@ -281,7 +278,7 @@ bar_chart_pct_nonwhite2 = neighborhood_data %>%
 
 
 #plotly bar chart of poverty rates
-bar_chart_poverty2 = neighborhood_data %>%
+bar_chart_poverty = neighborhood_data %>%
   top_n(15, wt_povertyrate) %>% 
   mutate(neighborhood = fct_reorder(neighborhood, wt_povertyrate)) %>% 
   plot_ly(x = ~wt_povertyrate, y = ~neighborhood, type = 'bar', orientation = 'h', width = 1000, height = 700, marker = list(color = c('rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(222,45,38,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(222,45,38,1)', 'rgba(222,45,38,1)', 'rgba(222,45,38,1)', 'rgba(222,45,38,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)'))) %>% 
@@ -292,10 +289,10 @@ bar_chart_poverty2 = neighborhood_data %>%
   
 
 
-subplot(bar_chart_eviction_discrep2,
-        barchart_evictions2,
-        bar_chart_poverty2,
-        bar_chart_pct_nonwhite2,
+subplot(bar_chart_eviction_discrep,
+        barchart_evictions,
+        bar_chart_poverty,
+        bar_chart_pct_nonwhite,
         nrows = 2, widths = c(0.5, 0.5),
         margin = c(0.1, 0.2, 0.1, 0.1),
         shareX = FALSE, shareY = FALSE,
