@@ -441,8 +441,8 @@ _**See further discussion in our project report.**_
 
 ## Interactive prediction model
 
-We want to enable readers to more easily understand which predictors affect eviction rate and to what extents. Thus, using the race-based GEE model we selected from our five compared models, we created an interactive model-fitting tool that allows readers to adjust levels of various predictors to see the expected change in eviction rate (evictions per 100 renter-occupied households). Further than the analyses above, readers can also get a sense of these effects in each neighborhood of Brooklyn.
+We want to enable readers to more easily understand which predictors affect eviction rate and to what extents. Thus, using the race-based GEE model we selected from our five compared models, we created an interactive prediction tool that allows readers to adjust levels of various predictors to see the expected change in eviction rate (evictions per 100 renter-occupied households). Further than the analyses above, readers can also get a sense of these effects in each neighborhood of Brooklyn.
 
-Visit our [Interactive Model](https://willsimmons.shinyapps.io/model_building) to learn more. (You can also find the link in the navbar above.)
+Visit our [Prediction Tool](https://willsimmons.shinyapps.io/model_building) to learn more. (You can also find the link in the navbar above.)
 
 

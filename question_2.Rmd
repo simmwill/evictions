@@ -40,6 +40,7 @@ library(maptools)
 
 
 ```{r echo = FALSE, message = FALSE}
+# loading NYC Open Data file containing neighborhood names by census tract
 neighborhood_df = 
   read_excel("./data/NYC_neighborhoods_by_censustract_2010.xlsx", 
              skip = 5, 
@@ -52,12 +53,7 @@ neighborhood_df =
 
 
 ```{r echo = FALSE, message = FALSE}
- 
-
-# eviction_data = readRDS('./data/joined_data_bklyn')
-# eviction_data = read.csv('./data/EvictionData_NY.csv')
-
-
+#loading/cleaning Eviction Data for the neighborhood maps
 eviction_data = read.csv('./data/EvictionData_NY.csv') %>% 
   janitor::clean_names() %>% 
   filter(year == 2016) %>% 
@@ -79,6 +75,7 @@ neighborhood_data_prep = eviction_data %>%
     weighted_pct_nonwhite = pct_nonwhite*tract_weight,
     weighted_povertyrate = poverty_rate*tract_weight)
 
+#creating weighted neighborhood-level variables
 neighborhood_data = neighborhood_data_prep %>% 
   summarize(
     wt_eviction_rate = round(as.numeric(sum(weighted_eviction_rate, na.rm = TRUE)), digits = 2),
@@ -96,8 +93,10 @@ neighborhood_data <- within(neighborhood_data, wt_eviction_rate_discrep[neighbor
 
 
 ```{r include=FALSE, warning = FALSE, message = FALSE}
+#loading NYC neighborhoood shapefile
 neighborhood_map = readOGR(dsn = "maps/2010-NTAs.shp", encoding = "UTF-8")
 
+#limiting NYC shapefile to Brooklyn
 neighborhood_map = 
   neighborhood_map[neighborhood_map$boro_name == "Brooklyn", ]
 
@@ -105,7 +104,6 @@ writeOGR(neighborhood_map,"./mapping_files","neighborhood_temp", driver = "ESRI 
 neighborhood_map = readOGR("./mapping_files","neighborhood_temp")
 
 neighborhood_map@data = left_join(neighborhood_map@data, neighborhood_data, by = c("ntaname" = "neighborhood"))
-
 
 neighborhood_map_crs = spTransform(neighborhood_map, CRS("+init=epsg:4326"))
 ```
@@ -128,14 +126,13 @@ getJenksBreaks(neighborhood_map$wt_eviction_rate, 5)
 #set bins based on natural breaks
 eviction_rate_bins = c(0.22, 1.04, 1.80, 2.69, 3.57)
 
-
 #set color palette
 eviction_palette1 = colorBin('Reds', bins = eviction_rate_bins, na.color = '#d9d9d9')
 ```
 
 
 ```{r echo = FALSE, message = FALSE}
-#create map
+#create map of eviction rates
 map_evic = leaflet::leaflet(data = neighborhood_map_crs) %>% 
   addProviderTiles('CartoDB.Positron') %>% 
   addPolygons(
@@ -172,13 +169,11 @@ eviction_rate_discrep_bins = c(0.95, 3.94, 7.23, 11.90, 29.37)
 
 #set color palette
 eviction_palette2 = colorBin('Reds', bins = eviction_rate_discrep_bins, na.color = '#d9d9d9')
-
-
 ```
 
 
 ```{r echo = FALSE, message = FALSE}
-#create map of discrepancy
+#create map of discrepancy rates
 map_discrep = leaflet::leaflet(data = neighborhood_map_crs) %>% 
   addProviderTiles('CartoDB.Positron') %>% 
   addPolygons(
@@ -196,38 +191,14 @@ map_discrep = leaflet::leaflet(data = neighborhood_map_crs) %>%
 
 ```
 
-
-```{r include = FALSE}
-#filing map set-up
-
-#pop up label
-label_popup3 = paste0(
-  "<strong>Neighborhood: </strong>",
-  neighborhood_map$ntaname,
-  "<br><strong>Eviction filing rate: </strong>",
-  neighborhood_map$wt_eviction_filing_rate
-)
-
-# get jenks natural breaks
-getJenksBreaks(neighborhood_map$wt_eviction_filing_rate, 5)
-
-#set bins based on natural breaks
-eviction_filing_rate_bins = c(1.18, 4.94, 9.56, 15.47, 31.10)
-
-#set color palette
-eviction_palette3 = colorBin('Reds', bins = eviction_filing_rate_bins, na.color = '#d9d9d9')
-
-```
-
-
 <br>
 
 ### Mapping evictions and filing discrepancies
 
-There were `r sum(pull(eviction_data, eviction_filings))` eviction filings and `r sum(pull(eviction_data, evictions))` evictions across Brooklyn in 2016. Eviction rates and eviction filing rates represent the number of evictions or eviction filings per neighborhood divided by the number of renter occupied households in a given neighborhood - that value is then multipled by 100 to represent a percentage. `Rate Discrepancy` represents the difference between eviction filing rates and eviction rates. Our motivation for this exploration was the idea that discriminatory practices by landlords would manifest in high rate discrepancies, where landlords file illegitimately to evict a tenant. 
+There were `r sum(pull(eviction_data, eviction_filings))` eviction filings and `r sum(pull(eviction_data, evictions))` evictions across Brooklyn in 2016. Eviction rates and eviction filing rates represent the number of evictions or eviction filings per neighborhood divided by the number of renter occupied households in a given neighborhood - that value is then multipled by 100 to represent a percentage. `Rate Discrepancy` represents the difference between eviction filing rates and eviction rates. Our motivation for this exploration was the idea that discriminatory practices would manifest in high rate discrepancies, where landlords illegitimately file to evict a tenant. 
 
 ```{r echo = FALSE}
- 
+#putting maps side by side
 sync(map_discrep, map_evic, ncol = 2, sync = "all", sync.cursor = TRUE, no.initial.sync = TRUE)
 
 ```
@@ -243,8 +214,7 @@ To further compare eviction rates and filing discrepancies with neighborhood pov
 
 
 ```{r echo = FALSE, message = FALSE}
-
-#plotly bar chart of evcition rate
+#plotly bar chart of eviction rates
 barchart_evictions = neighborhood_data %>%
   top_n(15, wt_eviction_rate) %>% 
   mutate(neighborhood = fct_reorder(neighborhood, wt_eviction_rate)) %>% 
@@ -255,7 +225,7 @@ barchart_evictions = neighborhood_data %>%
          showlegend = FALSE)
 
 
-#bar chart of eviction filing/rate discrepancies
+#plotly bar chart of eviction filing/rate discrepancies
 bar_chart_eviction_discrep = neighborhood_data %>%
   top_n(15, wt_eviction_rate_discrep) %>% 
   mutate(neighborhood = fct_reorder(neighborhood, wt_eviction_rate_discrep)) %>% 
@@ -288,7 +258,7 @@ bar_chart_poverty = neighborhood_data %>%
          showlegend = FALSE)
   
 
-
+#combining plots visually
 subplot(bar_chart_eviction_discrep,
         barchart_evictions,
         bar_chart_poverty,

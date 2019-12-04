@@ -529,10 +529,15 @@ eviction =
 <p> </p>
 <p>To look at neighborhood-level data, sample weights were calculated by dividing the population of the census tract by the population of the neighborhood. These weights were then applied to all variables of interest to calculate aggregate measures by neighborhood.</p>
 <p> </p>
-</div>
-<div id="francis-will-change-this" class="section level2">
-<h2>FRANCIS will change this</h2>
-<pre class="r"><code>neighborhood_data_prep = eviction_data %&gt;% 
+<pre class="r"><code>eviction_data = read.csv(&#39;./data/EvictionData_NY.csv&#39;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  filter(year == 2016) %&gt;% 
+  mutate(
+    geoid = as.character(geoid)) %&gt;% 
+  filter(parent_location == &quot;Kings County, New York&quot;) %&gt;%
+  left_join(neighborhood_df, by = c(&quot;geoid&quot; = &quot;geo_id&quot;))
+
+neighborhood_data_prep = eviction_data %&gt;% 
   group_by(neighborhood) %&gt;% 
   mutate(
     neighb_pop = sum(population),
@@ -540,16 +545,19 @@ eviction =
     eviction_discrepancy = eviction_filing_rate - eviction_rate,
     weighted_eviction_discrep = eviction_discrepancy*tract_weight,
     weighted_eviction_rate = eviction_rate*tract_weight,
+    weighted_eviction_filing_rate = eviction_filing_rate*tract_weight,
     pct_nonwhite = 100 - pct_white,
     weighted_pct_nonwhite = pct_nonwhite*tract_weight,
     weighted_povertyrate = poverty_rate*tract_weight)
 
+#creating weighted neighborhood-level variables
 neighborhood_data = neighborhood_data_prep %&gt;% 
   summarize(
-    wt_eviction_rate = round(as.numeric(sum(weighted_eviction_rate)), digits = 2),
-    wt_eviction_rate_discrep = round(sum(weighted_eviction_discrep), digits = 2),
-    wt_pct_nonwhite = sum(weighted_pct_nonwhite),
-    wt_povertyrate = sum(weighted_povertyrate)) %&gt;% 
+    wt_eviction_rate = round(as.numeric(sum(weighted_eviction_rate, na.rm = TRUE)), digits = 2),
+    wt_eviction_rate_discrep = round(sum(weighted_eviction_discrep, na.rm = TRUE), digits = 2),
+    wt_eviction_filing_rate = round(sum(weighted_eviction_filing_rate, na.rm = TRUE), digits = 2),
+    wt_pct_nonwhite = round(sum(weighted_pct_nonwhite, na.rm = TRUE), digits = 2),
+    wt_povertyrate = round(sum(weighted_povertyrate, na.rm = TRUE), digits = 2)) %&gt;% 
   ungroup() %&gt;% 
   mutate(neighborhood = as.factor(neighborhood))</code></pre>
 <p> </p>
