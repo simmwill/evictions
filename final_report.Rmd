@@ -561,97 +561,18 @@ joined_data_bklyn_nomissing %>%
 
 &nbsp;
 
-### *Evictions Over Time 2000-2016*
-**Question: How have eviction rates in Brooklyn changed over time?**
-
-To explore the question of how eviction rates in Brooklyn have changed over time (2000 to 2016), we created a [*graphical user interface*](https://nk2814.shinyapps.io/evictions_spaghetti_shiny/) using the Shiny package. There are two components to this interface:
-
-1) A spaghetti plot depicting eviction rates from 2000 to 2016 in Brooklyn broken down by **neighborhood**.
-
-```{r shiny_app_spaghetti, eval=FALSE}
-
-# Reading in and cleaning data for neighborhood-level spaghetti plot over time
-
-# Read NYC neighborhood data
-neighborhood_df = 
-  read_excel("./data/NYC_neighborhoods_by_censustract_2010.xlsx", 
-             skip = 5, 
-             col_names = c("borough", "county_code", "boro_code", "census_tract", "PUMA", "nta_code", "neighborhood")
-             ) %>% 
-#creating 11 digit FIPS code by pasting country code (36) with `county_code` and `census_tract`
-  mutate(geo_id = paste0("36", county_code, census_tract)
-  )
-
-# Read Eviction data, limit to Brooklyn, join to neighborhood_df
-brooklyn_data = read.csv('./data/EvictionData_NY.csv') %>% 
-  janitor::clean_names() %>% 
-  mutate(geoid = as.character(geoid)) %>% 
-  filter(parent_location == "Kings County, New York") %>% 
-  left_join(neighborhood_df, by = c("geoid" = "geo_id"))
-
-# Code weighted neighborhood eviction rate 
-brooklyn_data = brooklyn_data %>% 
-  group_by(neighborhood, year) %>% 
-  mutate(
-    neighb_pop = sum(population),
-    tract_weight = population/neighb_pop,
-    weighted_eviction_rate = eviction_rate*tract_weight)
- 
-
-brooklyn_data = brooklyn_data %>% 
-  summarize(
-    Eviction_Rate = as.numeric(sum(weighted_eviction_rate))
-    ) %>% 
-  ungroup() %>% 
-  mutate(neighborhood = as.factor(neighborhood))
-
-brooklyn_data <- within(brooklyn_data, Eviction_Rate[neighborhood == 'park-cemetery-etc-Brooklyn'] <- NA)
-brooklyn_data <- within(brooklyn_data, wt_eviction_rate_discrep[neighborhood == 'park-cemetery-etc-Brooklyn'] <- NA)
-
-# Pulled list of brooklyn neighborhoods from brooklyn eviction data
-neighborhoods = brooklyn_data %>% distinct(neighborhood) %>% pull()
-
-
-# Created checkbox input of Brooklyn neighborhood
-
-checkboxGroupInput("neighborhood_choice", label=h3("Select Neighborhood"),
-choices = neighborhoods, selected = "Williamsburg")
-
-# Used renderPlotly function to plot eviction rates over time with Neighborhood widget
-
-renderPlotly({ 
-
-brooklyn_data = 
-  brooklyn_data %>%
-    filter(
-      neighborhood == input[["neighborhood_choice"]]
-    ) 
-
-brooklyn_data %>% 
-    group_by(year) %>%
-    ungroup() %>% 
-    plot_ly(x=~year, y=~Eviction_Rate, type="scatter", mode="lines+markers", color = ~neighborhood) %>% 
-    layout(title="Eviction Rate (%) Over Time (2000-2016) by Brooklyn Neighborhood")
-
-})
-
-# Published to shinyapp.io
-
-```
-
-
 ### *What Predicts Eviction Rates?*
 **Question: How does the geographic distribution of eviction rates in Brooklyn correlate with other census tract characteristics such as language ability, racial composition, rent burden, and population density?**
 
-To explore the question of how the geographic distribution of eviction rates correlated with our predictors of interest, we created choropleths of our four predictors (percentage of ESL speakers, percentage of non-White residents, rent burden, and population density) with eviction rates overlaid in Brooklyn by census tract in 2010.
+To explore the question of how the geographic distribution of eviction rates correlated with our predictors of interest, we created choropleths of our four predictors (percentage of ESL speakers, percentage of non-White residents, rent burden, and population density) with eviction rates overlaid in Brooklyn by census tract in 2016.
 
 Census tract and neighborhood shapefiles were downloaded from NYC Open Data and limited to Brooklyn. We then defined aesthetic mappings.
 
 ```{r mapdata, eval=FALSE}
 # Loading in Brooklyn data
-joined_data_bklyn_2010 = 
+joined_data_bklyn_2016 = 
   readRDS('./data/joined_data_bklyn') %>%
-  filter(year == "2010")
+  filter(year == "2016")
 
 # Loading census tract shapefiles from NYC OpenData:
 census_tracts = readOGR(dsn = "maps/2010-census-tracts.shp", encoding = "UTF-8") 
@@ -866,6 +787,84 @@ We identified a clear positive association between the percentage of non-White r
 The results of our exploratory analyses were used to inform further model building.
 
 &nbsp;
+
+### *Evictions Over Time 2000-2016*
+**Question: How have eviction rates in Brooklyn changed over time?**
+
+To explore the question of how eviction rates in Brooklyn have changed over time (2000 to 2016), we created a [*graphical user interface*](https://nk2814.shinyapps.io/evictions_spaghetti_shiny/) using the Shiny package. There are two components to this interface:
+
+1) A spaghetti plot depicting eviction rates from 2000 to 2016 in Brooklyn broken down by **neighborhood**.
+
+```{r shiny_app_spaghetti, eval=FALSE}
+
+# Reading in and cleaning data for neighborhood-level spaghetti plot over time
+
+# Read NYC neighborhood data
+neighborhood_df = 
+  read_excel("./data/NYC_neighborhoods_by_censustract_2010.xlsx", 
+             skip = 5, 
+             col_names = c("borough", "county_code", "boro_code", "census_tract", "PUMA", "nta_code", "neighborhood")
+             ) %>% 
+#creating 11 digit FIPS code by pasting country code (36) with `county_code` and `census_tract`
+  mutate(geo_id = paste0("36", county_code, census_tract)
+  )
+
+# Read Eviction data, limit to Brooklyn, join to neighborhood_df
+brooklyn_data = read.csv('./data/EvictionData_NY.csv') %>% 
+  janitor::clean_names() %>% 
+  mutate(geoid = as.character(geoid)) %>% 
+  filter(parent_location == "Kings County, New York") %>% 
+  left_join(neighborhood_df, by = c("geoid" = "geo_id"))
+
+# Code weighted neighborhood eviction rate 
+brooklyn_data = brooklyn_data %>% 
+  group_by(neighborhood, year) %>% 
+  mutate(
+    neighb_pop = sum(population),
+    tract_weight = population/neighb_pop,
+    weighted_eviction_rate = eviction_rate*tract_weight)
+ 
+
+brooklyn_data = brooklyn_data %>% 
+  summarize(
+    Eviction_Rate = as.numeric(sum(weighted_eviction_rate))
+    ) %>% 
+  ungroup() %>% 
+  mutate(neighborhood = as.factor(neighborhood))
+
+brooklyn_data <- within(brooklyn_data, Eviction_Rate[neighborhood == 'park-cemetery-etc-Brooklyn'] <- NA)
+brooklyn_data <- within(brooklyn_data, wt_eviction_rate_discrep[neighborhood == 'park-cemetery-etc-Brooklyn'] <- NA)
+
+# Pulled list of brooklyn neighborhoods from brooklyn eviction data
+neighborhoods = brooklyn_data %>% distinct(neighborhood) %>% pull()
+
+
+# Created checkbox input of Brooklyn neighborhood
+
+checkboxGroupInput("neighborhood_choice", label=h3("Select Neighborhood"),
+choices = neighborhoods, selected = "Williamsburg")
+
+# Used renderPlotly function to plot eviction rates over time with Neighborhood widget
+
+renderPlotly({ 
+
+brooklyn_data = 
+  brooklyn_data %>%
+    filter(
+      neighborhood == input[["neighborhood_choice"]]
+    ) 
+
+brooklyn_data %>% 
+    group_by(year) %>%
+    ungroup() %>% 
+    plot_ly(x=~year, y=~Eviction_Rate, type="scatter", mode="lines+markers", color = ~neighborhood) %>% 
+    layout(title="Eviction Rate (%) Over Time (2000-2016) by Brooklyn Neighborhood")
+
+})
+
+# Published to shinyapp.io
+
+```
 
 2) A map depicting eviction rates from 2000 to 2016 in Brooklyn broken down by **census tract**.
 
