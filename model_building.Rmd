@@ -54,17 +54,19 @@ joined_data_bklyn_nomissing =
 
 ## Overview
 
-Using existing data, we aim to investigate factors that are associated with - and can potentially be used to predict - eviction rates among census tracts in Brooklyn. 
+Using existing data, we investigated factors that are associated with - and can potentially be used to predict - eviction rates among census tracts in Brooklyn. We used Exploratory Analyses (see navbar menu above) to inform our formal hypotheses and analyses detailed in this section.
 
-We propose using Generalized Estimating Equations (GEE). GEEs can be used to model correlated/hierarchical data, and within-group (hierarchical) estimates are not desired. Since our data are repeated over time within census tract (2010-2016), we expect there to be autocorrelation present across years, and we can address this using GEE modeling techniques. 
+We used Generalized Estimating Equations (GEE), which can be used when data are correlated and distinction of within-group and between-group estimates is not desired. Since our data are repeated over time within census tract (2010-2016), we expect there to be autocorrelation present across years, and we can address this using GEE modeling techniques. For more technical information on models used, see the [Formal Analysis](https://simmwill.github.io/evictions/overview.html#formal_analysis) section of our project report.
 
-More specifically, we propose using a GEE modelling framework with a log link function. Our outcome variable, eviction rate, is calculated by dividing count of evictions by the number of renter-occupied households; since this is based on a **count** variable, evictions, we expect our outcome to assume a Poisson distribution. Thus, we can use a log link function to model the expected count of evictions, and include the denominator of our eviction rate - number of renter-occupied households - as an offset term in the right-hand side of our equation.
+Overall, we found that eviction rates are significantly higher, on average, in census tracts with higher proportions of non-white residents (we tested percents of Black, Asian, American Indian / Alaska Native, Native Hawaiian / Pacific Islander, and Hispanic residents). We also found that low-income communities are more at-risk. On average, for every ten percent increase in rent burden (percent of one's income that is paid for housing), eviction rates are expected to increase 19.29 percent, holding race, year, and population density constant. These results have been shown in previous research and have significant implications for NYC's affordable housing and eviction landscape.
 
-Finally, we propose using an AR(1) correlation structure, since autocorrelation can be reasonably expected given our data are measured over time. (In short, this means that, as one data point moves farther away from another correlated data point, the correlation between them decreases exponentially. We might reasonably expect this to happen over time with our data - e.g. a census tract's 2006 eviction rate may be more similar to its 2005 eviction rate than to its 2000 eviction rate.)
+***
+
+## Analysis
 
 Since our outcome, eviction rate, is calculated using a **count** variable (number of evictions) repeated over time within areas, we'll model it using GEE with a Poisson link function.
 
-```{r poisson_dist, echo = FALSE, message = FALSE}
+```{r poisson_dist, message = FALSE}
 #####
 ## poisson distribution of counts (and rates)
 joined_data_bklyn_nomissing %>% 
@@ -106,10 +108,6 @@ Although we formulated specific hypotheses regarding predictors of eviction in B
   * `family_size`. Average family size in census tract.
   * `pct_fam_households`. Percentage of census tract households that contain families.
 
-*Note:* Since our repeated data are clustered within census tracts, we could not include neighborhood, an otherwise important predictor of eviction rates. If we wanted to conduct models similar to these but (1) within census tracts across time AND (2) also modelling census tracts clustered within neighborhoods, we would have to move into some sort of hierarchical/multilevel modelling structure.
-
-In our model-building Shiny app (see 'Interactive Model', navigation bar), readers can stratify these analyses by neighborhood, which may allow some conclusions regarding neighborhood-level effects (as opposed to just Brooklyn-level).
-
 &nbsp;
 &nbsp;
 
@@ -126,29 +124,7 @@ Based on prior reading and research, we hypothesize the following predictors of 
 &nbsp;
 &nbsp;
 
-**Model:**
-
-<!-- LaTeX code - edit on https://www.codecogs.com/latex/eqneditor.php, then download gif -->
-
-<!-- $$ -->
-<!-- (1) \hspace{20mm} log\{E({Y_{ij})}\} = log(n_{ij}) + \beta_0 + \beta_k*X_{kij} + \beta_y*year_{ij} \\ -->
-<!-- \hspace{20mm}\\ -->
-<!-- \hspace{20mm} \text{Where: }\\ -->
-<!-- \hspace{20mm} _{ij}\hspace{2mm} \text{denotes Census Tract \textit{i} and year \textit{j}} \\ -->
-<!-- \vspace{.01mm} \\ -->
-<!-- \hspace{20mm}E({Y_{ij})} = \text{expected count of evictions} \\ -->
-<!-- \hspace{20mm} n_{ij} = \text{offset term (number of renter-occupied housing units)} \\ -->
-<!-- \hspace{20mm}X_{kij} = \begin{cases}\text{Area percent of population that speaks English less than `Very Well'} -->
-<!-- \\ \text{Mean area rent burden (percentage of household income spent on rent)} -->
-<!-- \\ \text{Area percent of [specific race/ethnicity]} -->
-<!-- \\ \text{Crude area population density (total population divided by area (mi} ^2) -->
-<!-- \end{cases}\\ -->
-<!-- $$ -->
-
-&nbsp; 
-&nbsp;
-
-![](./images/eq1.gif)
+_**For detailed model statements, see Report (link in navbar above).**_
 
 &nbsp;
 &nbsp;
@@ -177,12 +153,6 @@ joined_data_bklyn_nomissing %>%
                      tl.cex = .9,
                      tl.srt = 45)
 
-## NOTES
-  ## include hisp instead of other, since highly correlated (.85)
-  ## include black not white, since highly correlated (-.87)
-  ## fit two models:
-      ## one to look at pct_eng, controlling for race (pct_eng + all races except white, other + other predictors)
-      ## one to just look at race (all races except white, other + other predictors)
 ```
 
 Of relevance to our hypotheses, the following variables were highly correlated and thus may not be accurately interpreted  in a model as independent predictors:
@@ -209,44 +179,10 @@ Once we adjusted for Black race in the relationship between ESL and evictions, t
 
 We refined our hypothesized models based on our exploratory confounding and other analyses:
 
-  1. As noted above, ESL should not be included in a model without adjusting for Black race nor should it be interpreted independently of year due to high correlation. Thus, our first hypothesized sub-model will include ESL and percent of all race/ethnicity variables (interpreted as the independent effects of ESL and years since 2010 [highly correlated], rent burden, or population density on evictions, adjusting for each other predictor variable and race/ethnicity). [Equation 2]
+  1. As noted above, ESL should not be included in a model without adjusting for Black race nor should it be interpreted independently of year due to high correlation. Thus, our first hypothesized sub-model will include ESL and percent of all race/ethnicity variables (interpreted as the independent effects of ESL and years since 2010 [highly correlated], rent burden, or population density on evictions, adjusting for each other predictor variable and race/ethnicity). 
   
-<!-- $$ -->
-<!-- (2) \hspace{1mm} log\{E({Y_{ij})}\} = log(n_{ij}) + \beta_0 + \beta_1X_{1ij} + \beta_2X_{2ij} + \beta_3X_{3ij} + \beta_4X_{4ij} + ... + \beta_yyear_{ij} \\ -->
-<!-- \hspace{20mm}\\ -->
-<!-- \hspace{20mm} \text{Where: }\\ -->
-<!-- \hspace{20mm}X_{(k)ij}, \text{where \textit{k}} = \begin{cases}\text{1: Area percent of population that speaks English less than `Very Well'} -->
-<!-- \\ \text{2: Mean area rent burden (percentage of household income spent on rent)} -->
-<!-- \\ \text{3: Crude area population density} -->
-<!-- \\ \text{4 to k: Area percent racial/ethnicity makeup of all race/ethnicity variables} -->
-<!-- \end{cases}\\ -->
-<!-- $$ -->
+  2. As also noted above, percent White race and percent Black race are highly correlated in our data (*r*  =  0.87), and percent other race and percent Hispanic ethnicity are also highly correlated (*r*  =  0.85). Thus, a second hypothesized sub-model will observe the independent effects of percent racial/ethnic compositions (**excluding** White and Other race), rent burden, population density, or years since 2010 on eviction rates, adjusting for other predictor variables.
   
-&nbsp; 
-&nbsp;
-
-![](./images/eq2.gif)
-
-&nbsp;
-&nbsp;
-  
-  2. As also noted above, percent White race and percent Black race are highly correlated in our data (*r*  =  0.87), and percent other race and percent Hispanic ethnicity are also highly correlated (*r*  =  0.85). Thus, a second hypothesized sub-model will observe the independent effects of percent racial/ethnic compositions (**excluding** White and Other race), rent burden, population density, or years since 2010 on eviction rates, adjusting for other predictor variables. [Equation 3]
-  
-<!-- $$ -->
-<!-- (3) \hspace{10mm} log\{E({Y_{ij})}\} = log(n_{ij}) + \beta_0 + \beta_1X_{1ij} + \beta_2X_{2ij} + \beta_3X_{3ij} + ... + \beta_yyear_{ij} \\ -->
-<!-- \hspace{20mm}\\ -->
-<!-- \hspace{20mm} \text{Where: }\\ -->
-<!-- \hspace{20mm}X_{(k)ij}, \text{where \textit{k}} = \begin{cases}\text{1: Mean area rent burden (percentage of household income spent on rent)} -->
-<!-- \\ \text{2: Crude area population density} -->
-<!-- \\ \text{3 to k: Area percent racial/ethnicity makeup of all race/ethnicity variables, excluding White and Other race} -->
-<!-- \end{cases}\\ -->
-<!-- $$ -->
-
-&nbsp; 
-&nbsp;
-
-![](./images/eq3.gif)
-
 &nbsp;
 &nbsp;
 
@@ -326,7 +262,7 @@ Since our data are modelled using GEE and are not all nested within each other, 
 
 Specifically, we will compare the repeat-sampled distribution of each model's **root mean squared error**, with lower values indicating lower error and better overall prediction.
 
-(Technical notes: We resampled 100 training/testing splits [default 80% training, 20% testing] on our data using the function `crossv_mc`. We then ran our 5 models on each of our 100 resampled training datasets, then extracted the root mean squared error as a measure of how well our training models predicted our testing data. 100 RMSEs resulted for each model, the distributions of which were then grouped by model and comparatively plotted using `ggplot` and `geom_violin` [violin plots].)
+(For more technical notes, see [corresponding section](https://simmwill.github.io/evictions/overview.html#cross-validation_of_models) in our report.)
 
 ```{r models}
 ## models
@@ -464,12 +400,7 @@ This is the only clear-cut difference, as the latter three models - our two hypo
 
 (*Note:* None of our models had particularly good predictive capabilities, and the differences between our models given their RMSE distributions is comparatively small. However, we will assume that the difference in RMSE is still meaningful.)
 
-As this is the case, we will opt for model simplicity and select the simplest model with the most easily-interpretable results: the hypothesized model based primarily on the independent effects of non-White race/ethnicity percentages, rent burden, population density, and years since 2010 [Equation 3, described above and re-printed below].
-
-&nbsp;
-&nbsp;
-
-![](./images/eq3.gif)
+As this is the case, we will opt for model simplicity and select the simplest model with the most easily-interpretable results: the hypothesized model based primarily on the independent effects of non-White race/ethnicity percentages, rent burden, population density, and years since 2010.
 
 &nbsp;
 &nbsp;
@@ -501,17 +432,15 @@ Since we used a Poisson (log) link function, we should exponentiate our paramete
 
 For example, to interpret our parameter estimate for `black`, we would exponentiate our parameter estimate, 0.01887 (e^0.01887 = 1.0190). This is equal to our estimated risk ratio. We can thus say that the population-average eviction rate (or risk of eviction) is expected to be 1.0190 times higher for each one percentage-point increase in Brooklyn's Black population, adjusting for percentage of other non-White race/ethnicity (Asian, American Indian / Alaska Native, Native Hawaiian / Pacific Islander, and Hispanic), rent burden, population density, and years since 2010.
 
-To make our risk estimates even more meaningful, we can interpret risk ratios for multiple units. For example, given the above, e^0.01887*10 = 1.2076; for each 10 percent increase in Brooklyn's Black population, we expect the eviction rate to increase by 1.21 times, adjusting for other factors listed in the previous paragraph.
+To make our risk estimates even more meaningful, we can interpret risk ratios for multiple units. For example, given the above, e^0.01887*10 = 1.2076; for each 10 percent increase in Brooklyn's Black population, we expect the eviction rate to increase by 21 percent (RRest = 1.21), adjusting for other factors listed in the previous paragraph. Similarly, on average, for every ten percent increase in rent burden, eviction rates are expected to increase 19.29 percent (RRest = 1.1929), adjusting for other factors included in model.
 
 &nbsp;
 &nbsp;
 
 ## Interactive prediction model
 
-We want to enable readers to more easily understand which predictors affect eviction rate and to what extents. Thus, using the race-based GEE model we selected from our five compared models, we created an interactive model-fitting tool that allows readers to adjust levels of various predictors to see the expected change in eviction rate (evictions per 100 renter-occupied households).
+We want to enable readers to more easily understand which predictors affect eviction rate and to what extents. Thus, using the race-based GEE model we selected from our five compared models, we created an interactive model-fitting tool that allows readers to adjust levels of various predictors to see the expected change in eviction rate (evictions per 100 renter-occupied households). Further than the analyses above, readers can also get a sense of these effects in each neighborhood of Brooklyn.
 
-Further than the analyses above, readers can also get a sense of these effects in each neighborhood of Brooklyn.
-
-Click 'Interactive Model' in the navbar above to access this model-building app.
+Visit our [Interactive Model](https://willsimmons.shinyapps.io/model_building) to learn more. (You can also find the link in the navbar above.)
 
 
