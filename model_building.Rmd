@@ -434,6 +434,8 @@ For example, to interpret our parameter estimate for `black`, we would exponenti
 
 To make our risk estimates even more meaningful, we can interpret risk ratios for multiple units. For example, given the above, e^0.01887*10 = 1.2076; for each 10 percent increase in Brooklyn's Black population, we expect the eviction rate to increase by 21 percent (RRest = 1.21), adjusting for other factors listed in the previous paragraph. Similarly, on average, for every ten percent increase in rent burden, eviction rates are expected to increase 19.29 percent (RRest = 1.1929), adjusting for other factors included in model.
 
+_**See further discussion in our project report.**_
+
 &nbsp;
 &nbsp;
 
