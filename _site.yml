@@ -13,15 +13,16 @@ navbar:
       href: question_3_maps.html
   - text: "Model Building"
     href: model_building.html
+  - text: "Prediction Tool"
+    href: https://willsimmons.shinyapps.io/model_building/
   right:
-    - text: "Interactive Model"
-      href: https://willsimmons.shinyapps.io/model_building/
-    - text: "Report"
-      href: overview.html      
-    - icon: fa-github fa-lg
-      href: https://github.com/simmwill/evictions
+    - text: "Project Report"
+      href: final_report.html
     - icon: fa-youtube fa-lg
       href: https://youtube.com
+    - icon: fa-github fa-lg
+      href: https://github.com/simmwill/evictions
+
 output:
   html_document:
     theme: cosmo
