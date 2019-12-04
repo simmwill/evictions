@@ -140,7 +140,7 @@ addLegendCustom <- function(map, position, colors, labels, sizes, opacity = 0.4,
 }
 ```
 
-### Map of Eviction Rates and % ESL speakers, by census tract
+### % ESL speakers
 
 Census tracts with a higher percentage of ESL speakers appear to have lower eviction rates. English language nativity appears to be geographically clustered.
 
@@ -170,7 +170,7 @@ leaflet::leaflet(data = census_tracts_crs) %>%
         labels = c("2", "6", "25"), sizes = c(5.6569, 9.7980, 20))
 ```
 
-### Map of Eviction Rates and % non-White, by census tract
+### % non-White
 
 Census tracts with a higher percentage of non-White residents appear to have higher eviction rates. Racial composition of census tracts appears to be geographically clustered.
 
@@ -201,7 +201,7 @@ leaflet::leaflet(data = census_tracts_crs) %>%
 ```
 
 
-### Map of Eviction Rates and Rent Burden, by census tract
+### Rent Burden
 
 The relationship between eviction rates and rent burden were not immediately obvious. However, census tracts with high rent burdens appeared to be geographically clustered.
 
@@ -231,7 +231,7 @@ leaflet::leaflet(data = census_tracts_crs) %>%
         labels = c("2", "6", "25"), sizes = c(5.6569, 9.7980, 20))
 ```
 
-### Map of Eviction Rates and Population Density, by census tract
+### Population Density
 
 A weak relationship appears to exist between population density and eviction rates, with eviction rates lower in more densely populated census tracts. Census tracts with high rent burdens appeared to be weakly geographically clustered.
 
