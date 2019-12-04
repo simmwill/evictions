@@ -630,6 +630,22 @@ The results of our exploratory analyses were used to inform further model buildi
 
 &nbsp;
 
+### *Interactive Visualizations*
+**Question: How have eviction rates in Brooklyn changed over time?**
+
+To explore the question of how eviction rates in Brooklyn have changed over time (2000 to 2016), we created a [*graphical user interface*](https://nk2814.shinyapps.io/evictions_spaghetti_shiny/) using the Shiny package. There are two components to this interface:
+
+1) A spaghetti plot depicting eviction rates from 2000 to 2016 in Brooklyn broken down by **neighborhood**.
+
+
+2) A map depicting eviction rates from 2000 to 2016 in Brooklyn broken down by **census tract**.
+
+```{r shiny_app, eval=FALSE}
+
+
+
+```
+
 # Formal Analysis
 <font size = "4"><i>Predictors of Eviction in Brooklyn, 2010-2016</font></i>
 
