@@ -29,21 +29,23 @@ h1.title {
 <div style="margin-bottom:100px;">
 </div>
 
-## Project Overview
+## Motivation
 
-Evictions represent a major source of housing instability in the U.S., especially in vulnerable communities. Once a rare phenomenon, eviction has now grown to what many consider "epidemic" proportions, with [over 450,000](https://ny.curbed.com/2017/9/25/16361572/rent-stabilization-map-crown-heights-bushwick) evictions filed in New York City between 2013 and 2015.  
+Evictions represent a major source of housing instability in the Uinted States, especially in vulnerable communities. Eviction has now grown to what many consider "epidemic" proportions, with [over 450,000](https://ny.curbed.com/2017/9/25/16361572/rent-stabilization-map-crown-heights-bushwick) evictions filed in New York City between 2013 and 2015.  
 
-Governments and residents have grown accustomed to this. Entire police units, moving companies, and economic infrastructures have been built upon this, as reported by the [*New Yorker*](https://www.newyorker.com/magazine/2016/02/08/forced-out). What factors put individuals, communities, and populations most at-risk for eviction? Who bears the cumulative social and economic consequences of a practice now accepted as commonplace, justified, and even beneficial?
+Entire police units, moving companies, and economic infrastructures have been built in response to this phenomenon, as reported by the [*New Yorker*](https://www.newyorker.com/magazine/2016/02/08/forced-out). What factors put individuals, communities, and populations most at-risk for eviction? Who bears the cumulative social and economic consequences of a practice now accepted as commonplace, justified, and even beneficial?
 
-We used data from the [*Eviction Lab*](https://evictionlab.org) at Princeton University to investigate these questions and explore patterns in evictions and eviction filings across Brooklyn from 2010 to 2016. 
+## What you'll find here
 
-Use the tabs above to explore the following questions:
+We used data from the [*Eviction Lab*](https://evictionlab.org) at Princeton University to explore patterns in evictions and eviction filings across Brooklyn from 2010 to 2016. 
 
-  * How have eviction rates changed over time by census tract in Brooklyn (2000-2016)?
-  * Are there spatial patterns in the discrepancy between eviction filings and evictions at the neighborhood level? Do these patterns reflect distributions of other key variables of interest?
-  * What factors are associated with eviction rates across census tract in Brooklyn (2010-2016)?
+In the Exploratory Analyses tab, you can observe:
+
+  * How eviction rates have changed over time by census tract (2000-2016)
+  * Spatial patterns in the discrepancy between eviction filings and evictions at the neighborhood level; whether neighborhoods with high eviction rates and high filings-evictions discrepancies exhibit other markers of disadvantage
+  * How the geographic distribution of eviction rates in Brooklyn correlates to other census tract characteristics such as language ability, racial composition, rent burden, and population density
+
+In the [Model building](model_building.html) tab, we propose a model to predict eviction rates in Brooklyn based on historical data. Head to our [Interactive Prediction Model](https://willsimmons.shinyapps.io/model_building/) to try it for yourself!
 
 &nbsp;
 &nbsp;
-
-## Screencast
