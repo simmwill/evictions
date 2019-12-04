@@ -147,9 +147,15 @@ To look at neighborhood-level data, sample weights were calculated by dividing t
 
 &nbsp;
 
-## FRANCIS will change this
-
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
+eviction_data = read.csv('./data/EvictionData_NY.csv') %>% 
+  janitor::clean_names() %>% 
+  filter(year == 2016) %>% 
+  mutate(
+    geoid = as.character(geoid)) %>% 
+  filter(parent_location == "Kings County, New York") %>%
+  left_join(neighborhood_df, by = c("geoid" = "geo_id"))
+
 neighborhood_data_prep = eviction_data %>% 
   group_by(neighborhood) %>% 
   mutate(
@@ -158,16 +164,19 @@ neighborhood_data_prep = eviction_data %>%
     eviction_discrepancy = eviction_filing_rate - eviction_rate,
     weighted_eviction_discrep = eviction_discrepancy*tract_weight,
     weighted_eviction_rate = eviction_rate*tract_weight,
+    weighted_eviction_filing_rate = eviction_filing_rate*tract_weight,
     pct_nonwhite = 100 - pct_white,
     weighted_pct_nonwhite = pct_nonwhite*tract_weight,
     weighted_povertyrate = poverty_rate*tract_weight)
 
+#creating weighted neighborhood-level variables
 neighborhood_data = neighborhood_data_prep %>% 
   summarize(
-    wt_eviction_rate = round(as.numeric(sum(weighted_eviction_rate)), digits = 2),
-    wt_eviction_rate_discrep = round(sum(weighted_eviction_discrep), digits = 2),
-    wt_pct_nonwhite = sum(weighted_pct_nonwhite),
-    wt_povertyrate = sum(weighted_povertyrate)) %>% 
+    wt_eviction_rate = round(as.numeric(sum(weighted_eviction_rate, na.rm = TRUE)), digits = 2),
+    wt_eviction_rate_discrep = round(sum(weighted_eviction_discrep, na.rm = TRUE), digits = 2),
+    wt_eviction_filing_rate = round(sum(weighted_eviction_filing_rate, na.rm = TRUE), digits = 2),
+    wt_pct_nonwhite = round(sum(weighted_pct_nonwhite, na.rm = TRUE), digits = 2),
+    wt_povertyrate = round(sum(weighted_povertyrate, na.rm = TRUE), digits = 2)) %>% 
   ungroup() %>% 
   mutate(neighborhood = as.factor(neighborhood))
 ```

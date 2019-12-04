@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
 
 <meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
@@ -237,7 +238,6 @@ $(document).ready(function () {
   border: none;
   display: inline-block;
   border-radius: 4px;
-  background-color: transparent;
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li {
@@ -269,12 +269,6 @@ $(document).ready(function () {
 }
 }
 
-@media print {
-.toc-content {
-  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
-  float: right;
-}
-}
 
 .toc-content {
   padding-left: 30px;
@@ -535,10 +529,15 @@ eviction =
 <p> </p>
 <p>To look at neighborhood-level data, sample weights were calculated by dividing the population of the census tract by the population of the neighborhood. These weights were then applied to all variables of interest to calculate aggregate measures by neighborhood.</p>
 <p> </p>
-</div>
-<div id="francis-will-change-this" class="section level2">
-<h2>FRANCIS will change this</h2>
-<pre class="r"><code>neighborhood_data_prep = eviction_data %&gt;% 
+<pre class="r"><code>eviction_data = read.csv(&#39;./data/EvictionData_NY.csv&#39;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  filter(year == 2016) %&gt;% 
+  mutate(
+    geoid = as.character(geoid)) %&gt;% 
+  filter(parent_location == &quot;Kings County, New York&quot;) %&gt;%
+  left_join(neighborhood_df, by = c(&quot;geoid&quot; = &quot;geo_id&quot;))
+
+neighborhood_data_prep = eviction_data %&gt;% 
   group_by(neighborhood) %&gt;% 
   mutate(
     neighb_pop = sum(population),
@@ -546,16 +545,19 @@ eviction =
     eviction_discrepancy = eviction_filing_rate - eviction_rate,
     weighted_eviction_discrep = eviction_discrepancy*tract_weight,
     weighted_eviction_rate = eviction_rate*tract_weight,
+    weighted_eviction_filing_rate = eviction_filing_rate*tract_weight,
     pct_nonwhite = 100 - pct_white,
     weighted_pct_nonwhite = pct_nonwhite*tract_weight,
     weighted_povertyrate = poverty_rate*tract_weight)
 
+#creating weighted neighborhood-level variables
 neighborhood_data = neighborhood_data_prep %&gt;% 
   summarize(
-    wt_eviction_rate = round(as.numeric(sum(weighted_eviction_rate)), digits = 2),
-    wt_eviction_rate_discrep = round(sum(weighted_eviction_discrep), digits = 2),
-    wt_pct_nonwhite = sum(weighted_pct_nonwhite),
-    wt_povertyrate = sum(weighted_povertyrate)) %&gt;% 
+    wt_eviction_rate = round(as.numeric(sum(weighted_eviction_rate, na.rm = TRUE)), digits = 2),
+    wt_eviction_rate_discrep = round(sum(weighted_eviction_discrep, na.rm = TRUE), digits = 2),
+    wt_eviction_filing_rate = round(sum(weighted_eviction_filing_rate, na.rm = TRUE), digits = 2),
+    wt_pct_nonwhite = round(sum(weighted_pct_nonwhite, na.rm = TRUE), digits = 2),
+    wt_povertyrate = round(sum(weighted_povertyrate, na.rm = TRUE), digits = 2)) %&gt;% 
   ungroup() %&gt;% 
   mutate(neighborhood = as.factor(neighborhood))</code></pre>
 <p> </p>
@@ -1354,7 +1356,7 @@ test = gee_stepper_o(full_fit, formula(full_fit)) ## customized function to auto
 <p>To summarize, we will consider the following models to predict census tract-level eviction rates:</p>
 <p>Two hypothesized models:</p>
 <ol style="list-style-type: decimal">
-<li><p>A hypothesized model based primarily on percent ESL speakers [Equation 2, above]</p></li>
+<li>A hypothesized model based primarily on percent ESL speakers [Equation 2, above]</li>
 <li><p>A hypothesized model based primarily on independent effects of race/ethnicity percentages [Equation 3, above]</p></li>
 <li><p>A model selected via a GEE-specific forward stepwise selection process (function <code>gee_stepper_o</code>)</p></li>
 </ol>
