@@ -1001,7 +1001,7 @@ joined_data_bklyn_nomissing =
 <div id="overview" class="section level2">
 <h2>Overview</h2>
 <p>Using existing data, we wanted to investigate factors that are associated with - and can potentially be used to predict - eviction rates among census tracts in Brooklyn.</p>
-<p>We propose using Generalized Estimating Equations (GEE). GEEs can be used to model correlated/hierarchical data, and within-group (hierarchical) estimates are not desired. Since our data are repeated over time within census tract (2010-2016), we expect there to be autocorrelation present across years, and we can address this using GEE modeling techniques.</p>
+<p>We propose using Generalized Estimating Equations (GEE). GEEs can be used to model correlated/hierarchical data, distinction of within-group and between-group estimates is not desired Since our data are repeated over time within census tract (2010-2016), we expect there to be autocorrelation present across years, and we can address this using GEE modeling techniques.</p>
 <p>More specifically, we propose using a GEE modelling framework with a log link function. Our outcome variable, eviction rate, is calculated by dividing count of evictions by the number of renter-occupied households; since this is based on a <strong>count</strong> variable, evictions, we expect our outcome to assume a Poisson distribution. Thus, we can use a log link function to model the expected count of evictions, and include the denominator of our eviction rate - number of renter-occupied households - as an offset term in the right-hand side of our equation.</p>
 <p>Finally, we propose using an AR(1) correlation structure, since autocorrelation can be reasonably expected given our data are measured over time. (In short, this means that, as one data point moves farther away from another correlated data point, the correlation between them decreases exponentially. We might reasonably expect this to happen over time with our data - e.g. a census tract’s 2006 eviction rate may be more similar to its 2005 eviction rate than to its 2000 eviction rate.)</p>
 <p>Since our outcome, eviction rate, is calculated using a <strong>count</strong> variable (number of evictions) repeated over time within areas, we’ll model it using GEE with a Poisson link function.</p>
@@ -1483,10 +1483,23 @@ hyp_model_race %&gt;%
 </tbody>
 </table>
 <p>Here, we can see that all hypothesized predictors are significantly associated with eviction rate in Brooklyn except for American Indian / Alaska Native race (p = 0.25) at the 5% level of significance.</p>
+<p> </p>
 </div>
 </div>
 <div id="discussion" class="section level1">
 <h1>Discussion</h1>
+<p>The results of our selected GEE model indicate a few important things:</p>
+<ul>
+<li>Eviction rates are difficult to predict, as anticipated. Among other factors, this is likely due to the complex and changing nature of evictions. Laws change from month to month, and areas can change rapidly - infrastructure, income, housing can look completely different in 5 years’ time.</li>
+<li>After adjusting for the covariates included in our model, eviction rates varied over time in Brooklyn from 2010 to 2016: all years have lower estimated eviction rates than 2010, with a large dip in overall rates in 2011, but the trend is somewhat unclear.</li>
+<li>All significant non-white races were positively associated with eviction rates in Brooklyn - i.e. as the percent of residents in a census tract that are non-white increases, so do eviction rates, controlling for other covariates in our model.</li>
+<li>Surprisingly, percent Native Hawaiian / Pacific Islander was the strongest predictor among the races in terms of its strength of effect (<em>b</em> = 0.0774). However, since there was a small sample of these races in Brooklyn, the estimate may be less reliable than others in the model.</li>
+<li>Rent burden was also positively associated with eviction rate in Brooklyn, consistent with the observation that evictions are more common in lower-income communities.</li>
+</ul>
+<p>To add complexity and interpretability to this model, we would like to add variables that account for nuanced effects of gentrification over time in Brooklyn. However, gentrification data currently publicly available were (1) sparse and (2) not recorded over time, so these analyses are currently not possible in the form we would like to see them. We would also like to see a multilevel model considering</p>
+<p>In conclusion, our data seem to show that eviction rates are higher, on average, among people of color in Brooklyn from 2010-2016. Eviction is not a problem that can be solved easily, and the predictors included in these models are obviously not “causal” exposures - rather, they are indicative of underlying structures that result in lower-income people of color being predominantly affected by evictions. As noted in one of our supplementary articles, “The Violence of Eviction”, evictions even more specifically shape the lives of women of color, with some estimates showing women being evicted at two to nine times the rate of males.</p>
+<p>This data tells a small part of eviction narratives in the U.S. - who they affect, and why it matters. Informed policymaking is important, and informed policies start at the ground: with landlords. Landlords decide who gets to live where, and research has shown that landlord-tenant relationships are <a href="bit.ly/housing_disc">often influenced by tenant race</a>. On a broader scale, the U.S. affordable housing crisis has a synergistic relationship with our eviction crisis, with most low-income families spending over 50 percent of their rent on housing. (About a quarter of the census tracts in our dataset had <em>average</em> rent burdens of over 40 percent across 2010-2016.)</p>
+<p>In sum, eviction affects individuals, families, and communities across our country, especially those who are otherwise most vulnerable. We need policies that preserve affordable housing and protect victims of long-standing discriminatory housing practices. If you are more interested in learning about current work and research happening around this topic, Eviction Lab’s <a href="https://evictionlab.org/">resources</a> are a great starting point.</p>
 </div>
 
 <html>
