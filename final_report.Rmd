@@ -71,9 +71,7 @@ Thus, our final questions are below, with respect to evictions in Brooklyn durin
 #### **Data Sources**
 
 * Primary data source: [Eviction Lab](https://evictionlab.org/) 
-
 * For English language usage, race/ethnicity, family variables, and population density: [American FactFinder](https://factfinder.census.gov/faces/nav/jsf/pages/guided_search.xhtml)
-
 * Supplemental data source (primarily geographic data): [NYC Open Data](https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-nynta.page)
 
 &nbsp;
