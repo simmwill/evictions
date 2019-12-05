@@ -417,8 +417,8 @@ h1.title {
 }
 
 </style>
-<div id="motivation" class="section level1">
-<h1>Motivation</h1>
+<div id="motivation" class="section level3">
+<h3>Motivation</h3>
 <ul>
 <li>Healthy People 2020 identified housing instability as a key issue in addressing social determinants of health in the United States.</li>
 <li>Evictions are an important element of housing instability, and approximately 2 million tenants were evicted nationwide in 2016.</li>
@@ -426,8 +426,8 @@ h1.title {
 <li>Discriminatory practices in evictions and eviction filings exist, and need to be better understood and addressed.</li>
 </ul>
 <p> </p>
-<div id="related-work" class="section level3">
-<h3><em>Related Work</em></h3>
+<div id="related-work" class="section level4">
+<h4><strong>Related Work</strong></h4>
 <p>The following resources are a sample of what inspired this project.</p>
 <ol style="list-style-type: decimal">
 <li>“Forced Out.” <em>The New Yorker</em>, January 31, 2016. <a href="https://www.newyorker.com/magazine/2016/02/08/forced-out">Link.</a></li>
@@ -440,8 +440,8 @@ h1.title {
 <p> </p>
 </div>
 </div>
-<div id="questions" class="section level1">
-<h1>Questions</h1>
+<div id="questions" class="section level3">
+<h3>Questions</h3>
 <p>Our questions remained fairly stable throughout the development of our project. However, two major changes occurred as we explored the available data:</p>
 <ol style="list-style-type: decimal">
 <li>Data were restricted to 2010-2016 due to limited availability of ACS (census) data for NYC</li>
@@ -455,27 +455,29 @@ h1.title {
 </ul>
 <p> </p>
 </div>
-<div id="data" class="section level1">
-<h1>Data</h1>
-<div id="data-sources" class="section level3">
-<h3><em>Data Sources</em></h3>
+<div id="data" class="section level3">
+<h3>Data</h3>
+<div id="data-sources" class="section level4">
+<h4><strong>Data Sources</strong></h4>
 <ul>
 <li><p>Primary data source: <a href="https://evictionlab.org/">Eviction Lab</a></p></li>
 <li><p>For English language usage, race/ethnicity, family variables, and population density: <a href="https://factfinder.census.gov/faces/nav/jsf/pages/guided_search.xhtml">American FactFinder</a></p></li>
 <li><p>Supplemental data source (primarily geographic data): <a href="https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-nynta.page">NYC Open Data</a></p></li>
 </ul>
+<p> </p>
+</div>
 </div>
 <div id="variables-of-interest" class="section level3">
-<h3><em>Variables of interest</em></h3>
+<h3>Variables of interest</h3>
 <div id="outcomes" class="section level4">
-<h4>Outcomes</h4>
+<h4><strong>Outcomes</strong></h4>
 <ul>
 <li><code>evictions</code> and <code>eviction_filings</code>. Count of evictions (or eviction filings) per year at the census tract level.</li>
 <li><code>eviction_rate</code> and <code>eviction_filing_rate</code>. Calculated using number of evictions or eviction filings divided by the number of <code>renter_occupied_households</code> and multiplied by 100, to be interpreted as a percentage.</li>
 </ul>
 </div>
 <div id="candidate-predictors" class="section level4">
-<h4>Candidate Predictors</h4>
+<h4><strong>Candidate Predictors</strong></h4>
 <ul>
 <li><code>years_since_2010</code>. Since our data range from 2010 to 2016, and we did not want to assume a constant effect of time, we included year as a set of indicator variables in all models except our empty model (see below).</li>
 <li><code>hisp</code>. Percent of population (at census tract level, for all race/ethnicity variables) that self-report Hispanic ethnicity.</li>
@@ -498,11 +500,11 @@ h1.title {
 </ul>
 <p> </p>
 </div>
-</div>
-<div id="data-cleaning" class="section level3">
-<h3><em>Data Cleaning</em></h3>
+<div id="data-cleaning" class="section level4">
+<h4><strong>Data Cleaning</strong></h4>
 <p>After choosing to focus on New York City, data were limited to Brooklyn as this was the only borough with complete data for 2016 and also all yearly time points from 2010 to 2016. Datasets were merged using the 11-digit FIPs code, <code>geoid</code>.</p>
 <p>First, we imported data on evictions over time in NYC, which included eviction rates and other relevant metrics by census tract. We excluded census tracts in which there were fewer than 10 renter-occupied households, since those neighborhoods were creating unstable eviction rate estimates.</p>
+<p>To look at neighborhood-level data, sample weights were calculated by dividing the population of the census tract by the population of the neighborhood. These weights were then applied to all variables of interest to calculate aggregate measures by neighborhood.</p>
 <p> </p>
 <pre class="r"><code># CSV file contains all census tracts for NY state, so we&#39;ll import the file and then filter such that the dataframe &#39;eviction&#39; only contains NYC census tracts.
 
@@ -525,18 +527,41 @@ eviction =
          evictions, eviction_filings, eviction_rate, eviction_filing_rate, renter_occupied_households,
          pct_nonwhite_evictiondata = pct_nonwhite,
          poverty_rate, rent_burden, pct_af_am, pct_renter_occupied, median_gross_rent, median_household_income, median_property_value) %&gt;%
-  filter(renter_occupied_households &gt; 10)</code></pre>
-<p> </p>
-<p>To look at neighborhood-level data, sample weights were calculated by dividing the population of the census tract by the population of the neighborhood. These weights were then applied to all variables of interest to calculate aggregate measures by neighborhood.</p>
-<p> </p>
-<pre class="r"><code>eviction_data = read.csv(&#39;./data/EvictionData_NY.csv&#39;) %&gt;% 
+  filter(renter_occupied_households &gt; 10)
+
+
+## integrating neighborhood as predictor
+neighborhood_df = 
+  read_excel(&quot;./data/NYC_neighborhoods_by_censustract_2010.xlsx&quot;, 
+             skip = 5, 
+             col_names = c(&quot;borough&quot;, &quot;county_code&quot;, &quot;boro_code&quot;, &quot;census_tract&quot;, &quot;PUMA&quot;, &quot;nta_code&quot;, &quot;neighborhood&quot;)
+             ) %&gt;% 
+#creating 11 digit FIPS code by pasting country code (36) with `county_code` and `census_tract`
+  mutate(geo_id = paste0(&quot;36&quot;, county_code, census_tract)
+  ) %&gt;% 
+  rename(geoid = geo_id)
+
+## integrating neighborhood as predictor
+neighborhood_df = 
+  read_excel(&quot;./data/NYC_neighborhoods_by_censustract_2010.xlsx&quot;, 
+             skip = 5, 
+             col_names = c(&quot;borough&quot;, &quot;county_code&quot;, &quot;boro_code&quot;, &quot;census_tract&quot;, &quot;PUMA&quot;, &quot;nta_code&quot;, &quot;neighborhood&quot;)
+             ) %&gt;% 
+#creating 11 digit FIPS code by pasting country code (36) with `county_code` and `census_tract`
+  mutate(geo_id = paste0(&quot;36&quot;, county_code, census_tract)
+  ) %&gt;% 
+  rename(geoid = geo_id)
+
+## creating modified eviction data to use in neighborhood weight
+eviction_data = read.csv(&#39;./data/EvictionData_NY.csv&#39;) %&gt;% 
   janitor::clean_names() %&gt;% 
   filter(year == 2016) %&gt;% 
   mutate(
     geoid = as.character(geoid)) %&gt;% 
   filter(parent_location == &quot;Kings County, New York&quot;) %&gt;%
-  left_join(neighborhood_df, by = c(&quot;geoid&quot; = &quot;geo_id&quot;))
+  left_join(neighborhood_df, by = c(&quot;geoid&quot;))
 
+## neighborhood weight
 neighborhood_data_prep = eviction_data %&gt;% 
   group_by(neighborhood) %&gt;% 
   mutate(
@@ -550,7 +575,7 @@ neighborhood_data_prep = eviction_data %&gt;%
     weighted_pct_nonwhite = pct_nonwhite*tract_weight,
     weighted_povertyrate = poverty_rate*tract_weight)
 
-#creating weighted neighborhood-level variables
+### creating weighted neighborhood-level variables
 neighborhood_data = neighborhood_data_prep %&gt;% 
   summarize(
     wt_eviction_rate = round(as.numeric(sum(weighted_eviction_rate, na.rm = TRUE)), digits = 2),
@@ -562,9 +587,8 @@ neighborhood_data = neighborhood_data_prep %&gt;%
   mutate(neighborhood = as.factor(neighborhood))</code></pre>
 <p> </p>
 <p>Population density was calculated by dividing the number of people living in each census tract by the square miles of each census tract per year.</p>
+<p>English language usage data and racial/ethnic data were extracted from Census Bureau ACS data and created for each year. Unfortunately, the variable name in files available from Census Bureau changed from year to year, making data extraction more unwieldy and more difficult to use with functions such as <code>map</code>. Thus, we separately extracted relevant data from each year.</p>
 <p> </p>
-<div id="population-density" class="section level5">
-<h5>Population density</h5>
 <pre class="r"><code>## For the ACS data, we&#39;ll have to use a crude measure of population density we calculate ourselves - census tract population (which changes every year) divided by census tract area (which does not usually change). 
 
 ## NUMERATOR
@@ -612,11 +636,9 @@ density_data =
 
   filter(geography %in% c(&quot;New York County, New York&quot;, &quot;Queens County, New York&quot;, &quot;Kings County, New York&quot;, &quot;Bronx County, New York&quot;, &quot;Richmond County, New York&quot;),
        year %in% c(2010:2016)) %&gt;% 
-  select(geoid = id2, year, total_pop_densitydata = total_pop, area_sqmi, density)</code></pre>
-<p> </p>
-<p>English language usage data and racial/ethnic data were extracted from Census Bureau ACS data and created for each year. Unfortunately, the variable name in files available from Census Bureau changed from year to year, making data extraction more unwieldy and more difficult to use with functions such as <code>map</code>. Thus, we separately extracted relevant data from each year.</p>
-<p> </p>
-<pre class="r"><code>## English language usage data- we import data from 2010-2016
+  select(geoid = id2, year, total_pop_densitydata = total_pop, area_sqmi, density)
+  
+## English language usage data- we import data from 2010-2016
 ## Relevant variable (the percentage of the population 5 and over that speaks English less than &quot;very well&quot;), changes by year- files are therefore individually imported
 
 englang_2010 = 
@@ -706,9 +728,9 @@ englang_data =
   
   ## bronx, kings, new york, queens, richmond counties - using codes (need to triple-check these match up with County Names)
   filter(substr(geoid, 1,5) %in% c(36005, 36047, 36061, 36081, 36085),
-         year %in% c(2010:2016))</code></pre>
-<p> </p>
-<pre class="r"><code>## Racial composition data- we import data from 2010-2016
+         year %in% c(2010:2016))
+
+## Racial composition data- we import data from 2010-2016
 ## Racial categories are not mutually exclusive, so total percentages may sum to more than 100%
 ## Relevant variable (the percentage of the population 5 and over that speaks English less than &quot;very well&quot;), changes by year- files are therefore individually imported
 
@@ -849,6 +871,7 @@ race_data =
   select(-geo_id)</code></pre>
 <p> </p>
 <p>Since <code>geoid</code> (FIPs codes) are not inherently interpretable, we created a key to translate them from FIPs to boro.</p>
+<p>Finally, we joined all datasets using a combination of <code>geoid</code> (FIPs codes) and <code>year</code> as unique identifier across tables.</p>
 <p> </p>
 <pre class="r"><code>## creating key for geoid &lt;--&gt; boro
 geoid_boro_key = 
@@ -863,11 +886,10 @@ geoid_boro_key =
                                &quot;Kings County, New York&quot; = &quot;Brooklyn&quot;, 
                                &quot;Bronx County, New York&quot; = &quot;Bronx&quot;, 
                                &quot;Richmond County, New York&quot; = &quot;Staten Island&quot;)) %&gt;% 
-  distinct()</code></pre>
-<p> </p>
-<p>Finally, we joined all datasets using a combination of <code>geoid</code> (FIPs codes) and <code>year</code> as unique identifier across tables.</p>
-<p> </p>
-<pre class="r"><code>## all rows regardless of NA, using outer (full) join
+  distinct()
+
+
+## all rows regardless of NA, using outer (full) join
 
 joined_data = 
   eviction %&gt;% 
@@ -906,13 +928,11 @@ joined_data_bklyn_nomissing %&gt;%
 <p> </p>
 </div>
 </div>
-</div>
-<div id="exploratory-analysis" class="section level1">
-<h1>Exploratory Analysis</h1>
-<p> </p>
-<div id="what-predicts-eviction-rates" class="section level3">
-<h3><em>What Predicts Eviction Rates?</em></h3>
-<p><strong>Question: How does the geographic distribution of eviction rates in Brooklyn correlate with other census tract characteristics such as language ability, racial composition, rent burden, and population density?</strong></p>
+<div id="exploratory-analysis" class="section level3">
+<h3>Exploratory Analysis</h3>
+<div id="what-predicts-eviction-rates" class="section level4">
+<h4><strong>What Predicts Eviction Rates?</strong></h4>
+<p><em>Question: How does the geographic distribution of eviction rates in Brooklyn correlate with other census tract characteristics such as language ability, racial composition, rent burden, and population density?</em></p>
 <p>To explore the question of how the geographic distribution of eviction rates correlated with our predictors of interest, we created choropleths of our four predictors (percentage of ESL speakers, percentage of non-White residents, rent burden, and population density) with eviction rates overlaid in Brooklyn by census tract in 2016.</p>
 <p>Census tract and neighborhood shapefiles were downloaded from NYC Open Data and limited to Brooklyn. We then defined aesthetic mappings.</p>
 <pre class="r"><code># Loading in Brooklyn data
@@ -1124,9 +1144,9 @@ leaflet::leaflet(data = census_tracts_crs) %&gt;%
 <p>The results of our exploratory analyses were used to inform further model building.</p>
 <p> </p>
 </div>
-<div id="evictions-over-time-2000-2016" class="section level3">
-<h3><em>Evictions Over Time 2000-2016</em></h3>
-<p><strong>Question: How have eviction rates in Brooklyn changed over time?</strong></p>
+<div id="evictions-over-time-2000-2016" class="section level4">
+<h4><strong>Evictions Over Time 2000-2016</strong></h4>
+<p><em>Question: How have eviction rates in Brooklyn changed over time?</em></p>
 <p>To explore the question of how eviction rates in Brooklyn have changed over time (2000 to 2016), we created a <a href="https://nk2814.shinyapps.io/evictions_spaghetti_shiny/"><em>graphical user interface</em></a> using the Shiny package. There are two components to this interface:</p>
 <ol style="list-style-type: decimal">
 <li>A spaghetti plot depicting eviction rates from 2000 to 2016 in Brooklyn broken down by <strong>neighborhood</strong>.</li>
@@ -1273,38 +1293,14 @@ leaflet::leaflet(data = census_tracts_crs) %&gt;%
 <p>The visualizations of eviction rates over time were demonstrative of the fact that eviction rates are not only substantially heterogeneous throughout the borough, but have been quite dynamic over time. Neighborhood-level heterogeneity is apparent from the spaghetti plot. Eviction rates have generally declined over time, although neighborhood exceptions exist, including Brownsville and East New York, which have remained relatively untouched by the gentrification processes that have permeated wide swaths of Brooklyn in the past decade. These neighborhoods have consistently reported among the highest poverty and crime rates in New York City. According to <a href="https://furmancenter.org/thestoop/entry/understanding-trends-in-new-york-citys-evictions-data"><em>NYU’s Furman Center</em></a>, Park Slope/Carroll Gardens and Williamsburg/Greenpoint comprise two of the three neighborhoods with the lowest eviction filing rates in the city.</p>
 <p>The changes in eviction rates over time is perhaps most apparent from the interactive census tract map of the borough. There is a stark change in the eviction rate composition throughout Brooklyn from the year 2000 to the year 2016. In the former portion of this observation period (2000 to ~2006), wide swaths of Brooklyn had eviction rates between 2.5% to 7.2%, with visibly concentrated pockets of census tracts being in the highest quartile of eviction rates (4.1-7.2%). In the latter years of this observation period, notably 2012-2016, pockets of Brooklyn with eviction rates in the top two quartiles (2.5% to 7.2%) are far more sparse.</p>
 <p>As we explore in subsequent analyses, changing eviction rates may very well be in part attributal to factors associated with the changing urban landscape of Brooklyn and New York City as a whole (poverty rate, property values, demographic composition, etc). However, in recent years, public discourse surrounding the declining eviction rates in New York City frequently acknowledges legislative efforts on behalf of the city toward protecting tenants rights. Such legislative efforts include the 2017 creation of a <a href="https://www.cssny.org/news/entry/nyc-right-to-counsel"><em>Universal Access to Counsel</em></a> program, which gives tenants with incomes below 200 percent of the federal poverty level who are facing an eviction in housing court access to an attorney. Beginning in 2014, <a href="https://www.nytimes.com/2016/03/01/nyregion/evictions-are-down-by-18-new-york-city-cites-increased-legal-services.html"><em>the city began allocating more money</em></a> ($46 million from 2014-2016) for legal services for tenants in precarious housing circumstances. In June 2019, the city enacted a series of tenant protection laws designed to stop landlords from evicting tenants on short notice or without justification.</p>
-</div>
-</div>
-<div id="formal-analysis" class="section level1">
-<h1>Formal Analysis</h1>
-<p><font size = "4"><i>Predictors of Eviction in Brooklyn, 2010-2016</font></i></p>
-<div id="setup" class="section level5">
-<h5><strong>Setup</strong></h5>
-<p>First, we’d like to integrate neighborhood as a potential predictor in our models, so we joined our existing data from above with a dataset including both <code>neighborhood</code> name and <code>geoid</code>.</p>
-<pre class="r"><code># joined_data_bklyn_nomissing = 
-#   readRDS(&#39;./data/joined_data_bklyn_nomissing&#39;)
-
-## integrating neighborhood as predictor
-neighborhood_df = 
-  read_excel(&quot;./data/NYC_neighborhoods_by_censustract_2010.xlsx&quot;, 
-             skip = 5, 
-             col_names = c(&quot;borough&quot;, &quot;county_code&quot;, &quot;boro_code&quot;, &quot;census_tract&quot;, &quot;PUMA&quot;, &quot;nta_code&quot;, &quot;neighborhood&quot;)
-             ) %&gt;% 
-#creating 11 digit FIPS code by pasting country code (36) with `county_code` and `census_tract`
-  mutate(geo_id = paste0(&quot;36&quot;, county_code, census_tract)
-  ) %&gt;% 
-  rename(geoid = geo_id)
-
-joined_data_bklyn_nomissing =
-  left_join(joined_data_bklyn_nomissing,
-          neighborhood_df) %&gt;% 
-  select(colnames(joined_data_bklyn_nomissing), neighborhood) %&gt;% 
-  mutate(neighborhood = as.factor(neighborhood),
-         years_since_2010 = as.factor(years_since_2010))</code></pre>
 <p>   </p>
 </div>
-<div id="overview" class="section level5">
-<h5><strong>Overview</strong></h5>
+</div>
+<div id="formal-analysis" class="section level3">
+<h3>Formal Analysis</h3>
+<p><font size = "4"><i>Predictors of Eviction in Brooklyn, 2010-2016</font></i></p>
+<div id="overview" class="section level4">
+<h4><strong>Overview</strong></h4>
 <p>Using existing data, we wanted to investigate factors that are associated with - and can potentially be used to predict - eviction rates among census tracts in Brooklyn.</p>
 <p>We propose using Generalized Estimating Equations (GEE). GEEs can be used to model correlated/hierarchical data, distinction of within-group and between-group estimates is not desired Since our data are repeated over time within census tract (2010-2016), we expect there to be autocorrelation present across years, and we can address this using GEE modeling techniques.</p>
 <p>More specifically, we propose using a GEE modelling framework with a log link function. Our outcome variable, eviction rate, is calculated by dividing count of evictions by the number of renter-occupied households; since this is based on a <strong>count</strong> variable, evictions, we expect our outcome to assume a Poisson distribution. Thus, we can use a log link function to model the expected count of evictions, and include the denominator of our eviction rate - number of renter-occupied households - as an offset term in the right-hand side of our equation.</p>
@@ -1323,8 +1319,8 @@ joined_data_bklyn_nomissing %&gt;%
 <p><img src="final_report_files/figure-html/poisson_dist-1.png" width="1152" /></p>
 <p>   </p>
 </div>
-<div id="hypothesis" class="section level5">
-<h5><strong>Hypothesis</strong></h5>
+<div id="hypothesis" class="section level4">
+<h4><strong>Hypothesis</strong></h4>
 <p>Based on prior reading and research, we hypothesize the following predictors of eviction count at the census tract level. See above for variable definitions.</p>
 <ul>
 <li><code>years_since_2010</code></li>
@@ -1334,7 +1330,7 @@ joined_data_bklyn_nomissing %&gt;%
 <li>Race/ethnicity variables (<code>white</code>, <code>black</code>, <code>asian</code>, <code>aian</code>, <code>nhpi</code>, <code>other</code>, <code>hisp</code>)</li>
 </ul>
 <p>   </p>
-<p><strong>Model:</strong></p>
+<p><em>Model:</em></p>
 <!-- LaTeX code - edit on https://www.codecogs.com/latex/eqneditor.php, then download gif -->
 <!-- $$ -->
 <!-- (1) \hspace{20mm} log\{E({Y_{ij})}\} = log(n_{ij}) + \beta_0 + \beta_k*X_{kij} + \beta_y*year_{ij} \\ -->
@@ -1354,8 +1350,8 @@ joined_data_bklyn_nomissing %&gt;%
 <p><img src="images/eq1.gif" /></p>
 <p>   </p>
 </div>
-<div id="correlation-matrix" class="section level5">
-<h5><strong>Correlation matrix</strong></h5>
+<div id="correlation-matrix" class="section level4">
+<h4><strong>Correlation matrix</strong></h4>
 <p>Before proceeding, it is important to assess crude correlation among our relevant variables, in case issues of multicollinearity arise during model development.</p>
 <pre class="r"><code>joined_data_bklyn_nomissing %&gt;% 
   mutate(year = as.numeric(year)) %&gt;% 
@@ -1384,15 +1380,15 @@ joined_data_bklyn_nomissing %&gt;%
 </ul>
 <p>   </p>
 </div>
-<div id="note-on-potential-confounding" class="section level5">
-<h5><strong>Note on potential confounding</strong></h5>
+<div id="note-on-potential-confounding" class="section level4">
+<h4><strong>Note on potential confounding</strong></h4>
 <p>After performing exploratory data analysis and crude univariate plots (<em>not shown</em>), we found that the relationship between <code>pct_eng</code> - percent of ESL speakers - and eviction rate is confounded by <code>black</code> race.</p>
 <p>At first, the relationship between ESL speakers and eviction rate was inverse - as ESL increased, evictions actually decreased. This is counter to our hypotheses, as non-English speaking and immigrant communities have been shown to experience much higher rates of eviction. However, we knew that Black race had the potential to confound this relationship, as Black NYC communities are overwhelmingly English-speaking and also at an increased risk of eviction due to other factors.</p>
 <p>Once we adjusted for Black race in the relationship between ESL and evictions, the relationship flipped, and EsL was demonstrated to have a positive association with eviction rate, adjusting for Black race.</p>
 <p>   </p>
 </div>
-<div id="refining-and-subdefining-our-hypothesized-model" class="section level5">
-<h5><strong>Refining and subdefining our hypothesized model</strong></h5>
+<div id="refining-and-subdefining-our-hypothesized-model" class="section level4">
+<h4><strong>Refining and subdefining our hypothesized model</strong></h4>
 <p>We refined our hypothesized models based on our exploratory confounding and other analyses:</p>
 <ol style="list-style-type: decimal">
 <li>As noted above, ESL should not be included in a model without adjusting for Black race nor should it be interpreted independently of year due to high correlation. Thus, our first hypothesized sub-model will include ESL and percent of all race/ethnicity variables (interpreted as the independent effects of ESL and years since 2010 [highly correlated], rent burden, or population density on evictions, adjusting for each other predictor variable and race/ethnicity). [Equation 2]</li>
@@ -1426,8 +1422,8 @@ joined_data_bklyn_nomissing %&gt;%
 <p><img src="images/eq3.gif" /></p>
 <p>   </p>
 </div>
-<div id="stepwise-automatic-model-selection" class="section level5">
-<h5><strong>Stepwise automatic model selection</strong></h5>
+<div id="stepwise-automatic-model-selection" class="section level4">
+<h4><strong>Stepwise automatic model selection</strong></h4>
 <p>To contrast with our hypothesis-informed model building process, we wanted to test a stepwise model selection algorithm. We used the <code>gee_stepper</code> function within the <code>pstools</code> package, which performs a forward step selection process with a set of GEE predictors, using QIC to find a ‘best fit’ model.</p>
 <p>We slightly modified the function code to create our own function - <code>gee_stepper_o</code> - in order to include our offset term by default in the stepwise selection process. We’ll create a full model (<code>full_fit</code>) to use as the saturated model for our stepwise selection process, using all predictor variables listed in the earlier section.</p>
 <pre class="r"><code>## use full dataset
@@ -1462,8 +1458,8 @@ test = gee_stepper_o(full_fit, formula(full_fit)) ## customized function to auto
 <p>In this model, to be conservative in our interpretations, <code>median_household_income</code> should not be interpreted separately from <code>poverty_rate</code> (<em>r</em> = -0.73) or <code>median_gross_rent</code> (<em>r</em> = -0.74).</p>
 <p>   </p>
 </div>
-<div id="summary-of-models" class="section level5">
-<h5><strong>Summary of models</strong></h5>
+<div id="summary-of-models" class="section level4">
+<h4><strong>Summary of models</strong></h4>
 <p>To summarize, we will consider the following models to predict census tract-level eviction rates:</p>
 <p>Two hypothesized models:</p>
 <ol style="list-style-type: decimal">
@@ -1476,9 +1472,10 @@ test = gee_stepper_o(full_fit, formula(full_fit)) ## customized function to auto
 <li>An empty model, in which there are no predictors, and only the outcome and offset terms are included on opposite sides of the equation, i.e. <code>evictions ~ offset(log(renter_occupied_households))</code></li>
 <li>A naive model, which only uses time to predict eviction rate, i.e. the above model, plus <code>years_since_2010</code> on the right-hand-side of the model</li>
 </ol>
+<p>   </p>
 </div>
-<div id="cross-validation-of-models" class="section level5">
-<h5><strong>Cross-validation of models</strong></h5>
+<div id="cross-validation-of-models" class="section level4">
+<h4><strong>Cross-validation of models</strong></h4>
 <p>Since our data are modelled using GEE and are not all nested within each other, there is not a straightforward way to compare their prediction capabilities such as hypothesis testing or AIC (in this case, QIC). However, we can use <strong>cross validation</strong>, which allows us to compare prediction accuracy across non-nested models. While this technique does not allow us to assess statistical significance of hypotheses/models/predictors tested, we still believe it will be useful in gauging model usefulness.</p>
 <p>Specifically, we will compare the repeat-sampled distribution of each model’s <strong>root mean squared error</strong>, with lower values indicating lower error and better overall prediction.</p>
 <p>(Technical notes: We resampled 100 training/testing splits [default 80% training, 20% testing] on our data using the function <code>crossv_mc</code>. We then ran our 5 models on each of our 100 resampled training datasets, then extracted the root mean squared error as a measure of how well our training models predicted our testing data. 100 RMSEs resulted for each model, the distributions of which were then grouped by model and comparatively plotted using <code>ggplot</code> and <code>geom_violin</code> [violin plots].)</p>
@@ -1621,8 +1618,8 @@ model_data_cv %&gt;%
 <p><img src="images/eq3.gif" /></p>
 <p>   </p>
 </div>
-<div id="conclusions" class="section level5">
-<h5><strong>Conclusions</strong></h5>
+<div id="conclusions" class="section level4">
+<h4><strong>Conclusions</strong></h4>
 <p>Our model can be estimated via GEE:</p>
 <pre class="r"><code>hyp_model_race = 
   geeglm(evictions ~
@@ -1753,8 +1750,8 @@ hyp_model_race %&gt;%
 <p> </p>
 </div>
 </div>
-<div id="discussion" class="section level1">
-<h1>Discussion</h1>
+<div id="discussion" class="section level3">
+<h3>Discussion</h3>
 <p>The results of our selected GEE model indicate a few important things:</p>
 <ul>
 <li>Eviction rates are difficult to predict, as anticipated. Among other factors, this is likely due to the complex and changing nature of evictions. Laws change from month to month, and areas can change rapidly - infrastructure, income, housing can look completely different in 5 years’ time.</li>
