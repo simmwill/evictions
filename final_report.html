@@ -505,7 +505,6 @@ h1.title {
 <p>After choosing to focus on New York City, data were limited to Brooklyn as this was the only borough with complete data for 2016 and also all yearly time points from 2010 to 2016. Datasets were merged using the 11-digit FIPs code, <code>geoid</code>.</p>
 <p>First, we imported data on evictions over time in NYC, which included eviction rates and other relevant metrics by census tract. We excluded census tracts in which there were fewer than 10 renter-occupied households, since those neighborhoods were creating unstable eviction rate estimates.</p>
 <p>To look at neighborhood-level data, sample weights were calculated by dividing the population of the census tract by the population of the neighborhood. These weights were then applied to all variables of interest to calculate aggregate measures by neighborhood.</p>
-<p> </p>
 <pre class="r"><code># CSV file contains all census tracts for NY state, so we&#39;ll import the file and then filter such that the dataframe &#39;eviction&#39; only contains NYC census tracts.
 
 # contains years 2000 - 2016
@@ -585,10 +584,8 @@ neighborhood_data = neighborhood_data_prep %&gt;%
     wt_povertyrate = round(sum(weighted_povertyrate, na.rm = TRUE), digits = 2)) %&gt;% 
   ungroup() %&gt;% 
   mutate(neighborhood = as.factor(neighborhood))</code></pre>
-<p> </p>
 <p>Population density was calculated by dividing the number of people living in each census tract by the square miles of each census tract per year.</p>
 <p>English language usage data and racial/ethnic data were extracted from Census Bureau ACS data and created for each year. Unfortunately, the variable name in files available from Census Bureau changed from year to year, making data extraction more unwieldy and more difficult to use with functions such as <code>map</code>. Thus, we separately extracted relevant data from each year.</p>
-<p> </p>
 <pre class="r"><code>## For the ACS data, we&#39;ll have to use a crude measure of population density we calculate ourselves - census tract population (which changes every year) divided by census tract area (which does not usually change). 
 
 ## NUMERATOR
@@ -869,9 +866,8 @@ race_data =
   
   ## restricting and renaming etc.
   select(-geo_id)</code></pre>
-<p>Since <code>geoid</code> (FIPs codes) are not inherently interpretable, we created a key to translate them from FIPs to boro.</p>
+<p>Since <code>geoid</code> (FIPs codes) are not inherently interpretable, we created a key to translate them from FIPs to borough.</p>
 <p>Finally, we joined all datasets using a combination of <code>geoid</code> (FIPs codes) and <code>year</code> as unique identifier across tables.</p>
-<p> </p>
 <pre class="r"><code>## creating key for geoid &lt;--&gt; boro
 geoid_boro_key = 
   read.csv(&#39;./data/EvictionData_NY.csv&#39;) %&gt;% 

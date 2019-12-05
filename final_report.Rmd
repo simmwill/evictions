@@ -114,8 +114,6 @@ First, we imported data on evictions over time in NYC, which included eviction r
 
 To look at neighborhood-level data, sample weights were calculated by dividing the population of the census tract by the population of the neighborhood. These weights were then applied to all variables of interest to calculate aggregate measures by neighborhood.
 
-&nbsp;
-
 ```{r, message = FALSE, warning = FALSE}
 
 # CSV file contains all census tracts for NY state, so we'll import the file and then filter such that the dataframe 'eviction' only contains NYC census tracts.
@@ -199,13 +197,11 @@ neighborhood_data = neighborhood_data_prep %>%
   mutate(neighborhood = as.factor(neighborhood))
 ```
 
-&nbsp;
 
 Population density was calculated by dividing the number of people living in each census tract by the square miles of each census tract per year. 
 
 English language usage data and racial/ethnic data were extracted from Census Bureau ACS data and created for each year. Unfortunately, the variable name in files available from Census Bureau changed from year to year, making data extraction more unwieldy and more difficult to use with functions such as `map`. Thus, we separately extracted relevant data from each year.
 
-&nbsp;
 
 ```{r, warning = FALSE}
 ## For the ACS data, we'll have to use a crude measure of population density we calculate ourselves - census tract population (which changes every year) divided by census tract area (which does not usually change). 
@@ -491,11 +487,9 @@ race_data =
   
 ```
 
-Since `geoid` (FIPs codes) are not inherently interpretable, we created a key to translate them from FIPs to boro.
+Since `geoid` (FIPs codes) are not inherently interpretable, we created a key to translate them from FIPs to borough.
 
 Finally, we joined all datasets using a combination of `geoid` (FIPs codes) and `year` as unique identifier across tables.
-
-&nbsp;
 
 ```{r, message = FALSE, warning = FALSE}
 ## creating key for geoid <--> boro
