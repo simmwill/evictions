@@ -210,7 +210,7 @@ sync(map_discrep, map_evic, ncol = 2, sync = "all", sync.cursor = TRUE, no.initi
 
 ### Fifteen neighborhoods with highest variable rates
 
-To further compare eviction rates and filing discrepancies with neighborhood poverty rates and racial composition, we looked at the 10 neighborhoods with the highest rates of poverty, percent nonwhite population, eviction rate, and discrepancy between evicition filing rate and eviction rate. Five neighborhoods appear in all four charts (in red). These findings suggest that evictions occur in areas that experience other domains of disadvantage. Furthermore, the high filing discrepancy rates may indicate that landlords engage in discriminatory practices against certain populations. 
+To further compare eviction rates and filing discrepancies with neighborhood poverty rates and racial composition, we looked at the 10 neighborhoods with the highest rates of poverty, percent nonwhite population, eviction rate, and discrepancy between evicition filing rate and eviction rate. Five neighborhoods appear in all four charts (in red). These findings suggest that eviction filing discrepancies occur in areas that experience other domains of disadvantage. Furthermore, the high filing discrepancy rates may indicate that landlords engage in discriminatory practices against certain populations. 
 
 
 ```{r echo = FALSE, message = FALSE}

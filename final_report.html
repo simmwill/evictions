@@ -417,8 +417,8 @@ h1.title {
 }
 
 </style>
-<div id="motivation" class="section level3">
-<h3>Motivation</h3>
+<div id="motivation" class="section level2">
+<h2>Motivation</h2>
 <ul>
 <li>Healthy People 2020 identified housing instability as a key issue in addressing social determinants of health in the United States.</li>
 <li>Evictions are an important element of housing instability, and approximately 2 million tenants were evicted nationwide in 2016.</li>
@@ -440,14 +440,14 @@ h1.title {
 <p> </p>
 </div>
 </div>
-<div id="questions" class="section level3">
-<h3>Questions</h3>
+<div id="questions" class="section level2">
+<h2>Questions</h2>
 <p>Our questions remained fairly stable throughout the development of our project. However, two major changes occurred as we explored the available data:</p>
 <ol style="list-style-type: decimal">
-<li>Data were restricted to 2010-2016 due to limited availability of ACS (census) data for NYC</li>
+<li>Data for statistical analyses were restricted to 2010-2016 due to limited availability of ACS (census) data for NYC</li>
 <li>NYC data were restricted to Brooklyn due to limited evictions data in other boroughs</li>
 </ol>
-<p>Thus, our final questions are below, with respect to evictions in Brooklyn during the years 2010-2016:</p>
+<p>Thus, our final questions are below, with respect to evictions in Brooklyn:</p>
 <ul>
 <li>How have eviction rates changed over time by census tract in Brooklyn?</li>
 <li>Are there spatial patterns in the discrepancy between eviction filings and evictions at the neighborhood level? Do these patterns reflect distributions of other key variables of interest?</li>
@@ -455,10 +455,10 @@ h1.title {
 </ul>
 <p> </p>
 </div>
-<div id="data" class="section level3">
-<h3>Data</h3>
-<div id="data-sources" class="section level4">
-<h4><strong>Data Sources</strong></h4>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<div id="data-sources" class="section level3">
+<h3><em>Data Sources</em></h3>
 <ul>
 <li>Primary data source: <a href="https://evictionlab.org/">Eviction Lab</a></li>
 <li>For English language usage, race/ethnicity, family variables, and population density: <a href="https://factfinder.census.gov/faces/nav/jsf/pages/guided_search.xhtml">American FactFinder</a></li>
@@ -466,18 +466,17 @@ h1.title {
 </ul>
 <p> </p>
 </div>
-</div>
 <div id="variables-of-interest" class="section level3">
-<h3>Variables of interest</h3>
-<div id="outcomes" class="section level4">
-<h4><strong>Outcomes</strong></h4>
+<h3><em>Variables of interest</em></h3>
+<div id="outcomes" class="section level5">
+<h5><strong>Outcomes</strong></h5>
 <ul>
 <li><code>evictions</code> and <code>eviction_filings</code>. Count of evictions (or eviction filings) per year at the census tract level.</li>
 <li><code>eviction_rate</code> and <code>eviction_filing_rate</code>. Calculated using number of evictions or eviction filings divided by the number of <code>renter_occupied_households</code> and multiplied by 100, to be interpreted as a percentage.</li>
 </ul>
 </div>
-<div id="candidate-predictors" class="section level4">
-<h4><strong>Candidate Predictors</strong></h4>
+<div id="candidate-predictors" class="section level5">
+<h5><strong>Candidate Predictors</strong></h5>
 <ul>
 <li><code>years_since_2010</code>. Since our data range from 2010 to 2016, and we did not want to assume a constant effect of time, we included year as a set of indicator variables in all models except our empty model (see below).</li>
 <li><code>hisp</code>. Percent of population (at census tract level, for all race/ethnicity variables) that self-report Hispanic ethnicity.</li>
@@ -500,12 +499,12 @@ h1.title {
 </ul>
 <p> </p>
 </div>
-<div id="data-cleaning" class="section level4">
-<h4><strong>Data Cleaning</strong></h4>
+</div>
+<div id="data-cleaning" class="section level3">
+<h3><em>Data Cleaning</em></h3>
 <p>After choosing to focus on New York City, data were limited to Brooklyn as this was the only borough with complete data for 2016 and also all yearly time points from 2010 to 2016. Datasets were merged using the 11-digit FIPs code, <code>geoid</code>.</p>
 <p>First, we imported data on evictions over time in NYC, which included eviction rates and other relevant metrics by census tract. We excluded census tracts in which there were fewer than 10 renter-occupied households, since those neighborhoods were creating unstable eviction rate estimates.</p>
 <p>To look at neighborhood-level data, sample weights were calculated by dividing the population of the census tract by the population of the neighborhood. These weights were then applied to all variables of interest to calculate aggregate measures by neighborhood.</p>
-<p> </p>
 <pre class="r"><code># CSV file contains all census tracts for NY state, so we&#39;ll import the file and then filter such that the dataframe &#39;eviction&#39; only contains NYC census tracts.
 
 # contains years 2000 - 2016
@@ -530,7 +529,7 @@ eviction =
   filter(renter_occupied_households &gt; 10)
 
 
-## integrating neighborhood as predictor
+## integrating neighborhood as predictor from NYC Open Data file on census tracts by neighborhood
 neighborhood_df = 
   read_excel(&quot;./data/NYC_neighborhoods_by_censustract_2010.xlsx&quot;, 
              skip = 5, 
@@ -585,10 +584,8 @@ neighborhood_data = neighborhood_data_prep %&gt;%
     wt_povertyrate = round(sum(weighted_povertyrate, na.rm = TRUE), digits = 2)) %&gt;% 
   ungroup() %&gt;% 
   mutate(neighborhood = as.factor(neighborhood))</code></pre>
-<p> </p>
 <p>Population density was calculated by dividing the number of people living in each census tract by the square miles of each census tract per year.</p>
 <p>English language usage data and racial/ethnic data were extracted from Census Bureau ACS data and created for each year. Unfortunately, the variable name in files available from Census Bureau changed from year to year, making data extraction more unwieldy and more difficult to use with functions such as <code>map</code>. Thus, we separately extracted relevant data from each year.</p>
-<p> </p>
 <pre class="r"><code>## For the ACS data, we&#39;ll have to use a crude measure of population density we calculate ourselves - census tract population (which changes every year) divided by census tract area (which does not usually change). 
 
 ## NUMERATOR
@@ -869,9 +866,8 @@ race_data =
   
   ## restricting and renaming etc.
   select(-geo_id)</code></pre>
-<p>Since <code>geoid</code> (FIPs codes) are not inherently interpretable, we created a key to translate them from FIPs to boro.</p>
+<p>Since <code>geoid</code> (FIPs codes) are not inherently interpretable, we created a key to translate them from FIPs to borough.</p>
 <p>Finally, we joined all datasets using a combination of <code>geoid</code> (FIPs codes) and <code>year</code> as unique identifier across tables.</p>
-<p> </p>
 <pre class="r"><code>## creating key for geoid &lt;--&gt; boro
 geoid_boro_key = 
   read.csv(&#39;./data/EvictionData_NY.csv&#39;) %&gt;% 
@@ -926,13 +922,303 @@ joined_data_bklyn_nomissing %&gt;%
 <p> </p>
 </div>
 </div>
-<div id="exploratory-analysis" class="section level3">
-<h3>Exploratory Analysis</h3>
-<div id="what-predicts-eviction-rates" class="section level4">
-<h4><strong>What Predicts Eviction Rates?</strong></h4>
-<p><em>Question: How does the geographic distribution of eviction rates in Brooklyn correlate with other census tract characteristics such as language ability, racial composition, rent burden, and population density?</em></p>
+<div id="exploratory-analysis" class="section level2">
+<h2>Exploratory Analysis</h2>
+<div id="evictions-over-time-2000-2016" class="section level3">
+<h3><em>Evictions Over Time 2000-2016</em></h3>
+<p><strong>Question: How have eviction rates in Brooklyn changed over time?</strong></p>
+<p>To explore the question of how eviction rates in Brooklyn have changed over time (2000 to 2016), we created a <a href="https://nk2814.shinyapps.io/evictions_spaghetti_shiny/"><em>graphical user interface</em></a> using the Shiny package. There are two components to this interface:</p>
+<ol style="list-style-type: decimal">
+<li>A spaghetti plot depicting eviction rates from 2000 to 2016 in Brooklyn broken down by <strong>neighborhood</strong>.</li>
+</ol>
+<pre class="r"><code># Reading in and cleaning data for neighborhood-level spaghetti plot over time
+
+# Read NYC neighborhood data
+neighborhood_df = 
+  read_excel(&quot;./data/NYC_neighborhoods_by_censustract_2010.xlsx&quot;, 
+             skip = 5, 
+             col_names = c(&quot;borough&quot;, &quot;county_code&quot;, &quot;boro_code&quot;, &quot;census_tract&quot;, &quot;PUMA&quot;, &quot;nta_code&quot;, &quot;neighborhood&quot;)
+             ) %&gt;% 
+#creating 11 digit FIPS code by pasting country code (36) with `county_code` and `census_tract`
+  mutate(geo_id = paste0(&quot;36&quot;, county_code, census_tract)
+  )
+
+# Read Eviction data, limit to Brooklyn, join to neighborhood_df
+brooklyn_data = read.csv(&#39;./data/EvictionData_NY.csv&#39;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  mutate(geoid = as.character(geoid)) %&gt;% 
+  filter(parent_location == &quot;Kings County, New York&quot;) %&gt;% 
+  left_join(neighborhood_df, by = c(&quot;geoid&quot; = &quot;geo_id&quot;))
+
+# Code weighted neighborhood eviction rate 
+brooklyn_data = brooklyn_data %&gt;% 
+  group_by(neighborhood, year) %&gt;% 
+  mutate(
+    neighb_pop = sum(population),
+    tract_weight = population/neighb_pop,
+    weighted_eviction_rate = eviction_rate*tract_weight)
+ 
+
+brooklyn_data = brooklyn_data %&gt;% 
+  summarize(
+    Eviction_Rate = as.numeric(sum(weighted_eviction_rate))
+    ) %&gt;% 
+  ungroup() %&gt;% 
+  mutate(neighborhood = as.factor(neighborhood))
+
+brooklyn_data &lt;- within(brooklyn_data, Eviction_Rate[neighborhood == &#39;park-cemetery-etc-Brooklyn&#39;] &lt;- NA)
+brooklyn_data &lt;- within(brooklyn_data, wt_eviction_rate_discrep[neighborhood == &#39;park-cemetery-etc-Brooklyn&#39;] &lt;- NA)
+
+# Pulled list of brooklyn neighborhoods from brooklyn eviction data
+neighborhoods = brooklyn_data %&gt;% distinct(neighborhood) %&gt;% pull()
+
+
+# Created checkbox input of Brooklyn neighborhood
+
+checkboxGroupInput(&quot;neighborhood_choice&quot;, label=h3(&quot;Select Neighborhood&quot;),
+choices = neighborhoods, selected = &quot;Williamsburg&quot;)
+
+# Used renderPlotly function to plot eviction rates over time with Neighborhood widget
+
+renderPlotly({ 
+
+brooklyn_data = 
+  brooklyn_data %&gt;%
+    filter(
+      neighborhood == input[[&quot;neighborhood_choice&quot;]]
+    ) 
+
+brooklyn_data %&gt;% 
+    group_by(year) %&gt;%
+    ungroup() %&gt;% 
+    plot_ly(x=~year, y=~Eviction_Rate, type=&quot;scatter&quot;, mode=&quot;lines+markers&quot;, color = ~neighborhood) %&gt;% 
+    layout(title=&quot;Eviction Rate (%) Over Time (2000-2016) by Brooklyn Neighborhood&quot;)
+
+})
+
+# Published to shinyapp.io</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li>A map depicting eviction rates from 2000 to 2016 in Brooklyn broken down by <strong>census tract</strong>.</li>
+</ol>
+<pre class="r"><code># Read joined brooklyn data
+
+joined_data_bklyn = readRDS(&#39;./data/joined_data_bklyn&#39;)
+
+
+# Loading census tract shapefiles from NYC OpenData:
+census_tracts = readOGR(dsn = &quot;maps/2010-census-tracts.shp&quot;, encoding = &quot;UTF-8&quot;, verbose=FALSE) 
+
+census_tracts = 
+  census_tracts[census_tracts$boro_name == &quot;Brooklyn&quot;, ]
+
+writeOGR(census_tracts,&quot;./mapping_files&quot;,&quot;census_temp&quot;, driver = &quot;ESRI Shapefile&quot;, overwrite_layer = TRUE)
+census_tracts = readOGR(&quot;./mapping_files&quot;,&quot;census_temp&quot;, verbose=FALSE)
+
+# Constructing geoid for merging
+census_tracts@data = 
+  census_tracts@data %&gt;% 
+  mutate(
+    county_code = as.character(recode(boro_code, &quot;1&quot; = &quot;061&quot;, &quot;2&quot; = &quot;005&quot;, &quot;3&quot; = &quot;047&quot;, &quot;4&quot; = &quot;081&quot;, &quot;5&quot; = &quot;085&quot;)),
+    ct2010 = as.character(ct2010),
+    fips_11dig = paste0(&quot;36&quot;, county_code, ct2010),
+    long = coordinates(spTransform(census_tracts, CRS(&quot;+proj=longlat +datum=WGS84&quot;)))[,1],
+    lat = coordinates(spTransform(census_tracts, CRS(&quot;+proj=longlat +datum=WGS84&quot;)))[,2]
+    ) %&gt;%
+  unnest(c(long, lat))
+
+# Create slider widget for years 2000-2016
+
+sliderInput(&quot;years&quot;, &quot;Year of Observation&quot;,
+    min = 2000, max = 2016, step=1, value = 2000
+  )
+
+# Plot interactive census tract-level map of eviction rates using renderLeaflet
+
+renderLeaflet({
+  
+  joined_data_bklyn_year = 
+  joined_data_bklyn  %&gt;%
+  filter(year==input[[&quot;years&quot;]])
+
+# Joining data and shapefiles
+census_tracts@data = left_join(census_tracts@data, joined_data_bklyn_year, by = c(&quot;fips_11dig&quot; = &quot;geoid&quot;))
+  
+# spatial transform
+census_tracts_crs = spTransform(census_tracts, CRS(&quot;+init=epsg:4326&quot;))
+
+# get jenks natural breaks
+getJenksBreaks(census_tracts_crs$eviction_rate, 5)
+
+#set bins based on natural breaks
+eviction_rate_bins = c(0, 1.23, 2.51, 4.12, 7.62)
+
+#set color palette
+eviction_palette = colorBin(&#39;Reds&#39;, bins = eviction_rate_bins, na.color = &#39;#d9d9d9&#39;)
+
+leaflet::leaflet(data = census_tracts_crs) %&gt;% 
+  addProviderTiles(&#39;CartoDB.Positron&#39;) %&gt;% 
+  addPolygons(
+    fillColor = ~eviction_palette(eviction_rate),
+    fillOpacity = 0.8,
+    color = &quot;BDBDC3&quot;,
+    weight = 1,
+    highlightOptions = highlightOptions(color = &quot;black&quot;, weight = 2, bringToFront = TRUE)) %&gt;% 
+      addLegend(&#39;bottomleft&#39;,
+                pal = eviction_palette,
+                values = ~eviction_rate,
+                title = &#39;Eviction Rates in NYC by census tract&#39;,
+                opacity = 1)
+
+  })</code></pre>
+<p>The visualizations of eviction rates over time were demonstrative of the fact that eviction rates are not only substantially heterogeneous throughout the borough, but have been quite dynamic over time. Neighborhood-level heterogeneity is apparent from the spaghetti plot. Eviction rates have generally declined over time, although neighborhood exceptions exist, including Brownsville and East New York, which have remained relatively untouched by the gentrification processes that have permeated wide swaths of Brooklyn in the past decade. These neighborhoods have consistently reported among the highest poverty and crime rates in New York City. According to <a href="https://furmancenter.org/thestoop/entry/understanding-trends-in-new-york-citys-evictions-data"><em>NYU’s Furman Center</em></a>, Park Slope/Carroll Gardens and Williamsburg/Greenpoint comprise two of the three neighborhoods with the lowest eviction filing rates in the city.</p>
+<p>The changes in eviction rates over time is perhaps most apparent from the interactive census tract map of the borough. There is a stark change in the eviction rate composition throughout Brooklyn from the year 2000 to the year 2016. In the former portion of this observation period (2000 to ~2006), wide swaths of Brooklyn had eviction rates between 2.5% to 7.2%, with visibly concentrated pockets of census tracts being in the highest quartile of eviction rates (4.1-7.2%). In the latter years of this observation period, notably 2012-2016, pockets of Brooklyn with eviction rates in the top two quartiles (2.5% to 7.2%) are far more sparse.</p>
+<p>As we explore in subsequent analyses, changing eviction rates may very well be in part attributal to factors associated with the changing urban landscape of Brooklyn and New York City as a whole (poverty rate, property values, demographic composition, etc). However, in recent years, public discourse surrounding the declining eviction rates in New York City frequently acknowledges legislative efforts on behalf of the city toward protecting tenants rights. Such legislative efforts include the 2017 creation of a <a href="https://www.cssny.org/news/entry/nyc-right-to-counsel"><em>Universal Access to Counsel</em></a> program, which gives tenants with incomes below 200 percent of the federal poverty level who are facing an eviction in housing court access to an attorney. Beginning in 2014, <a href="https://www.nytimes.com/2016/03/01/nyregion/evictions-are-down-by-18-new-york-city-cites-increased-legal-services.html"><em>the city began allocating more money</em></a> ($46 million from 2014-2016) for legal services for tenants in precarious housing circumstances. In June 2019, the city enacted a series of tenant protection laws designed to stop landlords from evicting tenants on short notice or without justification.</p>
+<p> </p>
+</div>
+<div id="filings-vs.-evictions" class="section level3">
+<h3><em>Filings vs. Evictions</em></h3>
+<p><strong>Question: What are the spatial patterns in the eviction filing discrepancies at the neighborhood level in 2016, and how these discrepancies relate to other markers of disadvantage?</strong></p>
+<p>Discrimination is a documented problem in tenant evictions. We hypothesized that this might manifest in larger discrepancies between eviction filings and eviction rates. To explore these discrepancies, we chose to look at neighborhood-level data as a more interpretable unit of analysis. Side-by-side maps were created for discrepancy rates and eviction rates. In general, rate discrepancies mirrored spatial patterns of eviction rates. Three neighborhoods had particularly high discrepancies between eviction filing rates and eviction rates: Starrett City, Sunset Park West, and East New York (Pennsylvania Ave).</p>
+<pre class="r"><code>#loading NYC neighborhoood shapefile
+neighborhood_map = readOGR(dsn = &quot;maps/2010-NTAs.shp&quot;, encoding = &quot;UTF-8&quot;)
+
+#limiting NYC shapefile to Brooklyn
+neighborhood_map = 
+  neighborhood_map[neighborhood_map$boro_name == &quot;Brooklyn&quot;, ]
+
+writeOGR(neighborhood_map,&quot;./mapping_files&quot;,&quot;neighborhood_temp&quot;, driver = &quot;ESRI Shapefile&quot;, overwrite_layer = TRUE)
+neighborhood_map = readOGR(&quot;./mapping_files&quot;,&quot;neighborhood_temp&quot;)
+
+neighborhood_map@data = left_join(neighborhood_map@data, neighborhood_data, by = c(&quot;ntaname&quot; = &quot;neighborhood&quot;))
+
+neighborhood_map_crs = spTransform(neighborhood_map, CRS(&quot;+init=epsg:4326&quot;))
+
+#Eviction rate map set-up
+##pop up label
+label_popup1 = paste0(
+  &quot;&lt;strong&gt;Neighborhood: &lt;/strong&gt;&quot;,
+  neighborhood_map$ntaname,
+  &quot;&lt;br&gt;&lt;strong&gt;Eviction rate: &lt;/strong&gt;&quot;,
+  neighborhood_map$wt_eviction_rate
+)
+
+##get jenks natural breaks
+getJenksBreaks(neighborhood_map$wt_eviction_rate, 5)
+
+##set bins based on natural breaks
+eviction_rate_bins = c(0.22, 1.04, 1.80, 2.69, 3.57)
+
+##set color palette
+eviction_palette1 = colorBin(&#39;Reds&#39;, bins = eviction_rate_bins, na.color = &#39;#d9d9d9&#39;)
+
+##create map of eviction rates
+map_evic = leaflet::leaflet(data = neighborhood_map_crs) %&gt;% 
+  addProviderTiles(&#39;CartoDB.Positron&#39;) %&gt;% 
+  addPolygons(
+    fillColor = ~eviction_palette1(wt_eviction_rate),
+    fillOpacity = 0.8,
+    color = &quot;BDBDC3&quot;,
+    weight = 1,
+    popup = label_popup1,
+    highlightOptions = highlightOptions(color = &quot;black&quot;, weight = 2, bringToFront = TRUE)) %&gt;% 
+      addLegend(&#39;topright&#39;,
+                pal = eviction_palette1,
+                values = ~wt_eviction_rate,
+                title = &#39;Eviction Rate&#39;,
+                opacity = 1)
+
+#discrepancy map set-up
+##pop up label
+label_popup2 = paste0(
+  &quot;&lt;strong&gt;Neighborhood: &lt;/strong&gt;&quot;,
+  neighborhood_map$ntaname,
+  &quot;&lt;br&gt;&lt;strong&gt;Eviction filing discrepancy rate: &lt;/strong&gt;&quot;,
+  neighborhood_map$wt_eviction_rate_discrep
+)
+
+##get jenks natural breaks
+getJenksBreaks(neighborhood_map$wt_eviction_rate_discrep, 5)
+
+##set bins based on natural breaks
+eviction_rate_discrep_bins = c(0.95, 3.94, 7.23, 11.90, 29.37)
+
+##set color palette
+eviction_palette2 = colorBin(&#39;Reds&#39;, bins = eviction_rate_discrep_bins, na.color = &#39;#d9d9d9&#39;)
+
+#create map of discrepancy rates
+map_discrep = leaflet::leaflet(data = neighborhood_map_crs) %&gt;% 
+  addProviderTiles(&#39;CartoDB.Positron&#39;) %&gt;% 
+  addPolygons(
+    fillColor = ~eviction_palette2(wt_eviction_rate_discrep),
+    fillOpacity = 0.8,
+    color = &quot;BDBDC3&quot;,
+    weight = 1,
+    popup = label_popup2,
+    highlightOptions = highlightOptions(color = &quot;black&quot;, weight = 2, bringToFront = TRUE)) %&gt;% 
+      addLegend(&#39;topright&#39;,
+                pal = eviction_palette2,
+                values = ~wt_eviction_rate_discrep,
+                title = &#39;Rate Discrepancy&#39;,
+                opacity = 1)
+
+#putting maps side by side
+sync(map_discrep, map_evic, ncol = 2, sync = &quot;all&quot;, sync.cursor = TRUE, no.initial.sync = TRUE)</code></pre>
+<p>We then identified the 15 neighborhoods with the highest discrepancy between eviction filing rate and eviction rate. These neighborhoods were compared to the 15 neighborhoods with the highest rates of evictions and other variables of interest, <code>poverty rate</code> and <code>percent nonwhite</code>. Five neighborhoods with the highest discrepancy rates also appeared in the other three bar charts.</p>
+<pre class="r"><code>#plotly bar chart of eviction rates
+barchart_evictions = neighborhood_data %&gt;%
+  top_n(15, wt_eviction_rate) %&gt;% 
+  mutate(neighborhood = fct_reorder(neighborhood, wt_eviction_rate)) %&gt;% 
+  plot_ly(x = ~wt_eviction_rate, y = ~neighborhood, type = &#39;bar&#39;, orientation = &#39;h&#39;, width = 900, height = 700, marker = list(color = c(&#39;rgba(222,45,38,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(222,45,38,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(222,45,38,1)&#39;, &#39;rgba(222,45,38,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(222,45,38,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;))) %&gt;% 
+  layout(title = &quot;&quot;,
+         xaxis = list(title = &quot;Eviction Rate&quot;),
+         yaxis = list(title = &quot;&quot;),
+         showlegend = FALSE)
+
+#plotly bar chart of eviction filing/rate discrepancies
+bar_chart_eviction_discrep = neighborhood_data %&gt;%
+  top_n(15, wt_eviction_rate_discrep) %&gt;% 
+  mutate(neighborhood = fct_reorder(neighborhood, wt_eviction_rate_discrep)) %&gt;% 
+  plot_ly(x = ~wt_eviction_rate_discrep, y = ~neighborhood, type = &#39;bar&#39;, orientation = &#39;h&#39;, width = 1000, height = 700, marker = list(color = c(&#39;rgba(222,45,38,1)&#39;, &#39;rgba(222,45,38,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(222,45,38,1)&#39;, &#39;rgba(222,45,38,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(222,45,38,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;))) %&gt;% 
+  layout(title = &quot;&quot;,
+         xaxis = list(title = &quot;Filing Discrepancy&quot;),
+         yaxis = list(title = &quot;&quot;),
+         showlegend = FALSE)
+
+#plotly bar chart of pct nonwhite
+bar_chart_pct_nonwhite = neighborhood_data %&gt;%
+  top_n(15, wt_pct_nonwhite) %&gt;% 
+  mutate(neighborhood = fct_reorder(neighborhood, wt_pct_nonwhite)) %&gt;% 
+  plot_ly(x = ~wt_pct_nonwhite, y = ~neighborhood, type = &#39;bar&#39;, orientation = &#39;h&#39;, width = 900, height = 700, marker = list(color = c(&#39;rgba(222,45,38,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(222,45,38,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(222,45,38,1)&#39;, &#39;rgba(222,45,38,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(222,45,38,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;))) %&gt;% 
+  layout(title = &quot;&quot;,
+         xaxis = list(title = &quot;Percent Nonwhite&quot;),
+         yaxis = list(title = &quot;&quot;),
+         showlegend = FALSE)
+
+#plotly bar chart of poverty rates
+bar_chart_poverty = neighborhood_data %&gt;%
+  top_n(15, wt_povertyrate) %&gt;% 
+  mutate(neighborhood = fct_reorder(neighborhood, wt_povertyrate)) %&gt;% 
+  plot_ly(x = ~wt_povertyrate, y = ~neighborhood, type = &#39;bar&#39;, orientation = &#39;h&#39;, width = 1000, height = 700, marker = list(color = c(&#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(222,45,38,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(222,45,38,1)&#39;, &#39;rgba(222,45,38,1)&#39;, &#39;rgba(222,45,38,1)&#39;, &#39;rgba(222,45,38,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;, &#39;rgba(204,204,204,1)&#39;))) %&gt;% 
+  layout(title = &quot;&quot;,
+         xaxis = list(title = &quot;Poverty Rate&quot;),
+         yaxis = list(title = &quot;&quot;),
+         showlegend = FALSE)
+  
+#combining plots visually
+subplot(bar_chart_eviction_discrep,
+        barchart_evictions,
+        bar_chart_poverty,
+        bar_chart_pct_nonwhite,
+        nrows = 2, widths = c(0.5, 0.5),
+        margin = c(0.1, 0.2, 0.1, 0.1),
+        shareX = FALSE, shareY = FALSE,
+        titleX = TRUE, titleY = FALSE)</code></pre>
+<p> </p>
+</div>
+<div id="what-predicts-eviction-rates" class="section level3">
+<h3><em>What Predicts Eviction Rates?</em></h3>
+<p><strong>Question: How does the geographic distribution of eviction rates in Brooklyn correlate with other census tract characteristics such as language ability, racial composition, rent burden, and population density?</strong></p>
 <p>To explore the question of how the geographic distribution of eviction rates correlated with our predictors of interest, we created choropleths of our four predictors (percentage of ESL speakers, percentage of non-White residents, rent burden, and population density) with eviction rates overlaid in Brooklyn by census tract in 2016.</p>
-<p>Census tract and neighborhood shapefiles were downloaded from NYC Open Data and limited to Brooklyn. We then defined aesthetic mappings.</p>
 <pre class="r"><code># Loading in Brooklyn data
 joined_data_bklyn_2016 = 
   readRDS(&#39;./data/joined_data_bklyn&#39;) %&gt;%
@@ -1139,165 +1425,13 @@ leaflet::leaflet(data = census_tracts_crs) %&gt;%
 <p>In addition to eviction rates being geographically clustered, we also found that the percentage of ESL speakers, percentage of non-White residents, and high rent burden appeared to be geographically clustered.</p>
 <p>We identified a clear positive association between the percentage of non-White residents and evictions rates in a given census tract. The percentage of ESL speakers in a given census tract appeared to be inversely related to eviction rates; we decided to further examine whether the percentage of non-White residents confounded the relationship between percentage of ESL speakers and eviction rates. Relationships between rent burden, population density, and eviction rates were less obvious; we conducted further exploratory analyses during model building.</p>
 <p>The results of our exploratory analyses were used to inform further model building.</p>
-<p> </p>
-</div>
-<div id="evictions-over-time-2000-2016" class="section level4">
-<h4><strong>Evictions Over Time 2000-2016</strong></h4>
-<p><em>Question: How have eviction rates in Brooklyn changed over time?</em></p>
-<p>To explore the question of how eviction rates in Brooklyn have changed over time (2000 to 2016), we created a <a href="https://nk2814.shinyapps.io/evictions_spaghetti_shiny/"><em>graphical user interface</em></a> using the Shiny package. There are two components to this interface:</p>
-<ol style="list-style-type: decimal">
-<li>A spaghetti plot depicting eviction rates from 2000 to 2016 in Brooklyn broken down by <strong>neighborhood</strong>.</li>
-</ol>
-<pre class="r"><code># Reading in and cleaning data for neighborhood-level spaghetti plot over time
-
-# Read NYC neighborhood data
-neighborhood_df = 
-  read_excel(&quot;./data/NYC_neighborhoods_by_censustract_2010.xlsx&quot;, 
-             skip = 5, 
-             col_names = c(&quot;borough&quot;, &quot;county_code&quot;, &quot;boro_code&quot;, &quot;census_tract&quot;, &quot;PUMA&quot;, &quot;nta_code&quot;, &quot;neighborhood&quot;)
-             ) %&gt;% 
-#creating 11 digit FIPS code by pasting country code (36) with `county_code` and `census_tract`
-  mutate(geo_id = paste0(&quot;36&quot;, county_code, census_tract)
-  )
-
-# Read Eviction data, limit to Brooklyn, join to neighborhood_df
-brooklyn_data = read.csv(&#39;./data/EvictionData_NY.csv&#39;) %&gt;% 
-  janitor::clean_names() %&gt;% 
-  mutate(geoid = as.character(geoid)) %&gt;% 
-  filter(parent_location == &quot;Kings County, New York&quot;) %&gt;% 
-  left_join(neighborhood_df, by = c(&quot;geoid&quot; = &quot;geo_id&quot;))
-
-# Code weighted neighborhood eviction rate 
-brooklyn_data = brooklyn_data %&gt;% 
-  group_by(neighborhood, year) %&gt;% 
-  mutate(
-    neighb_pop = sum(population),
-    tract_weight = population/neighb_pop,
-    weighted_eviction_rate = eviction_rate*tract_weight)
- 
-
-brooklyn_data = brooklyn_data %&gt;% 
-  summarize(
-    Eviction_Rate = as.numeric(sum(weighted_eviction_rate))
-    ) %&gt;% 
-  ungroup() %&gt;% 
-  mutate(neighborhood = as.factor(neighborhood))
-
-brooklyn_data &lt;- within(brooklyn_data, Eviction_Rate[neighborhood == &#39;park-cemetery-etc-Brooklyn&#39;] &lt;- NA)
-brooklyn_data &lt;- within(brooklyn_data, wt_eviction_rate_discrep[neighborhood == &#39;park-cemetery-etc-Brooklyn&#39;] &lt;- NA)
-
-# Pulled list of brooklyn neighborhoods from brooklyn eviction data
-neighborhoods = brooklyn_data %&gt;% distinct(neighborhood) %&gt;% pull()
-
-
-# Created checkbox input of Brooklyn neighborhood
-
-checkboxGroupInput(&quot;neighborhood_choice&quot;, label=h3(&quot;Select Neighborhood&quot;),
-choices = neighborhoods, selected = &quot;Williamsburg&quot;)
-
-# Used renderPlotly function to plot eviction rates over time with Neighborhood widget
-
-renderPlotly({ 
-
-brooklyn_data = 
-  brooklyn_data %&gt;%
-    filter(
-      neighborhood == input[[&quot;neighborhood_choice&quot;]]
-    ) 
-
-brooklyn_data %&gt;% 
-    group_by(year) %&gt;%
-    ungroup() %&gt;% 
-    plot_ly(x=~year, y=~Eviction_Rate, type=&quot;scatter&quot;, mode=&quot;lines+markers&quot;, color = ~neighborhood) %&gt;% 
-    layout(title=&quot;Eviction Rate (%) Over Time (2000-2016) by Brooklyn Neighborhood&quot;)
-
-})
-
-# Published to shinyapp.io</code></pre>
-<ol start="2" style="list-style-type: decimal">
-<li>A map depicting eviction rates from 2000 to 2016 in Brooklyn broken down by <strong>census tract</strong>.</li>
-</ol>
-<pre class="r"><code># Read joined brooklyn data
-
-joined_data_bklyn = readRDS(&#39;./data/joined_data_bklyn&#39;)
-
-
-# Loading census tract shapefiles from NYC OpenData:
-census_tracts = readOGR(dsn = &quot;maps/2010-census-tracts.shp&quot;, encoding = &quot;UTF-8&quot;, verbose=FALSE) 
-
-census_tracts = 
-  census_tracts[census_tracts$boro_name == &quot;Brooklyn&quot;, ]
-
-writeOGR(census_tracts,&quot;./mapping_files&quot;,&quot;census_temp&quot;, driver = &quot;ESRI Shapefile&quot;, overwrite_layer = TRUE)
-census_tracts = readOGR(&quot;./mapping_files&quot;,&quot;census_temp&quot;, verbose=FALSE)
-
-# Constructing geoid for merging
-census_tracts@data = 
-  census_tracts@data %&gt;% 
-  mutate(
-    county_code = as.character(recode(boro_code, &quot;1&quot; = &quot;061&quot;, &quot;2&quot; = &quot;005&quot;, &quot;3&quot; = &quot;047&quot;, &quot;4&quot; = &quot;081&quot;, &quot;5&quot; = &quot;085&quot;)),
-    ct2010 = as.character(ct2010),
-    fips_11dig = paste0(&quot;36&quot;, county_code, ct2010),
-    long = coordinates(spTransform(census_tracts, CRS(&quot;+proj=longlat +datum=WGS84&quot;)))[,1],
-    lat = coordinates(spTransform(census_tracts, CRS(&quot;+proj=longlat +datum=WGS84&quot;)))[,2]
-    ) %&gt;%
-  unnest(c(long, lat))
-
-# Create slider widget for years 2000-2016
-
-sliderInput(&quot;years&quot;, &quot;Year of Observation&quot;,
-    min = 2000, max = 2016, step=1, value = 2000
-  )
-
-# Plot interactive census tract-level map of eviction rates using renderLeaflet
-
-renderLeaflet({
-  
-  joined_data_bklyn_year = 
-  joined_data_bklyn  %&gt;%
-  filter(year==input[[&quot;years&quot;]])
-
-# Joining data and shapefiles
-census_tracts@data = left_join(census_tracts@data, joined_data_bklyn_year, by = c(&quot;fips_11dig&quot; = &quot;geoid&quot;))
-  
-# spatial transform
-census_tracts_crs = spTransform(census_tracts, CRS(&quot;+init=epsg:4326&quot;))
-
-# get jenks natural breaks
-getJenksBreaks(census_tracts_crs$eviction_rate, 5)
-
-#set bins based on natural breaks
-eviction_rate_bins = c(0, 1.23, 2.51, 4.12, 7.62)
-
-#set color palette
-eviction_palette = colorBin(&#39;Reds&#39;, bins = eviction_rate_bins, na.color = &#39;#d9d9d9&#39;)
-
-leaflet::leaflet(data = census_tracts_crs) %&gt;% 
-  addProviderTiles(&#39;CartoDB.Positron&#39;) %&gt;% 
-  addPolygons(
-    fillColor = ~eviction_palette(eviction_rate),
-    fillOpacity = 0.8,
-    color = &quot;BDBDC3&quot;,
-    weight = 1,
-    highlightOptions = highlightOptions(color = &quot;black&quot;, weight = 2, bringToFront = TRUE)) %&gt;% 
-      addLegend(&#39;bottomleft&#39;,
-                pal = eviction_palette,
-                values = ~eviction_rate,
-                title = &#39;Eviction Rates in NYC by census tract&#39;,
-                opacity = 1)
-
-  })</code></pre>
-<p>The visualizations of eviction rates over time were demonstrative of the fact that eviction rates are not only substantially heterogeneous throughout the borough, but have been quite dynamic over time. Neighborhood-level heterogeneity is apparent from the spaghetti plot. Eviction rates have generally declined over time, although neighborhood exceptions exist, including Brownsville and East New York, which have remained relatively untouched by the gentrification processes that have permeated wide swaths of Brooklyn in the past decade. These neighborhoods have consistently reported among the highest poverty and crime rates in New York City. According to <a href="https://furmancenter.org/thestoop/entry/understanding-trends-in-new-york-citys-evictions-data"><em>NYU’s Furman Center</em></a>, Park Slope/Carroll Gardens and Williamsburg/Greenpoint comprise two of the three neighborhoods with the lowest eviction filing rates in the city.</p>
-<p>The changes in eviction rates over time is perhaps most apparent from the interactive census tract map of the borough. There is a stark change in the eviction rate composition throughout Brooklyn from the year 2000 to the year 2016. In the former portion of this observation period (2000 to ~2006), wide swaths of Brooklyn had eviction rates between 2.5% to 7.2%, with visibly concentrated pockets of census tracts being in the highest quartile of eviction rates (4.1-7.2%). In the latter years of this observation period, notably 2012-2016, pockets of Brooklyn with eviction rates in the top two quartiles (2.5% to 7.2%) are far more sparse.</p>
-<p>As we explore in subsequent analyses, changing eviction rates may very well be in part attributal to factors associated with the changing urban landscape of Brooklyn and New York City as a whole (poverty rate, property values, demographic composition, etc). However, in recent years, public discourse surrounding the declining eviction rates in New York City frequently acknowledges legislative efforts on behalf of the city toward protecting tenants rights. Such legislative efforts include the 2017 creation of a <a href="https://www.cssny.org/news/entry/nyc-right-to-counsel"><em>Universal Access to Counsel</em></a> program, which gives tenants with incomes below 200 percent of the federal poverty level who are facing an eviction in housing court access to an attorney. Beginning in 2014, <a href="https://www.nytimes.com/2016/03/01/nyregion/evictions-are-down-by-18-new-york-city-cites-increased-legal-services.html"><em>the city began allocating more money</em></a> ($46 million from 2014-2016) for legal services for tenants in precarious housing circumstances. In June 2019, the city enacted a series of tenant protection laws designed to stop landlords from evicting tenants on short notice or without justification.</p>
 <p>   </p>
 </div>
 </div>
-<div id="formal-analysis" class="section level3">
-<h3>Formal Analysis</h3>
-<p><font size = "4"><i>Predictors of Eviction in Brooklyn, 2010-2016</font></i></p>
-<div id="overview" class="section level4">
-<h4><strong>Overview</strong></h4>
+<div id="formal-analysis-predictors-of-evictions-in-brooklyn-2010-2016" class="section level2">
+<h2>Formal Analysis: Predictors of Evictions in Brooklyn, 2010-2016</h2>
+<div id="overview" class="section level3">
+<h3><em>Overview</em></h3>
 <p>Using existing data, we wanted to investigate factors that are associated with - and can potentially be used to predict - eviction rates among census tracts in Brooklyn.</p>
 <p>We propose using Generalized Estimating Equations (GEE). GEEs can be used to model correlated/hierarchical data, distinction of within-group and between-group estimates is not desired Since our data are repeated over time within census tract (2010-2016), we expect there to be autocorrelation present across years, and we can address this using GEE modeling techniques.</p>
 <p>More specifically, we propose using a GEE modelling framework with a log link function. Our outcome variable, eviction rate, is calculated by dividing count of evictions by the number of renter-occupied households; since this is based on a <strong>count</strong> variable, evictions, we expect our outcome to assume a Poisson distribution. Thus, we can use a log link function to model the expected count of evictions, and include the denominator of our eviction rate - number of renter-occupied households - as an offset term in the right-hand side of our equation.</p>
@@ -1316,8 +1450,8 @@ joined_data_bklyn_nomissing %&gt;%
 <p><img src="final_report_files/figure-html/poisson_dist-1.png" width="1152" /></p>
 <p>   </p>
 </div>
-<div id="hypothesis" class="section level4">
-<h4><strong>Hypothesis</strong></h4>
+<div id="hypothesis" class="section level3">
+<h3><em>Hypothesis</em></h3>
 <p>Based on prior reading and research, we hypothesize the following predictors of eviction count at the census tract level. See above for variable definitions.</p>
 <ul>
 <li><code>years_since_2010</code></li>
@@ -1347,8 +1481,8 @@ joined_data_bklyn_nomissing %&gt;%
 <p><img src="images/eq1.gif" /></p>
 <p>   </p>
 </div>
-<div id="correlation-matrix" class="section level4">
-<h4><strong>Correlation matrix</strong></h4>
+<div id="correlation-matrix" class="section level3">
+<h3><em>Correlation matrix</em></h3>
 <p>Before proceeding, it is important to assess crude correlation among our relevant variables, in case issues of multicollinearity arise during model development.</p>
 <pre class="r"><code>joined_data_bklyn_nomissing %&gt;% 
   mutate(year = as.numeric(year)) %&gt;% 
@@ -1377,15 +1511,15 @@ joined_data_bklyn_nomissing %&gt;%
 </ul>
 <p>   </p>
 </div>
-<div id="note-on-potential-confounding" class="section level4">
-<h4><strong>Note on potential confounding</strong></h4>
+<div id="note-on-potential-confounding" class="section level3">
+<h3><em>Note on potential confounding</em></h3>
 <p>After performing exploratory data analysis and crude univariate plots (<em>not shown</em>), we found that the relationship between <code>pct_eng</code> - percent of ESL speakers - and eviction rate is confounded by <code>black</code> race.</p>
 <p>At first, the relationship between ESL speakers and eviction rate was inverse - as ESL increased, evictions actually decreased. This is counter to our hypotheses, as non-English speaking and immigrant communities have been shown to experience much higher rates of eviction. However, we knew that Black race had the potential to confound this relationship, as Black NYC communities are overwhelmingly English-speaking and also at an increased risk of eviction due to other factors.</p>
 <p>Once we adjusted for Black race in the relationship between ESL and evictions, the relationship flipped, and EsL was demonstrated to have a positive association with eviction rate, adjusting for Black race.</p>
 <p>   </p>
 </div>
-<div id="refining-and-subdefining-our-hypothesized-model" class="section level4">
-<h4><strong>Refining and subdefining our hypothesized model</strong></h4>
+<div id="refining-and-subdefining-our-hypothesized-model" class="section level3">
+<h3><em>Refining and subdefining our hypothesized model</em></h3>
 <p>We refined our hypothesized models based on our exploratory confounding and other analyses:</p>
 <ol style="list-style-type: decimal">
 <li>As noted above, ESL should not be included in a model without adjusting for Black race nor should it be interpreted independently of year due to high correlation. Thus, our first hypothesized sub-model will include ESL and percent of all race/ethnicity variables (interpreted as the independent effects of ESL and years since 2010 [highly correlated], rent burden, or population density on evictions, adjusting for each other predictor variable and race/ethnicity). [Equation 2]</li>
@@ -1419,8 +1553,8 @@ joined_data_bklyn_nomissing %&gt;%
 <p><img src="images/eq3.gif" /></p>
 <p>   </p>
 </div>
-<div id="stepwise-automatic-model-selection" class="section level4">
-<h4><strong>Stepwise automatic model selection</strong></h4>
+<div id="stepwise-automatic-model-selection" class="section level3">
+<h3><em>Stepwise automatic model selection</em></h3>
 <p>To contrast with our hypothesis-informed model building process, we wanted to test a stepwise model selection algorithm. We used the <code>gee_stepper</code> function within the <code>pstools</code> package, which performs a forward step selection process with a set of GEE predictors, using QIC to find a ‘best fit’ model.</p>
 <p>We slightly modified the function code to create our own function - <code>gee_stepper_o</code> - in order to include our offset term by default in the stepwise selection process. We’ll create a full model (<code>full_fit</code>) to use as the saturated model for our stepwise selection process, using all predictor variables listed in the earlier section.</p>
 <pre class="r"><code>## use full dataset
@@ -1455,12 +1589,12 @@ test = gee_stepper_o(full_fit, formula(full_fit)) ## customized function to auto
 <p>In this model, to be conservative in our interpretations, <code>median_household_income</code> should not be interpreted separately from <code>poverty_rate</code> (<em>r</em> = -0.73) or <code>median_gross_rent</code> (<em>r</em> = -0.74).</p>
 <p>   </p>
 </div>
-<div id="summary-of-models" class="section level4">
-<h4><strong>Summary of models</strong></h4>
+<div id="summary-of-models" class="section level3">
+<h3><em>Summary of models</em></h3>
 <p>To summarize, we will consider the following models to predict census tract-level eviction rates:</p>
 <p>Two hypothesized models:</p>
 <ol style="list-style-type: decimal">
-<li><p>A hypothesized model based primarily on percent ESL speakers [Equation 2, above]</p></li>
+<li>A hypothesized model based primarily on percent ESL speakers [Equation 2, above]</li>
 <li><p>A hypothesized model based primarily on independent effects of race/ethnicity percentages [Equation 3, above]</p></li>
 <li><p>A model selected via a GEE-specific forward stepwise selection process (function <code>gee_stepper_o</code>)</p></li>
 </ol>
@@ -1471,8 +1605,8 @@ test = gee_stepper_o(full_fit, formula(full_fit)) ## customized function to auto
 </ol>
 <p>   </p>
 </div>
-<div id="cross-validation-of-models" class="section level4">
-<h4><strong>Cross-validation of models</strong></h4>
+<div id="cross-validation-of-models" class="section level3">
+<h3><em>Cross-validation of models</em></h3>
 <p>Since our data are modelled using GEE and are not all nested within each other, there is not a straightforward way to compare their prediction capabilities such as hypothesis testing or AIC (in this case, QIC). However, we can use <strong>cross validation</strong>, which allows us to compare prediction accuracy across non-nested models. While this technique does not allow us to assess statistical significance of hypotheses/models/predictors tested, we still believe it will be useful in gauging model usefulness.</p>
 <p>Specifically, we will compare the repeat-sampled distribution of each model’s <strong>root mean squared error</strong>, with lower values indicating lower error and better overall prediction.</p>
 <p>(Technical notes: We resampled 100 training/testing splits [default 80% training, 20% testing] on our data using the function <code>crossv_mc</code>. We then ran our 5 models on each of our 100 resampled training datasets, then extracted the root mean squared error as a measure of how well our training models predicted our testing data. 100 RMSEs resulted for each model, the distributions of which were then grouped by model and comparatively plotted using <code>ggplot</code> and <code>geom_violin</code> [violin plots].)</p>
@@ -1615,8 +1749,8 @@ model_data_cv %&gt;%
 <p><img src="images/eq3.gif" /></p>
 <p>   </p>
 </div>
-<div id="conclusions" class="section level4">
-<h4><strong>Conclusions</strong></h4>
+<div id="conclusions" class="section level3">
+<h3><em>Conclusions</em></h3>
 <p>Our model can be estimated via GEE:</p>
 <pre class="r"><code>hyp_model_race = 
   geeglm(evictions ~
@@ -1747,20 +1881,20 @@ hyp_model_race %&gt;%
 <p> </p>
 </div>
 </div>
-<div id="discussion" class="section level3">
-<h3>Discussion</h3>
+<div id="discussion" class="section level2">
+<h2>Discussion</h2>
 <p>The results of our selected GEE model indicate a few important things:</p>
 <ul>
-<li>Eviction rates are difficult to predict, as anticipated. Among other factors, this is likely due to the complex and changing nature of evictions. Laws change from month to month, and areas can change rapidly - infrastructure, income, housing can look completely different in 5 years’ time.</li>
+<li>Eviction rates are difficult to predict, as anticipated. Among other factors, this is likely due to the complex and changing nature of evictions. Laws change from month to month, and areas can change rapidly - infrastructure, income, and housing can look dramatically different in 5 years’ time.</li>
 <li>After adjusting for the covariates included in our model, eviction rates varied over time in Brooklyn from 2010 to 2016: all years have lower estimated eviction rates than 2010, with a large dip in overall rates in 2011, but the trend is somewhat unclear.</li>
-<li>All significant non-white races were positively associated with eviction rates in Brooklyn - i.e. as the percent of residents in a census tract that are non-white increases, so do eviction rates, controlling for other covariates in our model.</li>
+<li>All significant non-white races were positively associated with eviction rates in Brooklyn - i.e., as the percent of residents in a census tract that are non-white increases, so do eviction rates, controlling for other covariates in our model.</li>
 <li>Surprisingly, percent Native Hawaiian / Pacific Islander was the strongest predictor among the races in terms of its strength of effect (<em>b</em> = 0.0774). However, since there was a small sample of these races in Brooklyn, the estimate may be less reliable than others in the model.</li>
 <li>Rent burden was also positively associated with eviction rate in Brooklyn, consistent with the observation that evictions are more common in lower-income communities.</li>
 </ul>
-<p>To add complexity and interpretability to this model, we would like to add variables that account for nuanced effects of gentrification over time in Brooklyn. However, gentrification data currently publicly available were (1) sparse and (2) not recorded over time, so these analyses are currently not possible in the form we would like to see them. We would also like to see a multilevel model considering</p>
-<p>In conclusion, our data seem to show that eviction rates are higher, on average, among people of color in Brooklyn from 2010-2016. Eviction is not a problem that can be solved easily, and the predictors included in these models are obviously not “causal” exposures - rather, they are indicative of underlying structures that result in lower-income people of color being predominantly affected by evictions. As noted in one of our supplementary articles, “The Violence of Eviction”, evictions even more specifically shape the lives of women of color, with some estimates showing women being evicted at two to nine times the rate of males.</p>
-<p>This data tells a small part of eviction narratives in the U.S. - who they affect, and why it matters. Informed policymaking is important, and informed policies start at the ground: with landlords. Landlords decide who gets to live where, and research has shown that landlord-tenant relationships are <a href="bit.ly/housing_disc">often influenced by tenant race</a>. On a broader scale, the U.S. affordable housing crisis has a synergistic relationship with our eviction crisis, with most low-income families spending over 50 percent of their rent on housing. (About a quarter of the census tracts in our dataset had <em>average</em> rent burdens of over 40 percent across 2010-2016.)</p>
-<p>In sum, eviction affects individuals, families, and communities across our country, especially those who are otherwise most vulnerable. We need policies that preserve affordable housing and protect victims of long-standing discriminatory housing practices. If you are more interested in learning about current work and research happening around this topic, Eviction Lab’s <a href="https://evictionlab.org/">resources</a> are a great starting point.</p>
+<p>To add complexity and interpretability to this model, we would like to add variables that account for nuanced effects of gentrification over time in Brooklyn. However, publicly available gentrification data were (1) sparse and (2) not recorded over time, so these analyses are currently not possible in the way we would like them to be.</p>
+<p>In conclusion, our data indicate that eviction rates are higher, on average, among people of color in Brooklyn from 2010-2016. Eviction is not a problem that can be solved easily, and the predictors included in these models are obviously not “causal” exposures - rather, they are indicative of underlying structures that result in lower-income people of color being predominantly affected by evictions. As noted in one of our supplementary articles, “The Violence of Eviction”, evictions even more specifically shape the lives of women of color, with some estimates showing women being evicted at two to nine times the rate of males.</p>
+<p>These data tell a small part of eviction narratives in the U.S. - who they affect, and why they matter. Informed policymaking is important, and policies must start at the ground: with landlords. Landlords decide who gets to live where, and research has shown that landlord-tenant relationships are <a href="bit.ly/housing_disc">often influenced by tenant race</a>. On a broader scale, the U.S. affordable housing crisis has a synergistic relationship with our eviction crisis, with most low-income families spending over 50 percent of their rent on housing. (About a quarter of the census tracts in our dataset had <em>average</em> rent burdens of over 40 percent across 2010-2016.)</p>
+<p>In sum, evictions affect individuals, families, and communities across our country, especially those who are otherwise most vulnerable. We need policies that preserve affordable housing and protect victims of long-standing discriminatory housing practices. If you are more interested in learning about current work and research happening around this topic, Eviction Lab’s <a href="https://evictionlab.org/">resources</a> are a great starting point.</p>
 </div>
 
 <html>
