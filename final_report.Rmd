@@ -493,16 +493,13 @@ race_data =
   
 ```
 
-&nbsp;
-
 Since `geoid` (FIPs codes) are not inherently interpretable, we created a key to translate them from FIPs to boro.
 
 Finally, we joined all datasets using a combination of `geoid` (FIPs codes) and `year` as unique identifier across tables.
 
 &nbsp;
 
-```{r}
-
+```{r, message = FALSE, warning = FALSE}
 ## creating key for geoid <--> boro
 geoid_boro_key = 
   read.csv('./data/EvictionData_NY.csv') %>% 
@@ -517,7 +514,6 @@ geoid_boro_key =
                                "Bronx County, New York" = "Bronx", 
                                "Richmond County, New York" = "Staten Island")) %>% 
   distinct()
-
 
 ## all rows regardless of NA, using outer (full) join
 
@@ -779,7 +775,6 @@ leaflet::leaflet(data = census_tracts_crs) %>%
         labels = c("2", "6", "25"), sizes = c(5.6569, 9.7980, 20))
 ```
 
-&nbsp;
 
 In addition to eviction rates being geographically clustered, we also found that the percentage of ESL speakers, percentage of non-White residents, and high rent burden appeared to be geographically clustered. 
 
