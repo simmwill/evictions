@@ -31,7 +31,7 @@ h1.title {
 
 ## Motivation
 
-Evictions represent a major source of housing instability in the Uinted States, especially in vulnerable communities. Eviction has now grown to what many consider "epidemic" proportions, with [over 450,000](https://ny.curbed.com/2017/9/25/16361572/rent-stabilization-map-crown-heights-bushwick) evictions filed in New York City between 2013 and 2015.  
+Evictions represent a major source of housing instability in the United States, especially in vulnerable communities. Eviction has now grown to what many consider "epidemic" proportions, with [over 450,000](https://ny.curbed.com/2017/9/25/16361572/rent-stabilization-map-crown-heights-bushwick) evictions filed in New York City between 2013 and 2015.  
 
 Entire police units, moving companies, and economic infrastructures have been built in response to this phenomenon, as reported by the [*New Yorker*](https://www.newyorker.com/magazine/2016/02/08/forced-out). What factors put individuals, communities, and populations most at-risk for eviction? Who bears the cumulative social and economic consequences of a practice now accepted as commonplace, justified, and even beneficial?
 
