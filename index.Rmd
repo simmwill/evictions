@@ -49,7 +49,7 @@ In the Exploratory Analyses tab, you can observe:
 
 In the [Model Building](model_building.html) tab, we propose a model to predict eviction rates in Brooklyn based on historical data. Head to our [Prediction Tool](https://willsimmons.shinyapps.io/model_building/) to try it for yourself!
 
-Our final project report can be found [here](final_report.html). A brief screencast of our project can be found [here](https://www.youtube.com).
+Our final project report can be found [here](final_report.html). A brief screencast of our project can be found [here](https://www.youtube.com/watch?v=W-cQ8M_y7MY&feature=youtu.be&hd=1).
 
 &nbsp;
 &nbsp;
