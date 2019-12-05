@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
 
 <meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
@@ -237,7 +238,6 @@ $(document).ready(function () {
   border: none;
   display: inline-block;
   border-radius: 4px;
-  background-color: transparent;
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li {
@@ -269,12 +269,6 @@ $(document).ready(function () {
 }
 }
 
-@media print {
-.toc-content {
-  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
-  float: right;
-}
-}
 
 .toc-content {
   padding-left: 30px;
@@ -1284,8 +1278,8 @@ leaflet::leaflet(data = census_tracts_crs) %&gt;%
 <div id="formal-analysis" class="section level1">
 <h1>Formal Analysis</h1>
 <p><font size = "4"><i>Predictors of Eviction in Brooklyn, 2010-2016</font></i></p>
-<div id="setup" class="section level2">
-<h2>Setup</h2>
+<div id="setup" class="section level5">
+<h5><strong>Setup</strong></h5>
 <p>First, we’d like to integrate neighborhood as a potential predictor in our models, so we joined our existing data from above with a dataset including both <code>neighborhood</code> name and <code>geoid</code>.</p>
 <pre class="r"><code># joined_data_bklyn_nomissing = 
 #   readRDS(&#39;./data/joined_data_bklyn_nomissing&#39;)
@@ -1309,8 +1303,8 @@ joined_data_bklyn_nomissing =
          years_since_2010 = as.factor(years_since_2010))</code></pre>
 <p>   </p>
 </div>
-<div id="overview" class="section level2">
-<h2>Overview</h2>
+<div id="overview" class="section level5">
+<h5><strong>Overview</strong></h5>
 <p>Using existing data, we wanted to investigate factors that are associated with - and can potentially be used to predict - eviction rates among census tracts in Brooklyn.</p>
 <p>We propose using Generalized Estimating Equations (GEE). GEEs can be used to model correlated/hierarchical data, distinction of within-group and between-group estimates is not desired Since our data are repeated over time within census tract (2010-2016), we expect there to be autocorrelation present across years, and we can address this using GEE modeling techniques.</p>
 <p>More specifically, we propose using a GEE modelling framework with a log link function. Our outcome variable, eviction rate, is calculated by dividing count of evictions by the number of renter-occupied households; since this is based on a <strong>count</strong> variable, evictions, we expect our outcome to assume a Poisson distribution. Thus, we can use a log link function to model the expected count of evictions, and include the denominator of our eviction rate - number of renter-occupied households - as an offset term in the right-hand side of our equation.</p>
@@ -1329,38 +1323,8 @@ joined_data_bklyn_nomissing %&gt;%
 <p><img src="final_report_files/figure-html/poisson_dist-1.png" width="1152" /></p>
 <p>   </p>
 </div>
-<div id="relevant-predictors" class="section level2">
-<h2>Relevant predictors</h2>
-<p>Although we formulated specific hypotheses regarding predictors of eviction in Brooklyn based on existing research, we wanted to include as many potential predictors as possible to test against our hypothesized predictors. The data we are using includes the following variables:</p>
-<ul>
-<li><code>evictions</code>. Number of evictions at census level.</li>
-<li><code>eviction_filings</code>. Number of eviction filings at census level.</li>
-<li><code>renter_occupied_households</code>. Number of renter occupied households in census tract. As mentioned above, this forms the denominator of our modelled rate and will be included in all models as an offset term (as <code>log(renter_occupied_households)</code>).</li>
-<li><code>years_since_2010</code>. Since our data range from 2010 to 2016, and we did not want to assume a constant effect of time, we included year as a set of indicator variables in all models except our empty model (see below).</li>
-<li><code>hisp</code>. Percent of population (at census tract level, for all race/ethnicity variables) that self-report Hispanic ethnicity.</li>
-<li><code>white</code>. Percent self-reporting White race.</li>
-<li><code>black</code>. Percent self-reporting Black race.</li>
-<li><code>asian</code>. Percent self-reporting Asian race.</li>
-<li><code>aian</code>. Percent self-reporting American Indian / Alaska Native race.</li>
-<li><code>nhpi</code>. Percent self-reporting Native Hawaiian / Pacific Islander race.</li>
-<li><code>other</code>. Percent self-reporting other race.</li>
-<li><code>rent_burden</code>. Average percent of income spent on rent.</li>
-<li><code>density</code>. Population density.</li>
-<li><code>pct_eng</code>. Percent of population who speak English less than ‘Very Well’. This is interpreted as a proxy for percent English as a second language (ESL) speakers.</li>
-<li><code>median_household_income</code>. Median census tract household income in USD.</li>
-<li><code>poverty_rate</code>. Percent living below Federal Poverty Line (FPL).</li>
-<li><code>median_gross_rent</code>. Median census tract gross rent in USD.</li>
-<li><code>pct_renter_occupied</code>. Percent of census tract occupied by renters.</li>
-<li><code>median_property_value</code>. Median census tract property value in USD.</li>
-<li><code>family_size</code>. Average family size in census tract.</li>
-<li><code>pct_fam_households</code>. Percentage of census tract households that contain families.</li>
-</ul>
-<p><em>Note:</em> Since our repeated data are clustered within census tracts, we could not include neighborhood, an otherwise important predictor of eviction rates. If we wanted to conduct models similar to these but (1) within census tracts across time AND (2) also modelling census tracts clustered within neighborhoods, we would have to move into some sort of hierarchical/multilevel modelling structure.</p>
-<p>In our model-building Shiny app (see ‘Interactive Model’, navigation bar), readers can stratify these analyses by neighborhood, which may allow some conclusions regarding neighborhood-level effects (as opposed to just Brooklyn-level).</p>
-<p>   </p>
-</div>
-<div id="hypothesis" class="section level2">
-<h2>Hypothesis</h2>
+<div id="hypothesis" class="section level5">
+<h5><strong>Hypothesis</strong></h5>
 <p>Based on prior reading and research, we hypothesize the following predictors of eviction count at the census tract level. See above for variable definitions.</p>
 <ul>
 <li><code>years_since_2010</code></li>
@@ -1390,8 +1354,8 @@ joined_data_bklyn_nomissing %&gt;%
 <p><img src="images/eq1.gif" /></p>
 <p>   </p>
 </div>
-<div id="correlation-matrix" class="section level2">
-<h2>Correlation matrix</h2>
+<div id="correlation-matrix" class="section level5">
+<h5><strong>Correlation matrix</strong></h5>
 <p>Before proceeding, it is important to assess crude correlation among our relevant variables, in case issues of multicollinearity arise during model development.</p>
 <pre class="r"><code>joined_data_bklyn_nomissing %&gt;% 
   mutate(year = as.numeric(year)) %&gt;% 
@@ -1412,12 +1376,6 @@ joined_data_bklyn_nomissing %&gt;%
                      tl.cex = .9,
                      tl.srt = 45)</code></pre>
 <p><img src="final_report_files/figure-html/corr_matrix-1.png" width="1152" /></p>
-<pre class="r"><code>## NOTES
-  ## include hisp instead of other, since highly correlated (.85)
-  ## include black not white, since highly correlated (-.87)
-  ## fit two models:
-      ## one to look at pct_eng, controlling for race (pct_eng + all races except white, other + other predictors)
-      ## one to just look at race (all races except white, other + other predictors)</code></pre>
 <p>Of relevance to our hypotheses, the following variables were highly correlated and thus may not be accurately interpreted in a model as independent predictors:</p>
 <ul>
 <li><code>pct_eng</code> and <code>year</code> (<em>r</em> = 0.76)</li>
@@ -1426,15 +1384,15 @@ joined_data_bklyn_nomissing %&gt;%
 </ul>
 <p>   </p>
 </div>
-<div id="note-on-potential-confounding" class="section level2">
-<h2><em>Note on potential confounding</em></h2>
+<div id="note-on-potential-confounding" class="section level5">
+<h5><strong>Note on potential confounding</strong></h5>
 <p>After performing exploratory data analysis and crude univariate plots (<em>not shown</em>), we found that the relationship between <code>pct_eng</code> - percent of ESL speakers - and eviction rate is confounded by <code>black</code> race.</p>
 <p>At first, the relationship between ESL speakers and eviction rate was inverse - as ESL increased, evictions actually decreased. This is counter to our hypotheses, as non-English speaking and immigrant communities have been shown to experience much higher rates of eviction. However, we knew that Black race had the potential to confound this relationship, as Black NYC communities are overwhelmingly English-speaking and also at an increased risk of eviction due to other factors.</p>
 <p>Once we adjusted for Black race in the relationship between ESL and evictions, the relationship flipped, and EsL was demonstrated to have a positive association with eviction rate, adjusting for Black race.</p>
 <p>   </p>
 </div>
-<div id="refining-and-subdefining-our-hypothesized-model" class="section level2">
-<h2>Refining and subdefining our hypothesized model</h2>
+<div id="refining-and-subdefining-our-hypothesized-model" class="section level5">
+<h5><strong>Refining and subdefining our hypothesized model</strong></h5>
 <p>We refined our hypothesized models based on our exploratory confounding and other analyses:</p>
 <ol style="list-style-type: decimal">
 <li>As noted above, ESL should not be included in a model without adjusting for Black race nor should it be interpreted independently of year due to high correlation. Thus, our first hypothesized sub-model will include ESL and percent of all race/ethnicity variables (interpreted as the independent effects of ESL and years since 2010 [highly correlated], rent burden, or population density on evictions, adjusting for each other predictor variable and race/ethnicity). [Equation 2]</li>
@@ -1468,10 +1426,10 @@ joined_data_bklyn_nomissing %&gt;%
 <p><img src="images/eq3.gif" /></p>
 <p>   </p>
 </div>
-<div id="stepwise-automatic-model-selection" class="section level2">
-<h2>Stepwise automatic model selection</h2>
+<div id="stepwise-automatic-model-selection" class="section level5">
+<h5><strong>Stepwise automatic model selection</strong></h5>
 <p>To contrast with our hypothesis-informed model building process, we wanted to test a stepwise model selection algorithm. We used the <code>gee_stepper</code> function within the <code>pstools</code> package, which performs a forward step selection process with a set of GEE predictors, using QIC to find a ‘best fit’ model.</p>
-<p>We slightly modified the function code to create our own function - <code>gee_stepper_o</code> - in order to include our offset term by default in the stepwise selection process. We’ll create a full model (<code>full_fit</code>) to use as the saturated model for our stepwise selection process.</p>
+<p>We slightly modified the function code to create our own function - <code>gee_stepper_o</code> - in order to include our offset term by default in the stepwise selection process. We’ll create a full model (<code>full_fit</code>) to use as the saturated model for our stepwise selection process, using all predictor variables listed in the earlier section.</p>
 <pre class="r"><code>## use full dataset
 full_fit =
   geeglm(evictions ~ 
@@ -1504,8 +1462,8 @@ test = gee_stepper_o(full_fit, formula(full_fit)) ## customized function to auto
 <p>In this model, to be conservative in our interpretations, <code>median_household_income</code> should not be interpreted separately from <code>poverty_rate</code> (<em>r</em> = -0.73) or <code>median_gross_rent</code> (<em>r</em> = -0.74).</p>
 <p>   </p>
 </div>
-<div id="summary-of-models" class="section level2">
-<h2>Summary of models</h2>
+<div id="summary-of-models" class="section level5">
+<h5><strong>Summary of models</strong></h5>
 <p>To summarize, we will consider the following models to predict census tract-level eviction rates:</p>
 <p>Two hypothesized models:</p>
 <ol style="list-style-type: decimal">
@@ -1518,12 +1476,9 @@ test = gee_stepper_o(full_fit, formula(full_fit)) ## customized function to auto
 <li>An empty model, in which there are no predictors, and only the outcome and offset terms are included on opposite sides of the equation, i.e. <code>evictions ~ offset(log(renter_occupied_households))</code></li>
 <li>A naive model, which only uses time to predict eviction rate, i.e. the above model, plus <code>years_since_2010</code> on the right-hand-side of the model</li>
 </ol>
-<p>   </p>
-<hr />
-<p>   </p>
 </div>
-<div id="cross-validation-of-models" class="section level2">
-<h2>Cross-validation of models</h2>
+<div id="cross-validation-of-models" class="section level5">
+<h5><strong>Cross-validation of models</strong></h5>
 <p>Since our data are modelled using GEE and are not all nested within each other, there is not a straightforward way to compare their prediction capabilities such as hypothesis testing or AIC (in this case, QIC). However, we can use <strong>cross validation</strong>, which allows us to compare prediction accuracy across non-nested models. While this technique does not allow us to assess statistical significance of hypotheses/models/predictors tested, we still believe it will be useful in gauging model usefulness.</p>
 <p>Specifically, we will compare the repeat-sampled distribution of each model’s <strong>root mean squared error</strong>, with lower values indicating lower error and better overall prediction.</p>
 <p>(Technical notes: We resampled 100 training/testing splits [default 80% training, 20% testing] on our data using the function <code>crossv_mc</code>. We then ran our 5 models on each of our 100 resampled training datasets, then extracted the root mean squared error as a measure of how well our training models predicted our testing data. 100 RMSEs resulted for each model, the distributions of which were then grouped by model and comparatively plotted using <code>ggplot</code> and <code>geom_violin</code> [violin plots].)</p>
@@ -1580,8 +1535,9 @@ step_model =
            family = poisson, 
            data = joined_data_bklyn_nomissing, 
            id = geoid, 
-           corstr = &quot;ar1&quot;)</code></pre>
-<pre class="r"><code>## cross-validation
+           corstr = &quot;ar1&quot;)
+
+## cross-validation
 
 set.seed(2)
 
@@ -1657,7 +1613,7 @@ model_data_cv %&gt;%
   scale_fill_brewer(type = &#39;seq&#39;, palette = &#39;Purples&#39;) +
   theme(legend.position = &#39;none&#39;,
         plot.title = element_text(hjust = 0.5))</code></pre>
-<p><img src="final_report_files/figure-html/cv-1.png" width="864" /></p>
+<p><img src="images/cv_img.png" /></p>
 <p>As we can see, our empty and naive models are clearly inferior in terms of their prediction abilities to our other hypothesized models, with our stepwise model somewhere in the middle.</p>
 <p>(<em>Note:</em> None of our models had particularly good predictive capabilities, and the differences between our models given their RMSE distributions is comparatively small. However, we will assume that the difference in RMSE is still meaningful.)</p>
 <p>Since our hypothesized models have the best predictive capabilities, we will opt for model parsimony and select the simplest model with the most easily-interpretable results: the hypothesized model based primarily on the independent effects of non-White race/ethnicity percentages, rent burden, population density, and years since 2010 [Equation 3, described above and re-printed below].</p>
@@ -1665,8 +1621,8 @@ model_data_cv %&gt;%
 <p><img src="images/eq3.gif" /></p>
 <p>   </p>
 </div>
-<div id="conclusions" class="section level2">
-<h2>Conclusions</h2>
+<div id="conclusions" class="section level5">
+<h5><strong>Conclusions</strong></h5>
 <p>Our model can be estimated via GEE:</p>
 <pre class="r"><code>hyp_model_race = 
   geeglm(evictions ~

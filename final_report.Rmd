@@ -957,7 +957,7 @@ As we explore in subsequent analyses, changing eviction rates may very well be i
 # Formal Analysis
 <font size = "4"><i>Predictors of Eviction in Brooklyn, 2010-2016</font></i>
 
-## Setup
+##### **Setup**
 
 ```{r setup_analysis, include=FALSE}
 options(scipen = 999)
@@ -1005,7 +1005,7 @@ joined_data_bklyn_nomissing =
 &nbsp;
 &nbsp;
 
-## Overview
+##### **Overview**
 
 Using existing data, we wanted to investigate factors that are associated with - and can potentially be used to predict - eviction rates among census tracts in Brooklyn. 
 
@@ -1033,40 +1033,7 @@ joined_data_bklyn_nomissing %>%
 &nbsp;
 &nbsp;
 
-## Relevant predictors
-
-Although we formulated specific hypotheses regarding predictors of eviction in Brooklyn based on existing research, we wanted to include as many potential predictors as possible to test against our hypothesized predictors. The data we are using includes the following variables:
-
-  * `evictions`. Number of evictions at census level.
-  * `eviction_filings`. Number of eviction filings at census level.
-  * `renter_occupied_households`. Number of renter occupied households in census tract. As mentioned above, this forms the denominator of our modelled rate and will be included in all models as an offset term (as `log(renter_occupied_households)`).
-  * `years_since_2010`. Since our data range from 2010 to 2016, and we did not want to assume a constant effect of time, we included year as a set of indicator variables in all models except our empty model (see below).
-  * `hisp`. Percent of population (at census tract level, for all race/ethnicity variables) that self-report Hispanic ethnicity.
-  * `white`. Percent self-reporting White race.
-  * `black`. Percent self-reporting Black race.
-  * `asian`. Percent self-reporting Asian race.
-  * `aian`. Percent self-reporting American Indian / Alaska Native race.
-  * `nhpi`. Percent self-reporting Native Hawaiian / Pacific Islander race.
-  * `other`. Percent self-reporting other race.
-  * `rent_burden`. Average percent of income spent on rent.
-  * `density`. Population density.
-  * `pct_eng`. Percent of population who speak English less than 'Very Well'. This is interpreted as a proxy for percent English as a second language (ESL) speakers. 
-  * `median_household_income`. Median census tract household income in USD.
-  * `poverty_rate`. Percent living below Federal Poverty Line (FPL).
-  * `median_gross_rent`. Median census tract gross rent in USD.
-  * `pct_renter_occupied`. Percent of census tract occupied by renters.
-  * `median_property_value`. Median census tract property value in USD.
-  * `family_size`. Average family size in census tract.
-  * `pct_fam_households`. Percentage of census tract households that contain families.
-
-*Note:* Since our repeated data are clustered within census tracts, we could not include neighborhood, an otherwise important predictor of eviction rates. If we wanted to conduct models similar to these but (1) within census tracts across time AND (2) also modelling census tracts clustered within neighborhoods, we would have to move into some sort of hierarchical/multilevel modelling structure.
-
-In our model-building Shiny app (see 'Interactive Model', navigation bar), readers can stratify these analyses by neighborhood, which may allow some conclusions regarding neighborhood-level effects (as opposed to just Brooklyn-level).
-
-&nbsp;
-&nbsp;
-
-## Hypothesis
+##### **Hypothesis**
 
 Based on prior reading and research, we hypothesize the following predictors of eviction count at the census tract level. See above for variable definitions.
 
@@ -1106,7 +1073,7 @@ Based on prior reading and research, we hypothesize the following predictors of 
 &nbsp;
 &nbsp;
 
-## Correlation matrix
+##### **Correlation matrix**
 
 Before proceeding, it is important to assess crude correlation among our relevant variables, in case issues of multicollinearity arise during model development.
 
@@ -1130,12 +1097,6 @@ joined_data_bklyn_nomissing %>%
                      tl.cex = .9,
                      tl.srt = 45)
 
-## NOTES
-  ## include hisp instead of other, since highly correlated (.85)
-  ## include black not white, since highly correlated (-.87)
-  ## fit two models:
-      ## one to look at pct_eng, controlling for race (pct_eng + all races except white, other + other predictors)
-      ## one to just look at race (all races except white, other + other predictors)
 ```
 
 Of relevance to our hypotheses, the following variables were highly correlated and thus may not be accurately interpreted  in a model as independent predictors:
@@ -1147,7 +1108,7 @@ Of relevance to our hypotheses, the following variables were highly correlated a
 &nbsp;
 &nbsp;
 
-## *Note on potential confounding*
+##### **Note on potential confounding**
 
 After performing exploratory data analysis and crude univariate plots (*not shown*), we found that the relationship between `pct_eng` - percent of ESL speakers - and eviction rate is confounded by `black` race. 
 
@@ -1158,7 +1119,7 @@ Once we adjusted for Black race in the relationship between ESL and evictions, t
 &nbsp;
 &nbsp;
 
-## Refining and subdefining our hypothesized model
+##### **Refining and subdefining our hypothesized model**
 
 We refined our hypothesized models based on our exploratory confounding and other analyses:
 
@@ -1203,11 +1164,11 @@ We refined our hypothesized models based on our exploratory confounding and othe
 &nbsp;
 &nbsp;
 
-## Stepwise automatic model selection
+##### **Stepwise automatic model selection**
 
 To contrast with our hypothesis-informed model building process, we wanted to test a stepwise model selection algorithm. We used the `gee_stepper` function within the `pstools` package, which performs a forward step selection process with a set of GEE predictors, using QIC to find a 'best fit' model.
 
-We slightly modified the function code to create our own function - `gee_stepper_o` - in order to include our offset term by default in the stepwise selection process. We'll create a full model (`full_fit`) to use as the saturated model for our stepwise selection process.
+We slightly modified the function code to create our own function - `gee_stepper_o` - in order to include our offset term by default in the stepwise selection process. We'll create a full model (`full_fit`) to use as the saturated model for our stepwise selection process, using all predictor variables listed in the earlier section.
 
 
 ```{r stepwise, eval = FALSE}
@@ -1249,7 +1210,7 @@ In this model, to be conservative in our interpretations, `median_household_inco
 &nbsp;
 
 
-## Summary of models
+##### **Summary of models**
 
 To summarize, we will consider the following models to predict census tract-level eviction rates:
 
@@ -1264,16 +1225,9 @@ In addition to these three models (1, 2, 3), we propose two baseline models:
 
   4. An empty model, in which there are no predictors, and only the outcome and offset terms are included on opposite sides of the equation, i.e. `evictions ~ offset(log(renter_occupied_households))`
   5. A naive model, which only uses time to predict eviction rate, i.e. the above model, plus `years_since_2010` on the right-hand-side of the model
-  
-&nbsp;
-&nbsp;
 
-***
 
-&nbsp;
-&nbsp;
-
-## Cross-validation of models
+##### **Cross-validation of models**
 
 Since our data are modelled using GEE and are not all nested within each other, there is not a straightforward way to compare their prediction capabilities such as hypothesis testing or AIC (in this case, QIC). However, we can use **cross validation**, which allows us to compare prediction accuracy across non-nested models. While this technique does not allow us to assess statistical significance of hypotheses/models/predictors tested, we still believe it will be useful in gauging model usefulness. 
 
@@ -1281,7 +1235,7 @@ Specifically, we will compare the repeat-sampled distribution of each model's **
 
 (Technical notes: We resampled 100 training/testing splits [default 80% training, 20% testing] on our data using the function `crossv_mc`. We then ran our 5 models on each of our 100 resampled training datasets, then extracted the root mean squared error as a measure of how well our training models predicted our testing data. 100 RMSEs resulted for each model, the distributions of which were then grouped by model and comparatively plotted using `ggplot` and `geom_violin` [violin plots].)
 
-```{r models}
+```{r models_cv, fig.width = 9, eval = FALSE}
 ## specifying models
 
 ## empty model
@@ -1337,9 +1291,6 @@ step_model =
            id = geoid, 
            corstr = "ar1")
 
-```
-
-```{r cv, fig.width = 9}
 ## cross-validation
 
 set.seed(2)
@@ -1419,6 +1370,8 @@ model_data_cv %>%
 
 ```
 
+![](./images/cv_img.png)
+
 As we can see, our empty and naive models are clearly inferior in terms of their prediction abilities to our other hypothesized models, with our stepwise model somewhere in the middle.
 
 (*Note:* None of our models had particularly good predictive capabilities, and the differences between our models given their RMSE distributions is comparatively small. However, we will assume that the difference in RMSE is still meaningful.)
@@ -1433,7 +1386,7 @@ Since our hypothesized models have the best predictive capabilities, we will opt
 &nbsp;
 &nbsp;
 
-## Conclusions
+##### **Conclusions**
 
 Our model can be estimated via GEE:
 
