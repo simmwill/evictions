@@ -550,8 +550,6 @@ joined_data_bklyn_nomissing %>%
 
 ## Exploratory Analysis
 
-&nbsp;
-
 ### *Evictions Over Time 2000-2016*
 **Question: How have eviction rates in Brooklyn changed over time?**
 
