@@ -19,7 +19,7 @@ navbar:
     - text: "Project Report"
       href: final_report.html
     - icon: fa-youtube fa-lg
-      href: https://youtube.com
+      href: https://www.youtube.com/watch?v=W-cQ8M_y7MY&feature=youtu.be&hd=1
     - icon: fa-github fa-lg
       href: https://github.com/simmwill/evictions
 
